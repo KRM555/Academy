@@ -1,0 +1,8 @@
+{
+  "name": "منصة أكاديمية رواد الغد التعليمية | Rawad Al-Ghad Academy",
+  "description": "أكاديمية تعليمية وتربوية رائدة للأطفال في العالم العربي والسعودية، لتعليم القرآن الكريم، التأسيس اللغوي، المهارات الذكية، واستشارات الأمهات، مع لوحة تحكم مؤمنة للإدارة والمعلم.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
