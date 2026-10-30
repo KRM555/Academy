@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Currency, TimezoneInfo, UserAuth } from './types';
 import { CURRENCIES, TIMEZONES } from './data/academyData';
 import { Language, translations } from './data/translations';
+import { api } from './services/api';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { PathAdvisor } from './components/PathAdvisor';
@@ -14,6 +15,7 @@ import { LegalPages } from './components/LegalPages';
 import { TestimonialsSection } from './components/TestimonialsSection';
 import { ContactForm } from './components/ContactForm';
 import { HomeFeaturedServices } from './components/HomeFeaturedServices';
+import { FloatingTrialButton } from './components/FloatingTrialButton';
 import { Footer } from './components/Footer';
 import { ArrowLeft, ArrowRight, BookOpen, Sparkles, Award, Heart, Check } from 'lucide-react';
 
@@ -38,13 +40,16 @@ export default function App() {
   const [customBookingNote, setCustomBookingNote] = useState('');
   const [coursesRefreshTrigger, setCoursesRefreshTrigger] = useState(0);
 
-  // Check saved preferences and session on load & sync page from URL hash if present
+  // Check saved preferences and verify session with server on load
   useEffect(() => {
-    try {
-      const savedUser = localStorage.getItem('academy_auth_user');
-      if (savedUser) {
-        setCurrentUser(JSON.parse(savedUser));
+    // Verify session via httpOnly cookie on boot (Phase 1.1)
+    api.auth.getMe().then((res) => {
+      if (res.user) {
+        setCurrentUser(res.user);
       }
+    }).catch(() => {});
+
+    try {
 
       const savedLang = localStorage.getItem('academy_lang') as Language;
       if (savedLang === 'ar' || savedLang === 'en') {
@@ -135,20 +140,15 @@ export default function App() {
 
   const handleLoginSuccess = (user: UserAuth) => {
     setCurrentUser(user);
-    try {
-      localStorage.setItem('academy_auth_user', JSON.stringify(user));
-    } catch (e) {
-      console.warn(e);
-    }
   };
 
-  const handleLogout = () => {
-    setCurrentUser(null);
+  const handleLogout = async () => {
     try {
-      localStorage.removeItem('academy_auth_user');
-    } catch (e) {
-      console.warn(e);
+      await api.auth.logout();
+    } catch {
+      // Continue client cleanup
     }
+    setCurrentUser(null);
   };
 
   const openTrialBooking = (programTitle?: string, note?: string) => {
@@ -501,6 +501,13 @@ export default function App() {
         preSelectedProgramTitle={selectedProgramTitleForBooking}
         customNote={customBookingNote}
         currentLanguage={currentLanguage}
+      />
+
+      {/* Floating 'Book a Trial' Quick Action Button (Bottom-Right, persistent during scrolling) */}
+      <FloatingTrialButton
+        onOpenTrial={() => openTrialBooking()}
+        currentLanguage={currentLanguage}
+        isHidden={isEnrollmentModalOpen}
       />
 
       {/* Footer (Always accessible, links to all pages and legal terms) */}

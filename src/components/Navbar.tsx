@@ -42,6 +42,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   currentTimezone,
   onTimezoneChange,
   onOpenTrial,
+  userRole,
   currentLanguage,
   onToggleLanguage,
   isDarkMode,
@@ -160,7 +161,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                         }`}
                       >
                         <span className="flex items-center gap-1.5">
-                          <span>{curr.flag}</span>
+                          <span className="font-mono text-slate-400 font-bold">{curr.code}</span>
                           <span>{curr.name}</span>
                         </span>
                         <span className="font-mono text-slate-500 dark:text-slate-400">{curr.symbol}</span>
@@ -357,21 +358,22 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
         </nav>
 
-        {/* Action Controls: Teacher Portal & CTA Button */}
+        {/* Action Controls: User Portal (only when authenticated) & CTA Button */}
         <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
-          {/* Dashboard / Teacher Portal Button (Always prominent, never clipped) */}
-          <button
-            onClick={() => onNavigate('dashboard')}
-            className={`flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl border transition-all whitespace-nowrap cursor-pointer shrink-0 shadow-2xs ${
-              currentPage === 'dashboard'
-                ? 'bg-[#0F2942] text-white border-[#0F2942] ring-2 ring-emerald-400/40'
-                : 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-900 dark:text-emerald-200 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 border-emerald-300 dark:border-emerald-700'
-            }`}
-            title={t.navPortal}
-          >
-            <Lock className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-            <span>{t.navPortal}</span>
-          </button>
+          {userRole && (
+            <button
+              onClick={() => onNavigate('dashboard')}
+              className={`flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl border transition-all whitespace-nowrap cursor-pointer shrink-0 shadow-2xs ${
+                currentPage === 'dashboard'
+                  ? 'bg-[#0F2942] text-white border-[#0F2942] ring-2 ring-emerald-400/40'
+                  : 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-900 dark:text-emerald-200 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 border-emerald-300 dark:border-emerald-700'
+              }`}
+              title={t.navPortal}
+            >
+              <Lock className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <span>{t.navPortal}</span>
+            </button>
+          )}
 
           {/* Primary CTA (Free Trial Class) */}
           <button
@@ -413,20 +415,22 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
             ))}
 
-            {/* Portal Link in Drawer */}
-            <button
-              onClick={() => {
-                onNavigate('dashboard');
-                setMobileMenuOpen(false);
-              }}
-              className="text-right px-3 py-2.5 rounded-xl bg-slate-900 dark:bg-slate-800 text-white font-bold flex items-center justify-between cursor-pointer"
-            >
-              <span className="flex items-center gap-2">
-                <Lock className="w-4 h-4 text-emerald-400" />
-                <span>{t.navPortal}</span>
-              </span>
-              <span className="text-xs text-emerald-400">دخول</span>
-            </button>
+            {/* Portal Link in Drawer (only for authenticated staff) */}
+            {userRole && (
+              <button
+                onClick={() => {
+                  onNavigate('dashboard');
+                  setMobileMenuOpen(false);
+                }}
+                className="text-right px-3 py-2.5 rounded-xl bg-slate-900 dark:bg-slate-800 text-white font-bold flex items-center justify-between cursor-pointer"
+              >
+                <span className="flex items-center gap-2">
+                  <Lock className="w-4 h-4 text-emerald-400" />
+                  <span>{t.navPortal}</span>
+                </span>
+                <span className="text-xs text-emerald-400">لوحة التحكم</span>
+              </button>
+            )}
           </div>
 
           {/* Mobile Utilities Strip (Language & Dark Mode) */}
@@ -472,7 +476,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               >
                 {CURRENCIES.map((c) => (
                   <option key={c.code} value={c.code}>
-                    {c.flag} {c.name} ({c.symbol})
+                    {c.name} ({c.code})
                   </option>
                 ))}
               </select>

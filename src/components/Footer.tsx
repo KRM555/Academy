@@ -98,11 +98,6 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenTrial, current
                   {t.navMothers}
                 </button>
               </li>
-              <li>
-                <button onClick={() => onNavigate('dashboard')} className="hover:text-emerald-400 transition-colors cursor-pointer text-amber-300 font-bold">
-                  {t.navPortal}
-                </button>
-              </li>
             </ul>
           </div>
 
@@ -141,13 +136,6 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenTrial, current
                 className="block rtl:text-right ltr:text-left text-slate-400 hover:text-emerald-400 transition-colors cursor-pointer"
               >
                 {t.footerTerms}
-              </button>
-
-              <button
-                onClick={() => onNavigate('dashboard')}
-                className="block rtl:text-right ltr:text-left text-emerald-400 hover:text-emerald-300 transition-colors cursor-pointer pt-2 font-bold"
-              >
-                {t.footerPortal}
               </button>
             </div>
           </div>

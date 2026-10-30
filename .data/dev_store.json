@@ -1,0 +1,121 @@
+{
+  "users": [
+    {
+      "id": "usr-1c37a3c3-2249-4a33-a501-b7c80b868798",
+      "email": "admin@noor-bayan.com",
+      "passwordHash": "$2b$12$5u/bRKY6/76CbPPIQw1eQ.ZCs49CLEwG18miNx9dE4QQLYqlSUipi",
+      "name": "مشرف المنصة",
+      "role": "admin",
+      "permissions": [
+        "all"
+      ],
+      "createdAt": "2026-10-30T19:18:54.118Z"
+    },
+    {
+      "id": "usr-b74bdce6-1a84-48f8-9fca-c830238ae1b6",
+      "email": "teacher@noor-bayan.com",
+      "passwordHash": "$2b$12$YwMkqDrr1pbNmUCW7znWS.m93kcMeNC./nupXu2fnVbT74RxPSEb6",
+      "name": "أ. خديجة الأنصاري",
+      "role": "teacher",
+      "permissions": [
+        "assigned_students",
+        "payouts"
+      ],
+      "createdAt": "2026-10-30T19:19:03.648Z"
+    }
+  ],
+  "courses": [
+    {
+      "id": "prog-quran-hifz",
+      "title": "حلقات تحفيظ القرآن الكريم وتجويده",
+      "subtitle": "حفظ وتثبيت القرآن الكريم بأحكام التلاوة الصحيحة ومخارج الحروف",
+      "ageBracket": "5 - 15 سنة",
+      "minAge": 5,
+      "maxAge": 15,
+      "category": "quran",
+      "deliveryMode": "online",
+      "image": "/images/hero_learning.webp",
+      "description": "حلقات مصغرة مباشرة عبر غرف زوم التفاعلية، تركز على الحفظ المتقن والتجويد العملي.",
+      "weeklySessions": 3,
+      "sessionDurationMins": 45,
+      "priceSar": 280,
+      "billingUnit": "شهرياً (حسب خطة الحصص)",
+      "installmentsEligible": true,
+      "features": [
+        "حلقات مصغرة مباشرة",
+        "متابعة فردية لمخارج الحروف",
+        "تقارير أسبوعية لولي الأمر"
+      ]
+    },
+    {
+      "id": "prog-arabic-foundations",
+      "title": "برنامج التأسيس اللغوي والقراءة السليمة",
+      "subtitle": "بناء الطلاقة اللغوية ومخارج الحروف والنطق الفصيح",
+      "ageBracket": "4 - 9 سنوات",
+      "minAge": 4,
+      "maxAge": 9,
+      "category": "arabic",
+      "deliveryMode": "online",
+      "image": "/images/quran_kids.webp",
+      "description": "منهج تأسيسي متدرج للأطفال لبناء المهارات القرائية السليمة وتعزيز الفصاحة.",
+      "weeklySessions": 3,
+      "sessionDurationMins": 45,
+      "priceSar": 260,
+      "billingUnit": "شهرياً (حسب خطة الحصص)",
+      "installmentsEligible": true,
+      "features": [
+        "تعليم الحروف بحركاتها ومخارجها",
+        "قراءة الكلمات والجمل الفصيحة",
+        "قصص تفاعلية مصورة"
+      ]
+    },
+    {
+      "id": "prog-islamic-values",
+      "title": "مسار غرس القيم وبناء الشخصية المسلمة",
+      "subtitle": "الآداب النبوية، السيرة العطرة، وتعديل السلوك الإيجابي",
+      "ageBracket": "6 - 13 سنة",
+      "minAge": 6,
+      "maxAge": 13,
+      "category": "values",
+      "deliveryMode": "online",
+      "image": "/images/mothers_session.webp",
+      "description": "جلسات تربوية حوارية تغرس القيم والأخلاق الحميدة والأذكار اليومية بأسلوب تفاعلي.",
+      "weeklySessions": 2,
+      "sessionDurationMins": 50,
+      "priceSar": 230,
+      "billingUnit": "شهرياً (حسب خطة الحصص)",
+      "installmentsEligible": false,
+      "features": [
+        "سيرة النبي ﷺ وقصص الصحابة",
+        "الآداب والأذكار اليومية",
+        "تطبيقات عملية في الحياة اليومية"
+      ]
+    },
+    {
+      "id": "prog-stem-coding",
+      "title": "نادي البرمجة والتفكير المنطقي للصغار",
+      "subtitle": "مبادئ التفكير البرمجي وبناء الألعاب التفاعلية باللغة العربية",
+      "ageBracket": "7 - 14 سنة",
+      "minAge": 7,
+      "maxAge": 14,
+      "category": "tech",
+      "deliveryMode": "online",
+      "image": "/images/stem_robotics.webp",
+      "description": "مدخل ممتع ومحمي لعلوم الحاسوب وبناء القصص والألعاب الرقمية.",
+      "weeklySessions": 2,
+      "sessionDurationMins": 60,
+      "priceSar": 340,
+      "billingUnit": "شهرياً (حسب خطة الحصص)",
+      "installmentsEligible": true,
+      "features": [
+        "البرمجة المرئية التفاعلية",
+        "حل المشكلات والتفكير الإبداعي",
+        "مشاريع عملية أسبوعية"
+      ]
+    }
+  ],
+  "students": [],
+  "payouts": [],
+  "leads": [],
+  "inquiries": []
+}
