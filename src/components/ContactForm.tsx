@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Language, translations } from '../data/translations';
+import { siteConfig, getWhatsAppUrl } from '../config/siteConfig';
 import {
   Mail,
   Send,
@@ -52,6 +53,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ currentLanguage }) => 
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [submitErrorMessage, setSubmitErrorMessage] = useState<string | null>(null);
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [submittedTicket, setSubmittedTicket] = useState<{
     id: string;
@@ -164,6 +166,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ currentLanguage }) => 
     }
 
     setIsSubmitting(true);
+    setSubmitErrorMessage(null);
 
     try {
       const response = await fetch('/api/contact/submit', {
@@ -173,8 +176,11 @@ export const ContactForm: React.FC<ContactFormProps> = ({ currentLanguage }) => 
       });
       const result = await response.json();
 
-      const ticketId =
-        result.ticketId || `NB-INQ-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || (isAr ? 'حدث خطأ أثناء إرسال الاستفسار، يرجى المحاولة مرة أخرى.' : 'Error sending inquiry, please try again.'));
+      }
+
+      const ticketId = result.ticketId || `NB-INQ-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
       const newSubmission = {
         id: ticketId,
         date: new Date().toLocaleDateString(isAr ? 'ar-SA' : 'en-US', {
@@ -187,44 +193,14 @@ export const ContactForm: React.FC<ContactFormProps> = ({ currentLanguage }) => 
         data: { ...formData },
       };
 
-      // Persist in localStorage so it can be viewed or tracked
-      try {
-        const stored = localStorage.getItem('noor_bayan_inquiries');
-        const list = stored ? JSON.parse(stored) : [];
-        list.unshift(newSubmission);
-        localStorage.setItem('noor_bayan_inquiries', JSON.stringify(list.slice(0, 50)));
-      } catch (err) {
-        console.warn('Could not save inquiry to local storage', err);
-      }
-
       setSubmittedTicket(newSubmission);
       setIsSuccess(true);
-    } catch (err) {
-      console.warn('Network fallback for submission', err);
-      const ticketId = `NB-INQ-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
-      const newSubmission = {
-        id: ticketId,
-        date: new Date().toLocaleDateString(isAr ? 'ar-SA' : 'en-US', {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-        }),
-        data: { ...formData },
-      };
-
-      try {
-        const stored = localStorage.getItem('noor_bayan_inquiries');
-        const list = stored ? JSON.parse(stored) : [];
-        list.unshift(newSubmission);
-        localStorage.setItem('noor_bayan_inquiries', JSON.stringify(list.slice(0, 50)));
-      } catch (storageErr) {
-        console.warn('Could not save inquiry to local storage', storageErr);
-      }
-
-      setSubmittedTicket(newSubmission);
-      setIsSuccess(true);
+    } catch (err: any) {
+      console.warn('Submission error', err);
+      setSubmitErrorMessage(
+        err.message || (isAr ? 'تعذر إرسال الاستفسار في الوقت الحالي. يرجى التحقق من اتصالك وإعادة المحاولة.' : 'Could not submit your inquiry at this time. Please check your connection and retry.')
+      );
+      setIsSuccess(false);
     } finally {
       setIsSubmitting(false);
     }
@@ -241,6 +217,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ currentLanguage }) => 
     setTouched({});
     setErrors({});
     setIsSuccess(false);
+    setSubmitErrorMessage(null);
     setSubmittedTicket(null);
   };
 
@@ -264,21 +241,21 @@ export const ContactForm: React.FC<ContactFormProps> = ({ currentLanguage }) => 
   // WhatsApp link with prefilled inquiry message
   const generateWhatsAppUrl = () => {
     const ticket = submittedTicket?.id || '';
-    const text = encodeURIComponent(
-      `السلام عليكم ورحمة الله، أود المتابعة بخصوص استفساري في أكاديمية نور وبيان.\n` +
+    const text =
+      `السلام عليكم ورحمة الله، أود المتابعة بخصوص استفساري.\n` +
       `الاسم: ${formData.fullName}\n` +
       (ticket ? `رقم التذكرة: ${ticket}\n` : '') +
       `الموضوع: ${formData.subject}\n` +
-      `الرسالة: ${formData.message}`
-    );
-    return `https://wa.me/966500000000?text=${text}`;
+      `الرسالة: ${formData.message}`;
+    return getWhatsAppUrl(text);
   };
 
+  const directWhatsAppUrl = getWhatsAppUrl(
+    isAr ? 'السلام عليكم، أود الاستفسار عن فصول الأكاديمية للأطفال' : 'Hello, I would like to inquire about academy classes'
+  );
+
   return (
-    <section id="contact" className="py-20 bg-gradient-to-b from-[#FAF9F6] to-white dark:from-[#070E18] dark:to-[#0B1522] border-t border-slate-200 dark:border-slate-800 transition-colors duration-200 relative overflow-hidden">
-      {/* Decorative ambient backgrounds */}
-      <div className="absolute top-1/2 left-0 w-80 h-80 bg-emerald-500/5 dark:bg-emerald-500/10 rounded-full blur-3xl pointer-events-none -translate-y-1/2" />
-      <div className="absolute bottom-0 right-0 w-80 h-80 bg-teal-500/5 dark:bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
+    <section id="contact" className="py-20 bg-white dark:bg-[#070E18] border-t border-slate-200 dark:border-slate-800 transition-colors duration-200 relative">
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
@@ -382,17 +359,19 @@ export const ContactForm: React.FC<ContactFormProps> = ({ currentLanguage }) => 
                 <span>{t.contactResponseTime}</span>
               </div>
 
-              <div className="mt-4">
-                <a
-                  href="https://wa.me/966500000000"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold shadow-xs hover:shadow-md transition-all cursor-pointer"
-                >
-                  <PhoneCall className="w-4 h-4" />
-                  <span>{isAr ? 'محادثة فورية عبر واتساب' : 'Instant WhatsApp Chat'}</span>
-                </a>
-              </div>
+              {directWhatsAppUrl && (
+                <div className="mt-4">
+                  <a
+                    href={directWhatsAppUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold shadow-xs hover:shadow-md transition-all cursor-pointer"
+                  >
+                    <PhoneCall className="w-4 h-4" />
+                    <span>{isAr ? 'محادثة فورية عبر واتساب' : 'Instant WhatsApp Chat'}</span>
+                  </a>
+                </div>
+              )}
             </div>
 
             {/* Platform Guarantees Strip */}
@@ -598,6 +577,13 @@ export const ContactForm: React.FC<ContactFormProps> = ({ currentLanguage }) => 
                   </div>
 
                   {/* Submit Button & Assurance */}
+                  {submitErrorMessage && (
+                    <div role="alert" className="p-3.5 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200 text-xs sm:text-sm flex items-start gap-2.5">
+                      <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
+                      <div>{submitErrorMessage}</div>
+                    </div>
+                  )}
+
                   <div className="pt-2">
                     <button
                       type="submit"
@@ -617,12 +603,12 @@ export const ContactForm: React.FC<ContactFormProps> = ({ currentLanguage }) => 
                       )}
                     </button>
 
-                    <div className="mt-3 text-center text-[11px] text-slate-500 dark:text-slate-400 flex items-center justify-center gap-1.5">
+                    <div className="mt-3 text-center text-xs text-slate-500 dark:text-slate-400 flex items-center justify-center gap-1.5">
                       <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                       <span>
                         {isAr
-                          ? 'استفسارك يصل فوراً إلى صندوق بريد الأكاديمية الرسمي دون أي تأخير.'
-                          : 'Your inquiry dispatches straight into our official inbox with zero delay.'}
+                          ? 'يتم استلام استفسارك وتسجيله لمراجعته والتواصل معكم قريباً.'
+                          : 'Your inquiry is securely recorded for our academic team to review.'}
                       </span>
                     </div>
                   </div>
@@ -685,15 +671,17 @@ export const ContactForm: React.FC<ContactFormProps> = ({ currentLanguage }) => 
                       <span>{t.formDirectMail}</span>
                     </a>
 
-                    <a
-                      href={generateWhatsAppUrl()}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-colors cursor-pointer"
-                    >
-                      <MessageSquare className="w-3.5 h-3.5" />
-                      <span>{t.formDirectWa}</span>
-                    </a>
+                    {generateWhatsAppUrl() && (
+                      <a
+                        href={generateWhatsAppUrl()!}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-colors cursor-pointer"
+                      >
+                        <MessageSquare className="w-3.5 h-3.5" />
+                        <span>{t.formDirectWa}</span>
+                      </a>
+                    )}
                   </div>
 
                   <div>

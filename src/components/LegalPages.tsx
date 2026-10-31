@@ -72,12 +72,12 @@ export const LegalPages: React.FC<LegalPagesProps> = ({ type, onBack, currentLan
 
               <section className="space-y-2">
                 <h3 className="text-base font-bold text-[#0F2942] dark:text-white">
-                  {isAr ? '3. حماية المعاملات والبيانات المالية (PCI-DSS)' : '3. Payment & Financial Data Protection'}
+                  {isAr ? '3. حماية المعاملات والبيانات المالية' : '3. Payment & Financial Data Protection'}
                 </h3>
                 <p>
                   {isAr
-                    ? 'لا تقوم أكاديمية نور وبيان بتخزين أي أرقام بطاقات مصرفية أو أرقام سرية (CVV) على خوادمها الخاصة. جميع عمليات الدفع تتم عبر بوابات دفع بنكية معتمدة ومشفرة (مدى، تابي، تمارا، البطاقات الائتمانية) بتشفير 256-bit SSL.'
-                    : 'We do not store full card numbers or CVV codes on our servers. All transactions are securely routed through PCI-DSS certified payment processors (Mada, Tabby, Tamara, Visa/Mastercard) with 256-bit encryption.'}
+                    ? 'لا تقوم الأكاديمية بتخزين أي أرقام بطاقات مصرفية أو أرقام سرية (CVV) على خوادمها الخاصة. جميع عمليات الدفع تتم عبر بوابات دفع بنكية معتمدة ومشفرة بتشفير آمن.'
+                    : 'We do not store full card numbers or CVV codes on our servers. All transactions are securely routed through certified and encrypted payment processors.'}
                 </p>
               </section>
 

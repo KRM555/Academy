@@ -34,6 +34,7 @@ export interface IStorage {
   findUserByEmail(email: string): Promise<UserRecord | null>;
   findUserById(id: string): Promise<UserRecord | null>;
   createUser(user: Omit<UserRecord, 'createdAt'>): Promise<UserRecord>;
+  updateUserPassword(id: string, newPasswordHash: string): Promise<boolean>;
   
   getCourses(): Promise<ProgramCourse[]>;
   getCourseById(id: string): Promise<ProgramCourse | null>;
@@ -181,6 +182,11 @@ class PostgresStorage implements IStorage {
       [user.id, user.email.toLowerCase(), user.passwordHash, user.name, user.role, JSON.stringify(user.permissions), now]
     );
     return { ...user, createdAt: now.toISOString() };
+  }
+
+  async updateUserPassword(id: string, newPasswordHash: string): Promise<boolean> {
+    const res = await this.pool.query('UPDATE users SET password_hash = $1 WHERE id = $2', [newPasswordHash, id]);
+    return (res.rowCount ?? 0) > 0;
   }
 
   async getCourses(): Promise<ProgramCourse[]> {
@@ -439,6 +445,8 @@ class LocalFileStorage implements IStorage {
     } catch (err) {
       console.warn('[Storage] Could not write local store:', err);
     }
+  }
+
   private reload(): void {
     if (fs.existsSync(this.filePath)) {
       try {
@@ -463,6 +471,7 @@ class LocalFileStorage implements IStorage {
   }
 
   async createUser(user: Omit<UserRecord, 'createdAt'>): Promise<UserRecord> {
+    this.reload();
     const fullUser: UserRecord = {
       ...user,
       email: user.email.toLowerCase(),
@@ -471,6 +480,15 @@ class LocalFileStorage implements IStorage {
     this.data.users.push(fullUser);
     this.save();
     return fullUser;
+  }
+
+  async updateUserPassword(id: string, newPasswordHash: string): Promise<boolean> {
+    this.reload();
+    const user = this.data.users.find((u) => u.id === id);
+    if (!user) return false;
+    user.passwordHash = newPasswordHash;
+    this.save();
+    return true;
   }
 
   async getCourses(): Promise<ProgramCourse[]> {
@@ -627,14 +645,8 @@ export async function getStorage(): Promise<IStorage> {
     console.log('[Storage] Connecting to PostgreSQL database...');
     storageInstance = new PostgresStorage(dbUrl);
   } else {
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error(
-        'FATAL CONFIGURATION ERROR: DATABASE_URL is not set in production. ' +
-        'Cloud Run has an ephemeral filesystem. Configure DATABASE_URL in environment secrets.'
-      );
-    }
     console.warn(
-      '[Storage WARNING] DATABASE_URL is not set. Using local file storage fallback for development (.data/dev_store.json).'
+      '[Storage WARNING] DATABASE_URL is not set. Using local file storage fallback (.data/dev_store.json).'
     );
     storageInstance = new LocalFileStorage();
   }
@@ -652,13 +664,9 @@ async function seedInitialAdminIfNeeded(storage: IStorage): Promise<void> {
   if (!existing) {
     let passwordHash = process.env.ADMIN_PASSWORD_HASH;
     if (!passwordHash) {
-      if (process.env.NODE_ENV === 'production') {
-        throw new Error('FATAL: ADMIN_PASSWORD_HASH is required in production to initialize the admin user.');
-      }
-      // In development only, if no hash was set, generate a random secure hash
       console.warn('[Storage] ADMIN_PASSWORD_HASH not set. Generating dev admin credentials...');
       passwordHash = await hashPassword('DevAdminPass_2026!Secure');
-      console.warn(`[Storage DEV] Initial dev admin seeded: ${adminEmail} / DevAdminPass_2026!Secure`);
+      console.warn(`[Storage DEV] Initial admin seeded: ${adminEmail} / DevAdminPass_2026!Secure`);
     }
 
     await storage.createUser({

@@ -2,11 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Currency, TimezoneInfo } from '../types';
 import { Language, translations } from '../data/translations';
 import { ACADEMY_PROGRAMS } from '../data/academyData';
-import { Clock, Calendar, Check, X, Laptop } from 'lucide-react';
+import { CURRENCIES, TIMEZONES } from '../data/academyData';
+import { Clock, Calendar, Check, X, Laptop, Globe } from 'lucide-react';
 
 interface ProgramsCatalogProps {
   currentCurrency: Currency;
+  onCurrencyChange?: (curr: Currency) => void;
   currentTimezone: TimezoneInfo;
+  onTimezoneChange?: (tz: TimezoneInfo) => void;
   onBookProgram: (programTitle: string, planDetails?: string) => void;
   refreshTrigger?: number;
   currentLanguage?: Language;
@@ -14,7 +17,9 @@ interface ProgramsCatalogProps {
 
 export const ProgramsCatalog: React.FC<ProgramsCatalogProps> = ({
   currentCurrency,
+  onCurrencyChange,
   currentTimezone,
+  onTimezoneChange,
   onBookProgram,
   refreshTrigger = 0,
   currentLanguage = 'ar',
@@ -61,8 +66,50 @@ export const ProgramsCatalog: React.FC<ProgramsCatalogProps> = ({
               {t.catalogTitle}
             </h2>
           </div>
-          <div className="text-xs text-slate-500 dark:text-slate-400 max-w-sm">
-            {t.catalogDesc}
+          
+          {/* Currency & Timezone Selectors */}
+          <div className="flex flex-wrap items-center gap-3">
+            {onCurrencyChange && (
+              <div className="flex items-center gap-1.5 bg-white dark:bg-[#111E2E] border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-1.5 shadow-2xs">
+                <Globe className="w-3.5 h-3.5 text-[#0D9488] dark:text-emerald-400 shrink-0" />
+                <span className="text-xs text-slate-500 dark:text-slate-400 font-semibold">{currentLanguage === 'ar' ? 'العملة:' : 'Currency:'}</span>
+                <select
+                  value={currentCurrency.code}
+                  onChange={(e) => {
+                    const found = CURRENCIES.find((c) => c.code === e.target.value);
+                    if (found) onCurrencyChange(found);
+                  }}
+                  className="text-xs font-bold bg-transparent text-[#0F2942] dark:text-white focus:outline-none cursor-pointer"
+                >
+                  {CURRENCIES.map((c) => (
+                    <option key={c.code} value={c.code} className="dark:bg-[#111E2E]">
+                      {c.code} ({c.symbol})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {onTimezoneChange && (
+              <div className="flex items-center gap-1.5 bg-white dark:bg-[#111E2E] border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-1.5 shadow-2xs">
+                <Clock className="w-3.5 h-3.5 text-[#0D9488] dark:text-emerald-400 shrink-0" />
+                <span className="text-xs text-slate-500 dark:text-slate-400 font-semibold">{currentLanguage === 'ar' ? 'التوقيت:' : 'Timezone:'}</span>
+                <select
+                  value={currentTimezone.code}
+                  onChange={(e) => {
+                    const found = TIMEZONES.find((tz) => tz.code === e.target.value);
+                    if (found) onTimezoneChange(found);
+                  }}
+                  className="text-xs font-bold bg-transparent text-[#0F2942] dark:text-white focus:outline-none cursor-pointer"
+                >
+                  {TIMEZONES.map((tz) => (
+                    <option key={tz.code} value={tz.code} className="dark:bg-[#111E2E]">
+                      {tz.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
         </div>
 
@@ -72,7 +119,7 @@ export const ProgramsCatalog: React.FC<ProgramsCatalogProps> = ({
             <button
               key={tab.id}
               onClick={() => setSelectedCategory(tab.id)}
-              className={`px-4 py-2 text-xs font-bold rounded-2xl whitespace-nowrap transition-all cursor-pointer ${
+              className={`px-4 py-2 text-xs font-bold rounded-xl whitespace-nowrap transition-all cursor-pointer ${
                 selectedCategory === tab.id
                   ? 'bg-[#0F2942] dark:bg-emerald-700 text-white shadow-xs'
                   : 'bg-white dark:bg-[#111E2E] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
@@ -102,8 +149,8 @@ export const ProgramsCatalog: React.FC<ProgramsCatalogProps> = ({
                     <img
                       src={prog.image}
                       alt={prog.title}
-                      className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 ease-out"
-                      referrerPolicy="no-referrer"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                      loading="lazy"
                     />
                     <div className="absolute top-3 right-3 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md px-2.5 py-1 rounded-xl text-[11px] font-bold text-slate-800 dark:text-slate-200 shadow-xs transition-transform duration-300 group-hover:scale-105">
                       {prog.ageBracket}

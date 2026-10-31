@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Language } from '../data/translations';
 import { X, MessageCircle, ShieldCheck, Sparkles, Send, Laptop } from 'lucide-react';
+import { getWhatsAppUrl } from '../config/siteConfig';
 
 interface EnrollmentModalProps {
   isOpen: boolean;
@@ -71,9 +72,9 @@ export const EnrollmentModal: React.FC<EnrollmentModalProps> = ({
   };
 
   const fullPhoneClean = `${countryCode}${phoneNumber.replace(/\D/g, '')}`;
-  const whatsappUrl = `https://wa.me/966500000000?text=${encodeURIComponent(
-    `السلام عليكم، قمت بطلب حجز حصة تقييم وتجربة مجانية أونلاين لطفلي (${childName} - ${childAge} سنوات) في أكاديمية نور وبيان ببرنامج (${preSelectedProgramTitle || preferredProgram}). رقم هاتفي: ${fullPhoneClean} - ${country}.`
-  )}`;
+  const whatsappUrl = getWhatsAppUrl(
+    `السلام عليكم، قمت بطلب حجز حصة تقييم وتجربة مجانية أونلاين لطفلي (${childName} - ${childAge} سنوات) ببرنامج (${preSelectedProgramTitle || preferredProgram}). رقم هاتفي: ${fullPhoneClean} - ${country}.`
+  );
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
@@ -298,15 +299,17 @@ export const EnrollmentModal: React.FC<EnrollmentModalProps> = ({
             </p>
 
             <div className="pt-2 flex flex-col sm:flex-row gap-3 justify-center">
-              <a
-                href={whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md flex items-center justify-center gap-2 transition-colors"
-              >
-                <MessageCircle className="w-4 h-4" />
-                <span>{isAr ? 'فتح الواتساب لتأكيد موعد الحصة' : 'Open WhatsApp to Confirm'}</span>
-              </a>
+              {whatsappUrl && (
+                <a
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md flex items-center justify-center gap-2 transition-colors"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  <span>{isAr ? 'فتح الواتساب لتأكيد موعد الحصة' : 'Open WhatsApp to Confirm'}</span>
+                </a>
+              )}
 
               <button
                 onClick={() => {

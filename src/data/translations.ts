@@ -45,15 +45,15 @@ export const translations = {
     liveClassSub: 'التأسيس اللغوي · مخارج الحروف والتهجئة',
     liveClassTag: 'فصل تفاعلي حي',
 
-    // Stats
-    statGraduates: '+12,400',
-    statGraduatesLabel: 'طفل مستفيد من فصولنا الأونلاين',
-    statTeachers: '45+',
-    statTeachersLabel: 'معلم ومعلمة مجازون بالقراءات',
-    statMode: '100%',
-    statModeLabel: 'فصول تفاعلية حية عن بُعد',
-    statSatisfaction: '99.2%',
-    statSatisfactionLabel: 'نسبة رضا الأمهات وأولياء الأمور',
+    // Feature Pillars (Replaces unverified statistics)
+    statPillar1Title: '100% أونلاين مباشر',
+    statPillar1Desc: 'فصول تفاعلية حية عبر غرف زوم',
+    statPillar2Title: 'حلقات مصغرة',
+    statPillar2Desc: 'متابعة فردية مكثفة لكل طالب',
+    statPillar3Title: 'معلمون متخصصون',
+    statPillar3Desc: 'إتقان التجويد والتأسيس اللغوي',
+    statPillar4Title: 'تقارير أسبوعية',
+    statPillar4Desc: 'متابعة مستمرة لولي الأمر بعد كل حصة',
 
     // Teasers
     teaserTitle: 'رحلة تعليمية وتربوية متكاملة لطفلك',
@@ -122,10 +122,42 @@ export const translations = {
     statMemorized: 'السور المتقنة والمحفوظة:',
     statAttendance: 'نسبة الالتزام بالحضور أونلاين:',
     statActiveSurah: 'السورة الحالية قيد التثبيت:',
-    teacherVoiceTitle: 'التسجيل الصوتي من المعلم (الشيخ عبد الرحمن الغامدي):',
+    teacherVoiceTitle: 'التسجيل الصوتي من المعلم المشرف:',
     btnPlayVoice: 'استمع لتسجيل المعلم',
     btnStopVoice: 'إيقاف الصوت',
     badgesTitle: 'الأوسمة والشارات التشجيعية التي حصدها الطفل:',
+
+    // How It Works
+    howTitle: 'كيف تعمل الحصة التجريبية؟',
+    howSubtitle: '3 خطوات بسيطة لبدء رحلة طفلك التعليمية بثقة وبدون أي التزام مالي',
+    howStep1Num: '1',
+    howStep1Title: 'احجز موعداً يناسبك',
+    howStep1Desc: 'اختر اليوم والوقت الملائم لجدول طفلك وسجل بيانات التواصل الأساسية لحجز الجلسة.',
+    howStep2Num: '2',
+    howStep2Title: 'تقييم مباشر في 25 دقيقة عبر زووم',
+    howStep2Desc: 'يلتقي طفلك بمعلم متخصص في جلسة فردية لطيفة ومحفزة للتعرف على مستواه الصوتي واللغوي.',
+    howStep3Num: '3',
+    howStep3Title: 'تقرير مفصل وخطة مخصصة بدون التزام',
+    howStep3Desc: 'نرسل لك تقريراً شاملاً بمستوى الطفل وخطة مقترحة لمساره، والقرار لك بالكامل.',
+
+    // FAQ
+    faqTitle: 'الأسئلة الشائعة',
+    faqSubtitle: 'إجابات واضحة وصريحة عن جميع تساؤلات أولياء الأمور حول فصولنا ونظام التعليم',
+    faqQ1: 'ما هي الفئات العمرية التي تستقبلها الأكاديمية؟',
+    faqA1: 'نستقبل الأطفال والفتيان والفتيات من عمر 4 سنوات وحتى 15 سنة، موزعين على مسارات متخصصة حسب العمر والمستوى المعرفي.',
+    faqQ2: 'ماذا يحدث إذا تعذر على طفلي حضور الحصة المقررة؟',
+    faqA2: 'يمكنك إعادة جدولة الحصة مجاناً بكل سهولة شريطة إشعار الإدارة قبل موعد الحصة بـ 6 ساعات على الأقل.',
+    faqQ3: 'هل يمكننا تغيير المعلم إذا لم يحدث توافق مع الطفل؟',
+    faqA3: 'نعم بكل تأكيد؛ حرصاً على راحة الطفل وتفاعله، يحق لولي الأمر طلب تغيير المعلم أو المعلمة في أي وقت دون أي تكاليف إضافية.',
+    faqQ4: 'ما هي المنصة المستخدمة في تقديم الفصول الحية؟',
+    faqA4: 'تُعقد جميع الفصول تفاعلياً ومباشرة عبر غرف زووم (Zoom) المؤمنة، وتعمل بسلاسة عبر أجهزة الحاسوب، الآيباد، أو الهواتف الذكية.',
+    faqQ5: 'كيف تعمل الاشتراكات وهل يمكن الإلغاء؟',
+    faqA5: 'الاشتراكات شهرية متجددة بدون أي عقود إلزامية، ويمكنك إيقاف أو إلغاء الاشتراك في أي وقت. كما نوفر ضمان استرداد كامل للرسوم خلال أول حصتين مدفوعتين إذا لم تكن راضياً تماماً.',
+
+    // 404
+    notFoundTitle: 'الصفحة غير موجودة',
+    notFoundDesc: 'عذراً، الصفحة التي تبحث عنها غير موجودة أو تم نقلها.',
+    notFoundBtn: 'العودة إلى الصفحة الرئيسية',
 
     // Mothers Club
     mothersBadge: 'مساحة خاصة للأم الواعية والمربية',
@@ -145,8 +177,8 @@ export const translations = {
     contactEmailLabel: 'البريد الإلكتروني الرسمي للمنصة',
     contactEmailValue: 'support@noor-bayan.com',
     contactPhoneLabel: 'هاتف وواتساب الدعم السريع',
-    contactPhoneValue: '+966 50 123 4567',
-    contactResponseTime: 'متوسط سرعة الرد: أقل من 15 دقيقة',
+    contactPhoneValue: 'عبر البريد ونموذج التواصل',
+    contactResponseTime: 'متوسط سرعة الرد: خلال ساعات العمل',
     formFullName: 'الاسم الكامل لولي الأمر',
     formFullNamePlaceholder: 'مثال: أبو عبد الله أو أ. سارة الشمري',
     formEmail: 'البريد الإلكتروني للرد والمتابعة',
@@ -226,15 +258,15 @@ export const translations = {
     liveClassSub: 'Reading Foundations · Letter Articulations',
     liveClassTag: 'Interactive Live Class',
 
-    // Stats
-    statGraduates: '+12,400',
-    statGraduatesLabel: 'Children Enrolled & Thriving Online',
-    statTeachers: '45+',
-    statTeachersLabel: 'Certified Teachers & Quran Scholars',
-    statMode: '100%',
-    statModeLabel: 'Live Virtual Interactive Classes',
-    statSatisfaction: '99.2%',
-    statSatisfactionLabel: 'Parent Satisfaction Rate',
+    // Feature Pillars (Replaces unverified statistics)
+    statPillar1Title: '100% Live Online',
+    statPillar1Desc: 'Interactive virtual classes via Zoom',
+    statPillar2Title: 'Small Groups',
+    statPillar2Desc: 'Dedicated attention for every child',
+    statPillar3Title: 'Certified Teachers',
+    statPillar3Desc: 'Expert Quran & Arabic foundation',
+    statPillar4Title: 'Weekly Reports',
+    statPillar4Desc: 'Direct progress tracking for parents',
 
     // Teasers
     teaserTitle: 'A Complete Educational & Moral Journey for Your Child',
@@ -303,10 +335,42 @@ export const translations = {
     statMemorized: 'Mastered Surahs:',
     statAttendance: 'Online Attendance Rate:',
     statActiveSurah: 'Current Surah under Review:',
-    teacherVoiceTitle: 'Teacher Voice Feedback (Sheikh Abdulrahman Al-Ghamdi):',
+    teacherVoiceTitle: 'Supervising Teacher Voice Feedback:',
     btnPlayVoice: 'Play Teacher Note',
     btnStopVoice: 'Pause Audio',
     badgesTitle: 'Achievement Badges & Stars Earned:',
+
+    // How It Works
+    howTitle: 'How a Trial Class Works',
+    howSubtitle: '3 simple steps to start your child journey with confidence and zero financial obligation',
+    howStep1Num: '1',
+    howStep1Title: 'Book a Suitable Time',
+    howStep1Desc: 'Pick a date and time that fits your family schedule and submit essential contact information.',
+    howStep2Num: '2',
+    howStep2Title: '25-Min Live Zoom Assessment',
+    howStep2Desc: 'Your child meets a qualified teacher in an encouraging, engaging session to evaluate recitation and foundational skills.',
+    howStep3Num: '3',
+    howStep3Title: 'Detailed Report & Tailored Plan',
+    howStep3Desc: 'Receive a diagnostic report and recommended pathway with zero commitment or hidden fees.',
+
+    // FAQ
+    faqTitle: 'Frequently Asked Questions',
+    faqSubtitle: 'Clear, transparent answers to questions parents ask about our interactive online classes',
+    faqQ1: 'What age groups do you accept?',
+    faqA1: 'We welcome girls and boys aged 4 to 15 years old, organized into dedicated age-appropriate curriculum tracks.',
+    faqQ2: 'What happens if my child misses a scheduled session?',
+    faqA2: 'You can reschedule free of charge by notifying administration at least 6 hours prior to class time.',
+    faqQ3: 'Can we change the teacher if needed?',
+    faqA3: 'Yes. Your child comfort and motivation come first. You may request a teacher change at any time without fees.',
+    faqQ4: 'What platform is used for live classes?',
+    faqA4: 'All sessions are held live via secure Zoom classrooms, accessible on computers, tablets, and smartphones.',
+    faqQ5: 'How do subscriptions and payments work?',
+    faqA5: 'Subscriptions are monthly with no lock-in contracts. Cancel anytime, with a 100% money-back guarantee across the first 2 paid sessions.',
+
+    // 404
+    notFoundTitle: 'Page Not Found',
+    notFoundDesc: 'Sorry, the page you are looking for does not exist or has been moved.',
+    notFoundBtn: 'Back to Home',
 
     // Mothers Club
     mothersBadge: 'Dedicated Space for Mindful Mothers',
@@ -326,8 +390,8 @@ export const translations = {
     contactEmailLabel: 'Official Platform Email',
     contactEmailValue: 'support@noor-bayan.com',
     contactPhoneLabel: 'Direct Phone & WhatsApp Support',
-    contactPhoneValue: '+966 50 123 4567',
-    contactResponseTime: 'Average Response Time: Under 15 Minutes',
+    contactPhoneValue: 'Via Email & Contact Form',
+    contactResponseTime: 'Average Response Time: During Business Hours',
     formFullName: 'Parent Full Name',
     formFullNamePlaceholder: 'e.g., Sarah Johnson or Dr. Ahmad',
     formEmail: 'Email Address for Reply',

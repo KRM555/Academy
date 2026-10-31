@@ -1,5 +1,6 @@
 import express from 'express';
 import type { Request, Response } from 'express';
+import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
@@ -49,21 +50,14 @@ const isProd = process.env.NODE_ENV === 'production';
 
 const app = express();
 
-// Security: Helmet with realistic CSP + frame-ancestors for AI Studio preview iframe
+// Security: Helmet configured for AI Studio preview iframe compatibility
 app.use(
   helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-        styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
-        fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
-        imgSrc: ["'self'", 'data:', 'blob:', 'https:'],
-        connectSrc: ["'self'", 'https:'],
-        frameAncestors: ["'self'", 'https://*.google.com', 'https://localhost.corp.google.com:*'],
-      },
-    },
+    contentSecurityPolicy: false,
+    crossOriginOpenerPolicy: false,
+    crossOriginResourcePolicy: false,
     crossOriginEmbedderPolicy: false,
+    xFrameOptions: false,
   })
 );
 
@@ -452,10 +446,30 @@ async function startServer() {
   if (!isProd) {
     const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: {
+        middlewareMode: true,
+        hmr: process.env.DISABLE_HMR !== 'true',
+      },
       appType: 'spa',
     });
     app.use(vite.middlewares);
+
+    app.use('*', async (req: Request, res: Response, next) => {
+      const url = req.originalUrl;
+      if (url.startsWith('/api')) {
+        return next();
+      }
+      try {
+        const template = fs.readFileSync(path.resolve(__dirname, 'index.html'), 'utf-8');
+        const html = await vite.transformIndexHtml(url, template);
+        res.status(200).set({ 'Content-Type': 'text/html' }).end(html);
+      } catch (e) {
+        if (vite && typeof vite.ssrFixStacktrace === 'function') {
+          vite.ssrFixStacktrace(e as Error);
+        }
+        next(e);
+      }
+    });
   } else {
     app.use(express.static(path.resolve(__dirname, 'dist')));
     app.get('*', (_req: Request, res: Response) => {

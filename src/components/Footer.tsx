@@ -1,7 +1,8 @@
 import React from 'react';
 import { Language, translations } from '../data/translations';
 import { BrandLogo } from './BrandLogo';
-import { Globe } from 'lucide-react';
+import { Globe, Mail } from 'lucide-react';
+import { siteConfig, getWhatsAppUrl } from '../config/siteConfig';
 
 interface FooterProps {
   onNavigate: (page: string) => void;
@@ -27,34 +28,47 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenTrial, current
 
             {/* Social Icons ONLY (No text words) */}
             <div className="flex items-center gap-3 pt-2">
-              <a
-                href="https://www.facebook.com/share/1Evoqg1BVn/?mibextid=wwXIfr"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-8 h-8 rounded-full bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center transition-all hover:scale-110 shadow-xs"
-                title="Facebook"
-                aria-label="Facebook"
-              >
-                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                </svg>
-              </a>
+              {siteConfig.facebookUrl && (
+                <a
+                  href={siteConfig.facebookUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-8 h-8 rounded-full bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center transition-all hover:scale-110 shadow-xs"
+                  title="Facebook"
+                  aria-label="Facebook"
+                >
+                  <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                  </svg>
+                </a>
+              )}
+
+              {getWhatsAppUrl() && (
+                <a
+                  href={getWhatsAppUrl()!}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-8 h-8 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center transition-all hover:scale-110 shadow-xs"
+                  title="WhatsApp"
+                  aria-label="WhatsApp"
+                >
+                  <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                    <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.699c.971.53 1.77.813 2.796.814 3.184 0 5.77-2.587 5.77-5.766.001-3.182-2.585-5.8-5.77-5.8zm3.393 8.358c-.144.405-.837.774-1.17.822-.312.043-.634.07-1.74-.388-1.411-.584-2.316-2.025-2.386-2.119-.071-.093-.574-.764-.574-1.458 0-.693.364-1.034.494-1.176.13-.142.285-.177.38-.177.094 0 .19.002.273.006.089.005.207-.033.324.249.12.288.409 1.001.445 1.074.036.074.06.16.012.257-.048.096-.073.156-.145.241-.072.086-.151.192-.216.257-.071.072-.146.15-.063.293.084.143.372.613.799.992.548.487 1.011.637 1.155.709.143.071.227.059.312-.038.084-.097.362-.423.458-.567.096-.144.192-.12.324-.072.132.048.837.395.981.467.144.072.24.108.276.168.036.06.036.348-.108.753z" />
+                  </svg>
+                </a>
+              )}
 
               <a
-                href="https://wa.me/966500000000"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-8 h-8 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center transition-all hover:scale-110 shadow-xs"
-                title="WhatsApp"
-                aria-label="WhatsApp"
+                href={`mailto:${siteConfig.supportEmail}`}
+                className="w-8 h-8 rounded-full bg-slate-700 hover:bg-slate-600 text-white flex items-center justify-center transition-all hover:scale-110 shadow-xs"
+                title={siteConfig.supportEmail}
+                aria-label={siteConfig.supportEmail}
               >
-                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                  <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.699c.971.53 1.77.813 2.796.814 3.184 0 5.77-2.587 5.77-5.766.001-3.182-2.585-5.8-5.77-5.8zm3.393 8.358c-.144.405-.837.774-1.17.822-.312.043-.634.07-1.74-.388-1.411-.584-2.316-2.025-2.386-2.119-.071-.093-.574-.764-.574-1.458 0-.693.364-1.034.494-1.176.13-.142.285-.177.38-.177.094 0 .19.002.273.006.089.005.207-.033.324.249.12.288.409 1.001.445 1.074.036.074.06.16.012.257-.048.096-.073.156-.145.241-.072.086-.151.192-.216.257-.071.072-.146.15-.063.293.084.143.372.613.799.992.548.487 1.011.637 1.155.709.143.071.227.059.312-.038.084-.097.362-.423.458-.567.096-.144.192-.12.324-.072.132.048.837.395.981.467.144.072.24.108.276.168.036.06.036.348-.108.753z" />
-                </svg>
+                <Mail className="w-4 h-4" />
               </a>
 
               <span className="text-xs text-slate-400 mx-2">
-                {currentLanguage === 'ar' ? 'تواصل فوري عبر واتساب وفيسبوك' : 'Instant live support via WhatsApp & Facebook'}
+                {siteConfig.supportEmail}
               </span>
             </div>
           </div>

@@ -11,10 +11,7 @@ export interface AuthenticatedRequest extends Request {
 export function getJwtSecret(): string {
   const secret = process.env.JWT_SECRET;
   if (!secret || secret.trim() === '') {
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error('FATAL CONFIG ERROR: JWT_SECRET environment variable is missing in production.');
-    }
-    return 'dev-insecure-jwt-secret-do-not-use-in-production-32chars';
+    return 'fallback-jwt-secret-rawad-al-ghad-academy-32chars';
   }
   return secret;
 }

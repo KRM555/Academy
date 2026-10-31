@@ -1,6 +1,7 @@
 import React from 'react';
 import { Language, translations } from '../data/translations';
 import { Heart, Sparkles, CheckCircle2, MessageCircle, ArrowLeft, ArrowRight } from 'lucide-react';
+import { getWhatsAppUrl } from '../config/siteConfig';
 
 interface MothersClubProps {
   onOpenConsultation: () => void;
@@ -19,10 +20,12 @@ export const MothersClub: React.FC<MothersClubProps> = ({ onOpenConsultation, cu
           <div className="lg:col-span-5 relative order-2 lg:order-1">
             <div className="rounded-3xl overflow-hidden shadow-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111E2E]">
               <img
-                src="/src/assets/images/mothers_educational_session_1793317242529.jpg"
+                src="/images/mothers_educational_session_1793317242529.jpg"
                 alt="Mothers Educational Consultation Session"
                 className="w-full h-auto object-cover aspect-4/3"
-                referrerPolicy="no-referrer"
+                loading="lazy"
+                width={800}
+                height={600}
               />
             </div>
             {/* Stat bubble */}
@@ -83,19 +86,25 @@ export const MothersClub: React.FC<MothersClubProps> = ({ onOpenConsultation, cu
                 <span>{t.btnMothersBook}</span>
                 <ArrowIcon className="w-4 h-4" />
               </button>
-              <a
-                href={`https://wa.me/966500000000?text=${encodeURIComponent(
-                  currentLanguage === 'ar'
-                    ? 'السلام عليكم، أود الانضمام لمجتمع واحة الأمهات بالأكاديمية'
-                    : 'Hello, I would like to join the Mothers Oasis community at Noor & Bayan Academy'
-                )}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-5 py-3 text-xs sm:text-sm font-semibold text-emerald-900 dark:text-emerald-200 bg-emerald-100 dark:bg-emerald-950/80 hover:bg-emerald-200 dark:hover:bg-emerald-900 rounded-xl transition-colors flex items-center justify-center gap-2"
-              >
-                <MessageCircle className="w-4 h-4" />
-                <span>{t.btnMothersCommunity}</span>
-              </a>
+              {getWhatsAppUrl(
+                currentLanguage === 'ar'
+                  ? 'السلام عليكم، أود الانضمام لمجتمع واحة الأمهات'
+                  : 'Hello, I would like to join the Mothers Oasis community'
+              ) && (
+                <a
+                  href={getWhatsAppUrl(
+                    currentLanguage === 'ar'
+                      ? 'السلام عليكم، أود الانضمام لمجتمع واحة الأمهات'
+                      : 'Hello, I would like to join the Mothers Oasis community'
+                  )!}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-5 py-3 text-xs sm:text-sm font-semibold text-emerald-900 dark:text-emerald-200 bg-emerald-100 dark:bg-emerald-950/80 hover:bg-emerald-200 dark:hover:bg-emerald-900 rounded-xl transition-colors flex items-center justify-center gap-2"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  <span>{t.btnMothersCommunity}</span>
+                </a>
+              )}
             </div>
           </div>
         </div>

@@ -75,7 +75,7 @@ Usage:
       process.exit(1);
     }
     const newHash = await hashPassword(password);
-    user.passwordHash = newHash;
+    await storage.updateUserPassword(user.id, newHash);
     console.log(`[SUCCESS] Reset password for ${email}.`);
   } else if (action === 'list') {
     console.log('[Storage] Listing all users is restricted to direct DB inspection for security.');

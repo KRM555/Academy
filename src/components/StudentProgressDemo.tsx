@@ -11,19 +11,19 @@ export const StudentProgressDemo: React.FC<StudentProgressDemoProps> = ({ curren
   const isAr = currentLanguage === 'ar';
 
   const [selectedStudent] = useState({
-    name: isAr ? 'عمر بن سلطان القحطاني' : 'Omar Sultan Al-Qahtani',
+    name: isAr ? 'طالب تجريبي (نموذج توضيحي)' : 'Sample Student (Demo)',
     age: 7,
-    program: isAr ? 'حلقات "نور يتلى" لتحفيظ وتجويد القرآن (أونلاين)' : 'Noor Recited: Quran & Tajweed Circles (Online)',
+    program: isAr ? 'حلقات تحفيظ وتجويد القرآن (أونلاين)' : 'Quran & Tajweed Circles (Online)',
     memorizedCount: 21,
     attendanceRate: 98,
     activeSurah: isAr ? 'سورة النبأ (عم يتساءلون)' : 'Surah An-Naba',
     teacherVoiceNote: isAr
-      ? 'أداء صوتي مبهج وتلاوة خاشعة خالية من الأخطاء في سورة الضحى، أحسنت يا عمر وبارك الله في والديك.'
-      : 'Joyful tone and reverent error-free recitation of Surah Ad-Duha. Excellent progress Omar, blessings to your parents.',
+      ? 'أداء مبهج وتلاوة خاشعة خالية من الأخطاء في سورة الضحى، نبارك هذا التقدم الملحوظ ونوصي بالاستمرار على المراجعة اليومية.'
+      : 'Joyful tone and reverent recitation in Surah Ad-Duha. Commendable progress, recommended to maintain daily revision.',
     badges: [
-      { id: 'b1', name: isAr ? 'وسام قارئ الأسبوع المتميز' : 'Reader of the Week', date: '2026-10-24', icon: '🌟' },
-      { id: 'b2', name: isAr ? 'وسام المواظبة الذهبي (98%)' : 'Golden Attendance Badge', date: '2026-10-18', icon: '🏆' },
-      { id: 'b3', name: isAr ? 'وسام فصاحة مخارج الحروف والطلاقة' : 'Articulation & Fluency Badge', date: '2026-10-10', icon: '🎖️' },
+      { id: 'b1', name: isAr ? 'وسام قارئ الأسبوع المتميز' : 'Reader of the Week', date: '2026-10-24', icon: 'star' },
+      { id: 'b2', name: isAr ? 'وسام المواظبة والالتزام' : 'Attendance Badge', date: '2026-10-18', icon: 'award' },
+      { id: 'b3', name: isAr ? 'وسام فصاحة مخارج الحروف' : 'Articulation & Fluency Badge', date: '2026-10-10', icon: 'check' },
     ],
   });
 
@@ -31,12 +31,23 @@ export const StudentProgressDemo: React.FC<StudentProgressDemoProps> = ({ curren
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
 
   const toggleSimulatedAudio = () => {
-    setIsPlayingAudio(!isPlayingAudio);
+    setIsPlayingAudio((prev) => !prev);
   };
 
   return (
     <section className="py-12 bg-white dark:bg-[#0B1522] transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Sample Demonstration Notice Banner */}
+        <div className="mb-8 p-4 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-200 text-xs sm:text-sm font-medium flex items-center justify-center gap-2 text-center">
+          <Sparkles className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+          <span>
+            <strong className="font-bold">{isAr ? 'نموذج توضيحي (Sample):' : 'Illustrative Preview:'}</strong>{' '}
+            {isAr
+              ? 'هذه الصفحة تمثل نموذجاً تفاعلياً استرشادياً يوضح كيفية متابعة تقدم وحفظ طفلك عبر البوابة الخاصة.'
+              : 'This page is a sample demonstration showing how parents monitor their child’s progress in the portal.'}
+          </span>
+        </div>
+
         <div className="text-center max-w-3xl mx-auto mb-10">
           <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0D9488] dark:text-emerald-400 mb-2 bg-emerald-50 dark:bg-emerald-950/60 px-3 py-1 rounded-full">
             <Sparkles className="w-4 h-4 text-amber-500" />
@@ -123,8 +134,8 @@ export const StudentProgressDemo: React.FC<StudentProgressDemoProps> = ({ curren
               </span>
             </div>
 
-            <div className="p-3.5 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-750 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-              <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed italic">
+            <div className="p-3.5 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed italic">
                 "{selectedStudent.teacherVoiceNote}"
               </p>
               <button
@@ -135,12 +146,6 @@ export const StudentProgressDemo: React.FC<StudentProgressDemoProps> = ({ curren
                 <span>{isPlayingAudio ? t.btnStopVoice : t.btnPlayVoice}</span>
               </button>
             </div>
-            {isPlayingAudio && (
-              <div className="mt-2 text-[11px] text-emerald-700 dark:text-emerald-400 flex items-center gap-2 font-mono">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span>{isAr ? 'جاري تشغيل رسالة المعلم الصوتية المحفزة لولي الأمر...' : 'Playing motivating voice note from instructor...'}</span>
-              </div>
-            )}
           </div>
 
           {/* Badges Earned */}
@@ -149,10 +154,12 @@ export const StudentProgressDemo: React.FC<StudentProgressDemoProps> = ({ curren
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {selectedStudent.badges.map((b) => (
                 <div key={b.id} className="bg-white dark:bg-[#16253B] p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center gap-3">
-                  <div className="text-2xl">{b.icon}</div>
+                  <div className="w-9 h-9 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                    <Award className="w-5 h-5 text-emerald-600" />
+                  </div>
                   <div>
                     <div className="text-xs font-bold text-slate-900 dark:text-white font-display">{b.name}</div>
-                    <div className="text-[10px] text-slate-400 mt-0.5">{b.date}</div>
+                    <div className="text-xs text-slate-400 mt-0.5">{b.date}</div>
                   </div>
                 </div>
               ))}
@@ -163,38 +170,40 @@ export const StudentProgressDemo: React.FC<StudentProgressDemoProps> = ({ curren
         {/* Certificate Modal */}
         {showCertModal && (
           <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-[#111E2E] rounded-3xl max-w-xl w-full p-8 border-4 border-amber-400/40 shadow-2xl relative text-center">
-              <div className="text-amber-500 text-4xl mb-2">🏆</div>
+            <div className="bg-white dark:bg-[#111E2E] rounded-2xl max-w-xl w-full p-8 border-2 border-amber-400/40 shadow-2xl relative text-center">
+              <div className="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-950 flex items-center justify-center text-amber-600 mx-auto mb-2">
+                <Award className="w-7 h-7" />
+              </div>
               <div className="text-xs font-bold text-[#0D9488] dark:text-emerald-400 font-display">
-                {isAr ? 'أكاديمية نور وبيان لتعليم القرآن والتربية' : 'Noor & Bayan Academy for Education'}
+                {isAr ? 'أكاديمية نور وبيان' : 'Noor & Bayan Academy'}
               </div>
               <h3 className="text-xl sm:text-2xl font-extrabold text-[#0F2942] dark:text-white mt-1 font-display">
-                {isAr ? 'شهادة فخرية وإتقان تلاوة' : 'Honorary Certificate of Mastery'}
+                {isAr ? 'شهادة إتمام وحفظ' : 'Certificate of Track Completion'}
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                {isAr ? 'رقم الاعتماد الأكاديمي: NB-2026-9812' : 'Credential ID: NB-2026-9812'}
+                {isAr ? 'نموذج توضيحي تجريبي لشهادات إتمام المسارات' : 'Sample illustrative template for track completion'}
               </p>
 
-              <div className="my-6 p-6 bg-amber-50/50 dark:bg-amber-950/20 rounded-2xl border border-amber-200/80 dark:border-amber-900/50 space-y-3">
+              <div className="my-6 p-6 bg-amber-50/50 dark:bg-amber-950/20 rounded-xl border border-amber-200/80 dark:border-amber-900/50 space-y-3">
                 <p className="text-sm text-slate-700 dark:text-slate-300">
-                  {isAr ? 'تشهد إدارة الأكاديمية بأن الطالب النجيب:' : 'The Academy administration hereby certifies that student:'}
+                  {isAr ? 'تشهد إدارة الأكاديمية بأن الطالب:' : 'The Academy administration certifies that student:'}
                 </p>
                 <div className="text-xl font-extrabold text-[#0D9488] dark:text-emerald-400 font-display">{selectedStudent.name}</div>
-                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
                   {isAr
-                    ? 'قد أتم بنجاح حفظ وتجويد قصار السور من جزء عم وإتقان التأسيس اللغوي السليم بتقدير ممتاز مع مرتبة الشرف الأولى عبر فصول الأكاديمية الأونلاين.'
-                    : 'Has successfully mastered the recitation of Juz Amma and Arabic reading foundations with Highest Honors in live virtual classrooms.'}
+                    ? 'قد أتم بنجاح حفظ وتجويد قصار السور من جزء عم وإتقان التأسيس اللغوي السليم بتقدير ممتاز عبر فصول الأكاديمية الأونلاين.'
+                    : 'Has successfully completed the recitation of Juz Amma and Arabic reading foundations with excellence in live virtual classrooms.'}
                 </p>
               </div>
 
               <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-400 px-4 pt-2 border-t border-slate-100 dark:border-slate-800">
                 <div>
-                  <div className="font-bold text-slate-800 dark:text-slate-200">{isAr ? 'المشرف العام:' : 'Supervisor:'}</div>
-                  <div className="text-[11px] text-slate-500 dark:text-slate-400">الشيخ عبد الرحمن الغامدي</div>
+                  <div className="font-bold text-slate-800 dark:text-slate-200">{isAr ? 'المشرف التعليمي:' : 'Academic Supervisor:'}</div>
+                  <div className="text-xs text-slate-500 dark:text-slate-400">{isAr ? 'إدارة الشؤون الأكاديمية' : 'Academic Affairs Office'}</div>
                 </div>
                 <div>
-                  <div className="font-bold text-slate-800 dark:text-slate-200">{isAr ? 'الختم الرقمي:' : 'Digital Seal:'}</div>
-                  <div className="text-[11px] text-emerald-700 dark:text-emerald-400 font-bold">معتمد رسمياً 2026</div>
+                  <div className="font-bold text-slate-800 dark:text-slate-200">{isAr ? 'الاعتماد:' : 'Validation:'}</div>
+                  <div className="text-xs text-emerald-700 dark:text-emerald-400 font-bold">{isAr ? 'نموذج إتمام تجريبي' : 'Sample Verified Demo'}</div>
                 </div>
               </div>
 

@@ -101,25 +101,27 @@ export const Hero: React.FC<HeroProps> = ({
 
           {/* Visual Asset */}
           <div className="lg:col-span-5 relative">
-            <div className="relative mx-auto max-w-md lg:max-w-none rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111E2E]">
+            <div className="relative mx-auto max-w-md lg:max-w-none rounded-2xl overflow-hidden shadow-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111E2E]">
               <img
-                src="/src/assets/images/hero_arab_kids_learning_1793317241979.jpg"
+                src="/images/hero_arab_kids_learning_1793317241979.jpg"
                 alt="Noor & Bayan Academy Online Interactive Live Class"
                 className="w-full h-auto object-cover aspect-16/10"
-                referrerPolicy="no-referrer"
+                loading="eager"
+                width={800}
+                height={500}
               />
 
-              <div className="absolute bottom-4 right-4 left-4 bg-white/95 dark:bg-[#111E2E]/95 backdrop-blur-md p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-lg flex items-center justify-between">
+              <div className="absolute bottom-4 right-4 left-4 bg-white/95 dark:bg-[#111E2E]/95 backdrop-blur-md p-3.5 rounded-xl border border-slate-100 dark:border-slate-700 shadow-md flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center text-emerald-800 dark:text-emerald-300">
+                  <div className="w-9 h-9 rounded-lg bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center text-emerald-800 dark:text-emerald-300">
                     <Play className="w-4 h-4 fill-emerald-800 dark:fill-emerald-300" />
                   </div>
                   <div>
                     <div className="text-xs font-bold text-slate-900 dark:text-white">{t.liveClassBadge}</div>
-                    <div className="text-[11px] text-slate-500 dark:text-slate-400">{t.liveClassSub}</div>
+                    <div className="text-xs text-slate-500 dark:text-slate-400">{t.liveClassSub}</div>
                   </div>
                 </div>
-                <div className="font-mono text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/70 px-2 py-1 rounded-lg">
+                <div className="font-mono text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/70 px-2 py-1 rounded-md">
                   {t.liveClassTag}
                 </div>
               </div>
@@ -127,23 +129,23 @@ export const Hero: React.FC<HeroProps> = ({
           </div>
         </div>
 
-        {/* Metric Strip */}
-        <div className="mt-16 pt-8 border-t border-slate-200/80 dark:border-slate-800 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-          <div>
-            <div className="text-2xl sm:text-3xl font-extrabold text-[#0F2942] dark:text-white tabular-nums font-mono">{t.statGraduates}</div>
-            <div className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">{t.statGraduatesLabel}</div>
+        {/* Feature Pillars Strip (Authentic & Verifiable) */}
+        <div className="mt-14 pt-8 border-t border-slate-200/80 dark:border-slate-800 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+          <div className="p-3 rounded-xl bg-white/60 dark:bg-[#111E2E]/60 border border-slate-200/60 dark:border-slate-800/60">
+            <div className="text-lg sm:text-xl font-extrabold text-[#0F2942] dark:text-white font-display">{t.statPillar1Title}</div>
+            <div className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">{t.statPillar1Desc}</div>
           </div>
-          <div>
-            <div className="text-2xl sm:text-3xl font-extrabold text-[#0D9488] dark:text-emerald-400 tabular-nums font-mono">{t.statTeachers}</div>
-            <div className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">{t.statTeachersLabel}</div>
+          <div className="p-3 rounded-xl bg-white/60 dark:bg-[#111E2E]/60 border border-slate-200/60 dark:border-slate-800/60">
+            <div className="text-lg sm:text-xl font-extrabold text-[#0D9488] dark:text-emerald-400 font-display">{t.statPillar2Title}</div>
+            <div className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">{t.statPillar2Desc}</div>
           </div>
-          <div>
-            <div className="text-2xl sm:text-3xl font-extrabold text-[#0F2942] dark:text-white tabular-nums font-mono">{t.statMode}</div>
-            <div className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">{t.statModeLabel}</div>
+          <div className="p-3 rounded-xl bg-white/60 dark:bg-[#111E2E]/60 border border-slate-200/60 dark:border-slate-800/60">
+            <div className="text-lg sm:text-xl font-extrabold text-[#0F2942] dark:text-white font-display">{t.statPillar3Title}</div>
+            <div className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">{t.statPillar3Desc}</div>
           </div>
-          <div>
-            <div className="text-2xl sm:text-3xl font-extrabold text-amber-600 dark:text-amber-400 tabular-nums font-mono">{t.statSatisfaction}</div>
-            <div className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">{t.statSatisfactionLabel}</div>
+          <div className="p-3 rounded-xl bg-white/60 dark:bg-[#111E2E]/60 border border-slate-200/60 dark:border-slate-800/60">
+            <div className="text-lg sm:text-xl font-extrabold text-[#0D9488] dark:text-emerald-400 font-display">{t.statPillar4Title}</div>
+            <div className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">{t.statPillar4Desc}</div>
           </div>
         </div>
       </div>

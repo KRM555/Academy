@@ -12,6 +12,11 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ curren
   const isAr = currentLanguage === 'ar';
   const [activeFilter, setActiveFilter] = useState<'all' | 'quran' | 'arabic' | 'expat' | 'mothers'>('all');
 
+  // Ground Rule 1 & Phase 2.2: Hide section if no authentic consented reviews exist
+  if (!TESTIMONIALS_DATA || TESTIMONIALS_DATA.length === 0) {
+    return null;
+  }
+
   const filteredTestimonials = activeFilter === 'all'
     ? TESTIMONIALS_DATA
     : TESTIMONIALS_DATA.filter((item) => item.courseCategory === activeFilter);
@@ -25,63 +30,34 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ curren
   ];
 
   return (
-    <section id="testimonials" className="py-20 bg-slate-50 dark:bg-[#070E18] transition-colors duration-200 relative overflow-hidden">
-      {/* Decorative background glow */}
-      <div className="absolute top-0 right-1/4 w-96 h-96 bg-emerald-500/5 dark:bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-amber-500/5 dark:bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
-
+    <section id="testimonials" className="py-20 bg-slate-50 dark:bg-[#070E18] transition-colors duration-200 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-14">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 text-xs font-bold mb-4 border border-emerald-200 dark:border-emerald-800 shadow-xs">
             <UserCheck className="w-4 h-4 text-[#0D9488] dark:text-emerald-400" />
             <span>
-              {isAr ? 'آراء موثقة لأولياء الأمور والطلاب' : 'Verified Parent & Student Testimonials'}
+              {isAr ? 'تجارب وآراء أولياء الأمور' : 'Parent & Student Feedback'}
             </span>
           </div>
 
           <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0F2942] dark:text-white font-display tracking-tight leading-tight">
             {isAr ? (
               <>
-                قصص نجاح نعتز بها من عائلات <span className="text-[#0D9488] dark:text-emerald-400">نور وبيان</span> حول العالم
+                آراء نعتز بها من عائلاتنا حول العالم
               </>
             ) : (
               <>
-                Success Stories from Our <span className="text-[#0D9488] dark:text-emerald-400">Noor & Bayan</span> Families Worldwide
+                Feedback from Our Families Worldwide
               </>
             )}
           </h2>
 
           <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 mt-4 leading-relaxed">
             {isAr
-              ? 'نفخر بثقة آلاف الأسر في المملكة العربية السعودية، الدول العربية، والمغتربين في أوروبا وكندا وأمريكا. إليكم انطباعات وتجارب واقعية مع فصولنا التفاعلية الحية أونلاين 100%.'
-              : 'Proudly trusted by thousands of families across Saudi Arabia, the Arab world, and the global diaspora in Europe, Canada, and the US. Here is their honest feedback on our 100% online classes.'}
+              ? 'تجارب موثقة لأولياء الأمور مع الفصول التعليمية والتأسيسية للأطفال.'
+              : 'Authentic feedback from parents enrolled in our interactive virtual classrooms.'}
           </p>
-
-          {/* Quick Credibility Badges Bar */}
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-4 sm:gap-8 pt-2 text-xs font-bold text-slate-700 dark:text-slate-200">
-            <div className="flex items-center gap-1.5">
-              <div className="flex text-amber-400">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 fill-amber-400" />
-                ))}
-              </div>
-              <span className="text-[#0F2942] dark:text-white font-extrabold text-sm">4.98 / 5</span>
-              <span className="text-slate-500 dark:text-slate-400 font-normal">
-                {isAr ? '(+1,840 تقييم معتمد)' : '(+1,840 verified reviews)'}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-emerald-500" />
-              <span>{isAr ? '100% فصول حية مسجلة وموثقة' : '100% Monitored Live Classes'}</span>
-            </div>
-
-            <div className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-              <span>{isAr ? '99.2% نسبة رضا وتجديد اشتراكات' : '99.2% Renewal & Satisfaction'}</span>
-            </div>
-          </div>
         </div>
 
         {/* Category Filters */}

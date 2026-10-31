@@ -27,3 +27,13 @@ export const siteConfig: SiteConfig = {
   billingCurrency: 'SAR',
   trialClassMode: 'online_zoom',
 };
+
+export function getWhatsAppUrl(customText?: string): string | null {
+  const num = siteConfig.whatsappNumber;
+  if (!num) return null;
+  const cleanNumber = num.replace(/[^0-9]/g, '');
+  if (!cleanNumber) return null;
+  const textParam = customText ? `?text=${encodeURIComponent(customText)}` : '';
+  return `https://wa.me/${cleanNumber}${textParam}`;
+}
+

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Currency, TimezoneInfo } from '../types';
 import { Language, translations } from '../data/translations';
 import { Sparkles, Clock, Check, ArrowLeft, ArrowRight, MessageCircle, Laptop } from 'lucide-react';
+import { getWhatsAppUrl } from '../config/siteConfig';
 
 interface PathAdvisorProps {
   currentCurrency: Currency;
@@ -268,17 +269,17 @@ export const PathAdvisor: React.FC<PathAdvisorProps> = ({
                   <span>{t.btnBookAdvisor}</span>
                   <ArrowIcon className="w-4 h-4" />
                 </button>
-                <a
-                  href={`https://wa.me/966500000000?text=${encodeURIComponent(
-                    `Inquiry: ${rec.title} for child age ${selectedAge}`
-                  )}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-3.5 py-2.5 bg-emerald-100 dark:bg-emerald-950 hover:bg-emerald-200 dark:hover:bg-emerald-900 text-emerald-800 dark:text-emerald-300 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5"
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  <span>{t.btnWaAdvisor}</span>
-                </a>
+                {getWhatsAppUrl(`Inquiry: ${rec.title} for child age ${selectedAge}`) && (
+                  <a
+                    href={getWhatsAppUrl(`Inquiry: ${rec.title} for child age ${selectedAge}`)!}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3.5 py-2.5 bg-emerald-100 dark:bg-emerald-950 hover:bg-emerald-200 dark:hover:bg-emerald-900 text-emerald-800 dark:text-emerald-300 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    <span>{t.btnWaAdvisor}</span>
+                  </a>
+                )}
               </div>
             </div>
           </div>

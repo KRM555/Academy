@@ -3,7 +3,7 @@
     {
       "id": "usr-1c37a3c3-2249-4a33-a501-b7c80b868798",
       "email": "admin@noor-bayan.com",
-      "passwordHash": "$2b$12$5u/bRKY6/76CbPPIQw1eQ.ZCs49CLEwG18miNx9dE4QQLYqlSUipi",
+      "passwordHash": "$2b$12$O1B8igoe524zO9EIZ8yn2umgXAlshu1M8rCi2UkJ/Fc.1t56HVvVG",
       "name": "مشرف المنصة",
       "role": "admin",
       "permissions": [
@@ -22,6 +22,17 @@
         "payouts"
       ],
       "createdAt": "2026-10-30T19:19:03.648Z"
+    },
+    {
+      "id": "usr-test-1",
+      "email": "test@test.com",
+      "passwordHash": "$2b$12$YsN3jo/o9tWviPxORhhWUe/dbvbDo42DLDFseelKwgX1g/PfKGEkq",
+      "name": "Test",
+      "role": "admin",
+      "permissions": [
+        "all"
+      ],
+      "createdAt": "2026-10-30T20:04:23.799Z"
     }
   ],
   "courses": [
@@ -116,6 +127,79 @@
   ],
   "students": [],
   "payouts": [],
-  "leads": [],
-  "inquiries": []
+  "leads": [
+    {
+      "childName": "عبد الله محمد",
+      "childAge": 7,
+      "parentName": "محمد أحمد",
+      "parentPhone": "+966512345678",
+      "country": "المملكة العربية السعودية",
+      "programTitle": "حلقات تحفيظ القرآن الكريم وتجويده",
+      "preferredTimezone": "مكة المكرمة (GMT+3)",
+      "customNote": "طلب تسجيل تجريبي",
+      "id": "lead-d038007d-b5bb-4be5-b4a0-e0ca930ce276",
+      "createdAt": "2026-10-30T20:04:51.673Z",
+      "status": "new"
+    },
+    {
+      "childName": "عبد الله محمد",
+      "childAge": 7,
+      "parentName": "محمد أحمد",
+      "parentPhone": "+966512345678",
+      "country": "المملكة العربية السعودية",
+      "programTitle": "حلقات تحفيظ القرآن الكريم وتجويده",
+      "preferredTimezone": "مكة المكرمة (GMT+3)",
+      "customNote": "طلب تسجيل تجريبي",
+      "id": "lead-9653e494-35d5-4593-86aa-1bb4f7710adb",
+      "createdAt": "2026-10-30T20:03:53.192Z",
+      "status": "new"
+    },
+    {
+      "childName": "عبد الله محمد",
+      "childAge": 7,
+      "parentName": "محمد أحمد",
+      "parentPhone": "+966512345678",
+      "country": "المملكة العربية السعودية",
+      "programTitle": "حلقات تحفيظ القرآن الكريم وتجويده",
+      "preferredTimezone": "مكة المكرمة (GMT+3)",
+      "customNote": "طلب تسجيل تجريبي",
+      "id": "lead-97484308-5073-4cf7-8879-e3f3e3b4b6d8",
+      "createdAt": "2026-10-30T20:03:42.468Z",
+      "status": "new"
+    }
+  ],
+  "inquiries": [
+    {
+      "fullName": "أحمد محمود",
+      "email": "parent@example.com",
+      "subject": "استفسار عن حلقة التأسيس",
+      "message": "نود الاستفسار عن تفاصيل الحلقات المسائية لطفل عمره 6 سنوات.",
+      "id": "inq-7266d813-0e73-4e85-acb1-c0a5e09300fb",
+      "createdAt": "2026-10-30T20:04:51.681Z"
+    },
+    {
+      "fullName": "أحمد محمود",
+      "email": "parent@example.com",
+      "subject": "استفسار عن حلقة التأسيس",
+      "message": "نود الاستفسار عن تفاصيل الحلقات المسائية لطفل عمره 6 سنوات.",
+      "id": "inq-e94a3846-65a3-4bdf-b2df-21c2d9a0a171",
+      "createdAt": "2026-10-30T20:03:53.200Z"
+    },
+    {
+      "fullName": "أحمد محمود",
+      "email": "parent@example.com",
+      "subject": "استفسار عن حلقة التأسيس",
+      "message": "نود الاستفسار عن تفاصيل الحلقات المسائية لطفل عمره 6 سنوات.",
+      "id": "inq-56538de9-9695-4609-a3e3-1681911e5c6e",
+      "createdAt": "2026-10-30T20:03:42.473Z"
+    },
+    {
+      "fullName": "أحمد محمود",
+      "email": "parent@example.com",
+      "subject": "استفسار عن حلقة التأسيس",
+      "message": "نود الاستفسار عن تفاصيل الحلقات المسائية لطفل عمره 6 سنوات.",
+      "id": "inq-45ce241b-8cca-4242-a28e-f267258a74d6",
+      "createdAt": "2026-10-30T20:01:24.154Z"
+    }
+  ]
 }

@@ -102,8 +102,8 @@ export const HomeFeaturedServices: React.FC<HomeFeaturedServicesProps> = ({
                     <img
                       src={prog.image}
                       alt={prog.title}
-                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-108"
-                      referrerPolicy="no-referrer"
+                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                      loading="lazy"
                     />
 
                     {/* Gradient Overlay for Text Legibility */}
