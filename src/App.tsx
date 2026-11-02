@@ -21,6 +21,7 @@ import { FaqSection } from './components/FaqSection';
 import { NotFoundPage } from './components/NotFoundPage';
 import { FloatingTrialButton } from './components/FloatingTrialButton';
 import { Footer } from './components/Footer';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { ArrowLeft, ArrowRight, BookOpen, Sparkles, Award, Heart, Check } from 'lucide-react';
 
 export default function App() {
@@ -271,7 +272,8 @@ export default function App() {
 
       {/* Main Routed Content */}
       <main className="flex-1">
-        <Routes>
+        <ErrorBoundary key={location.pathname} currentLanguage={currentLanguage}>
+          <Routes>
           {/* HOME ROUTE */}
           <Route
             path="/"
@@ -485,6 +487,7 @@ export default function App() {
             element={<NotFoundPage currentLanguage={currentLanguage} />}
           />
         </Routes>
+        </ErrorBoundary>
       </main>
 
       {/* Trial Class Modal (accessible from any page) */}
