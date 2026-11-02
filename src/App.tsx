@@ -22,6 +22,10 @@ import { NotFoundPage } from './components/NotFoundPage';
 import { FloatingTrialButton } from './components/FloatingTrialButton';
 import { Footer } from './components/Footer';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { GlobalLoadingIndicator } from './components/GlobalLoadingIndicator';
+import { PageSeo } from './components/PageSeo';
+import { LoadingProvider } from './context/LoadingContext';
+import { loadingManager } from './services/loadingManager';
 import { ArrowLeft, ArrowRight, BookOpen, Sparkles, Award, Heart, Check } from 'lucide-react';
 
 export default function App() {
@@ -102,52 +106,15 @@ export default function App() {
     }
   }, [isDarkMode]);
 
-  // Sync document title per route
+  // Scroll to top on route change
   useEffect(() => {
-    const path = location.pathname;
-    if (path === '/') {
-      document.title = currentLanguage === 'ar'
-        ? 'أكاديمية نور وبيان | تعليم القرآن واللغة والقيم للأطفال'
-        : 'Noor & Bayan Academy | Quran, Arabic & Values for Kids';
-    } else if (path === '/programs') {
-      document.title = currentLanguage === 'ar'
-        ? 'البرامج والمناهج | أكاديمية نور وبيان'
-        : 'Programs & Curriculum | Noor & Bayan Academy';
-    } else if (path === '/advisor') {
-      document.title = currentLanguage === 'ar'
-        ? 'مستشار المسار التعليمي | أكاديمية نور وبيان'
-        : 'Learning Path Advisor | Noor & Bayan Academy';
-    } else if (path === '/mothers') {
-      document.title = currentLanguage === 'ar'
-        ? 'واحة الأمهات والاستشارات التربوية | أكاديمية نور وبيان'
-        : "Mothers' Oasis & Guidance | Noor & Bayan Academy";
-    } else if (path === '/progress') {
-      document.title = currentLanguage === 'ar'
-        ? 'لوحة إنجاز الطفل | أكاديمية نور وبيان'
-        : 'Student Progress Demo | Noor & Bayan Academy';
-    } else if (path === '/contact') {
-      document.title = currentLanguage === 'ar'
-        ? 'تواصل معنا | أكاديمية نور وبيان'
-        : 'Contact Us | Noor & Bayan Academy';
-    } else if (path === '/portal' || path === '/dashboard') {
-      document.title = currentLanguage === 'ar'
-        ? 'بوابة المعلم والإدارة | أكاديمية نور وبيان'
-        : 'Staff & Teacher Portal | Noor & Bayan Academy';
-    } else if (path === '/privacy') {
-      document.title = currentLanguage === 'ar'
-        ? 'سياسة الخصوصية | أكاديمية نور وبيان'
-        : 'Privacy Policy | Noor & Bayan Academy';
-    } else if (path === '/terms') {
-      document.title = currentLanguage === 'ar'
-        ? 'الشروط والأحكام | أكاديمية نور وبيان'
-        : 'Terms & Conditions | Noor & Bayan Academy';
-    } else {
-      document.title = currentLanguage === 'ar'
-        ? 'الصفحة غير موجودة | أكاديمية نور وبيان'
-        : 'Page Not Found | Noor & Bayan Academy';
-    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [location.pathname, currentLanguage]);
+  }, [location.pathname]);
+
+  // Visual feedback: trigger global loading progress bar on route transitions
+  useEffect(() => {
+    loadingManager.startRouteTransition();
+  }, [location.pathname, location.search]);
 
   const toggleLanguage = () => {
     setCurrentLanguage((prev) => (prev === 'ar' ? 'en' : 'ar'));
@@ -256,8 +223,15 @@ export default function App() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#FAF9F6] dark:bg-[#070E18] text-[#0F2942] dark:text-slate-100 flex flex-col font-['Tajawal',sans-serif] transition-colors duration-200">
-      {/* Streamlined, single-tier ~64px tall Navbar */}
+    <LoadingProvider>
+      {/* Dynamic SEO Meta Tags via React Helmet Async (unique og:title, og:description, canonical) */}
+      <PageSeo currentLanguage={currentLanguage} />
+
+      <div className="min-h-screen bg-[#FAF9F6] dark:bg-[#070E18] text-[#0F2942] dark:text-slate-100 flex flex-col font-['Tajawal',sans-serif] transition-colors duration-200">
+        {/* Global Loading Indicator (fixed top bar + network indicator, zero layout shift) */}
+        <GlobalLoadingIndicator currentLanguage={currentLanguage} />
+
+        {/* Streamlined, single-tier ~64px tall Navbar */}
       <Navbar
         currentPage={currentNavPage}
         onNavigate={navigateTo}
@@ -513,5 +487,6 @@ export default function App() {
         currentLanguage={currentLanguage}
       />
     </div>
+  </LoadingProvider>
   );
 }

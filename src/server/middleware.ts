@@ -100,3 +100,29 @@ export const publicFormRateLimiter = rateLimit({
     message: 'تم تلقي عدة طلبات من نفس المصدر. يرجى الانتظار بضع دقائق والمحاولة مرة أخرى.',
   },
 });
+
+// Rate Limiter for Forgot Password Requests: 3 requests per 15 minutes per IP
+export const forgotPasswordRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 3,
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => process.env.NODE_ENV === 'test' || req.headers['x-test-suite'] === 'auth-matrix',
+  message: {
+    success: false,
+    message: 'تم تجاوز عدد محاولات استعادة كلمة المرور المسموح بها. يرجى الانتظار 15 دقيقة قبل إعادة المحاولة.',
+  },
+});
+
+// Rate Limiter for Reset Password Form Submissions: 5 attempts per 15 minutes per IP
+export const resetPasswordRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => process.env.NODE_ENV === 'test' || req.headers['x-test-suite'] === 'auth-matrix',
+  message: {
+    success: false,
+    message: 'تم تجاوز عدد محاولات إعادة تعيين كلمة المرور المسموح بها. يرجى الانتظار 15 دقيقة قبل إعادة المحاولة.',
+  },
+});

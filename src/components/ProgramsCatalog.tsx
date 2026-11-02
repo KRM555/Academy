@@ -3,6 +3,7 @@ import { Currency, TimezoneInfo } from '../types';
 import { Language, translations } from '../data/translations';
 import { ACADEMY_PROGRAMS } from '../data/academyData';
 import { CURRENCIES, TIMEZONES } from '../data/academyData';
+import { api } from '../services/api';
 import { Clock, Calendar, Check, X, Laptop, Globe } from 'lucide-react';
 
 interface ProgramsCatalogProps {
@@ -31,8 +32,8 @@ export const ProgramsCatalog: React.FC<ProgramsCatalogProps> = ({
   const t = translations[currentLanguage];
 
   useEffect(() => {
-    fetch('/api/courses')
-      .then((res) => res.json())
+    api.courses
+      .list()
       .then((data) => {
         if (data.success && data.courses?.length > 0) {
           setCourses(data.courses);

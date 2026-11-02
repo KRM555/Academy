@@ -1,0 +1,139 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Authenticated staff member or teacher profile",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "description": "User email address" },
+        "name": { "type": "string", "description": "Display name" },
+        "role": { "type": "string", "enum": ["admin", "teacher"], "description": "Access control role" },
+        "createdAt": { "type": "string", "description": "ISO creation timestamp" }
+      },
+      "required": ["email", "name", "role"]
+    },
+    "Course": {
+      "title": "Course",
+      "description": "Academic course or curriculum program",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique course identifier" },
+        "title": { "type": "string", "description": "Course title in Arabic" },
+        "subtitle": { "type": "string", "description": "Course subtitle" },
+        "ageBracket": { "type": "string", "description": "Target age bracket" },
+        "minAge": { "type": "number", "description": "Minimum student age" },
+        "maxAge": { "type": "number", "description": "Maximum student age" },
+        "category": { "type": "string", "enum": ["quran", "arabic", "values", "tech", "mothers"], "description": "Program category" },
+        "deliveryMode": { "type": "string", "description": "Delivery format" },
+        "image": { "type": "string", "description": "Featured course image path" },
+        "description": { "type": "string", "description": "Comprehensive course description" },
+        "weeklySessions": { "type": "number", "description": "Sessions per week" },
+        "sessionDurationMins": { "type": "number", "description": "Duration in minutes" },
+        "priceSar": { "type": "number", "description": "Base price in SAR" },
+        "billingUnit": { "type": "string", "description": "Billing unit description" },
+        "installmentsEligible": { "type": "boolean", "description": "Installment availability flag" }
+      },
+      "required": ["id", "title", "category", "priceSar"]
+    },
+    "Student": {
+      "title": "Student",
+      "description": "Student academic record with progress and notes",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique student identifier" },
+        "childName": { "type": "string", "description": "Child full name" },
+        "age": { "type": "number", "description": "Child age" },
+        "parentName": { "type": "string", "description": "Parent full name" },
+        "parentPhone": { "type": "string", "description": "Parent phone number" },
+        "country": { "type": "string", "description": "Country of residence" },
+        "program": { "type": "string", "description": "Enrolled program" },
+        "level": { "type": "string", "description": "Current student level" },
+        "assignedTeacherEmail": { "type": "string", "description": "Email of assigned teacher" },
+        "attendanceRate": { "type": "number", "description": "Attendance percentage" },
+        "teacherNotes": { "type": "string", "description": "Teacher evaluations and notes" },
+        "status": { "type": "string", "enum": ["active", "trial", "completed"], "description": "Student status" },
+        "enrolledAt": { "type": "string", "description": "Enrollment date" }
+      },
+      "required": ["id", "childName", "parentName", "parentPhone", "program"]
+    },
+    "TeacherPayout": {
+      "title": "TeacherPayout",
+      "description": "Monthly payout record and encrypted bank details for teachers",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Payout record ID" },
+        "teacherEmail": { "type": "string", "description": "Teacher email" },
+        "teacherName": { "type": "string", "description": "Teacher full name" },
+        "month": { "type": "string", "description": "Payroll month" },
+        "hoursCompleted": { "type": "number", "description": "Logged teaching hours" },
+        "hourlyRateSar": { "type": "number", "description": "Hourly rate in SAR" },
+        "totalEarningsSar": { "type": "number", "description": "Calculated total earnings" },
+        "payoutStatus": { "type": "string", "enum": ["paid", "pending"], "description": "Payment status" },
+        "bankName": { "type": "string", "description": "Bank name" },
+        "accountHolderName": { "type": "string", "description": "Account holder name" },
+        "ibanEncrypted": { "type": "string", "description": "Encrypted IBAN payload" },
+        "createdAt": { "type": "string", "description": "Creation timestamp" }
+      },
+      "required": ["id", "teacherEmail", "teacherName", "month", "totalEarningsSar"]
+    },
+    "RegisteredLead": {
+      "title": "RegisteredLead",
+      "description": "Parent registration inquiry or trial class booking",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Lead identifier" },
+        "childName": { "type": "string", "description": "Child name" },
+        "childAge": { "type": "number", "description": "Child age" },
+        "parentName": { "type": "string", "description": "Parent name" },
+        "parentPhone": { "type": "string", "description": "Parent phone number" },
+        "country": { "type": "string", "description": "Country" },
+        "programTitle": { "type": "string", "description": "Selected program" },
+        "preferredTimezone": { "type": "string", "description": "Preferred study timezone" },
+        "status": { "type": "string", "enum": ["new", "contacted", "enrolled"], "description": "Lead disposition status" },
+        "createdAt": { "type": "string", "description": "Creation timestamp" }
+      },
+      "required": ["id", "childName", "parentName", "parentPhone", "programTitle"]
+    },
+    "ContactInquiry": {
+      "title": "ContactInquiry",
+      "description": "General customer inquiry ticket",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Ticket ID" },
+        "fullName": { "type": "string", "description": "Sender name" },
+        "email": { "type": "string", "description": "Sender email" },
+        "phone": { "type": "string", "description": "Sender phone" },
+        "subject": { "type": "string", "description": "Subject" },
+        "message": { "type": "string", "description": "Message content" },
+        "createdAt": { "type": "string", "description": "Submission timestamp" }
+      },
+      "required": ["id", "fullName", "email", "subject", "message"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "#/entities/User",
+      "description": "System users and role assignments"
+    },
+    "/courses/{courseId}": {
+      "schema": "#/entities/Course",
+      "description": "Published academic courses and curricula"
+    },
+    "/students/{studentId}": {
+      "schema": "#/entities/Student",
+      "description": "Enrolled student records and progress"
+    },
+    "/payouts/{payoutId}": {
+      "schema": "#/entities/TeacherPayout",
+      "description": "Teacher payout records and banking info"
+    },
+    "/leads/{leadId}": {
+      "schema": "#/entities/RegisteredLead",
+      "description": "Inbound trial class leads and registrations"
+    },
+    "/inquiries/{inquiryId}": {
+      "schema": "#/entities/ContactInquiry",
+      "description": "Customer contact tickets"
+    }
+  }
+}

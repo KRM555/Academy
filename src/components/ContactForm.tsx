@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Language, translations } from '../data/translations';
 import { siteConfig, getWhatsAppUrl } from '../config/siteConfig';
+import { api } from '../services/api';
 import {
   Mail,
   Send,
@@ -169,14 +170,9 @@ export const ContactForm: React.FC<ContactFormProps> = ({ currentLanguage }) => 
     setSubmitErrorMessage(null);
 
     try {
-      const response = await fetch('/api/contact/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-      const result = await response.json();
+      const result = await api.contact.submit(formData);
 
-      if (!response.ok || !result.success) {
+      if (!result.success) {
         throw new Error(result.message || (isAr ? 'حدث خطأ أثناء إرسال الاستفسار، يرجى المحاولة مرة أخرى.' : 'Error sending inquiry, please try again.'));
       }
 

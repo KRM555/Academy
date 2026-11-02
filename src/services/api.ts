@@ -1,4 +1,5 @@
 import type { ProgramCourse, Student, TeacherPayout, UserAuth, RegisteredLead, ContactInquiry } from '../types';
+import { loadingManager } from './loadingManager';
 
 export class ApiError extends Error {
   status: number;
@@ -12,30 +13,35 @@ export class ApiError extends Error {
 }
 
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-  const headers = new Headers(options.headers || {});
-  if (!headers.has('Content-Type') && !(options.body instanceof FormData)) {
-    headers.set('Content-Type', 'application/json');
-  }
-
-  const res = await fetch(endpoint, {
-    ...options,
-    headers,
-    credentials: 'same-origin', // Sends and receives httpOnly cookie nb_session
-  });
-
-  let data: any;
+  loadingManager.startApiCall();
   try {
-    data = await res.json();
-  } catch {
-    data = null;
-  }
+    const headers = new Headers(options.headers || {});
+    if (!headers.has('Content-Type') && !(options.body instanceof FormData)) {
+      headers.set('Content-Type', 'application/json');
+    }
 
-  if (!res.ok) {
-    const errorMsg = data?.message || `فشل الطلب (${res.status})`;
-    throw new ApiError(errorMsg, res.status, data);
-  }
+    const res = await fetch(endpoint, {
+      ...options,
+      headers,
+      credentials: 'same-origin', // Sends and receives httpOnly cookie nb_session
+    });
 
-  return data as T;
+    let data: any;
+    try {
+      data = await res.json();
+    } catch {
+      data = null;
+    }
+
+    if (!res.ok) {
+      const errorMsg = data?.message || `فشل الطلب (${res.status})`;
+      throw new ApiError(errorMsg, res.status, data);
+    }
+
+    return data as T;
+  } finally {
+    loadingManager.endApiCall();
+  }
 }
 
 export const api = {
@@ -46,11 +52,29 @@ export const api = {
         body: JSON.stringify({ email, password }),
       });
     },
+    async register(data: { name: string; email: string; password: string; role?: 'admin' | 'teacher' }): Promise<{ success: boolean; user: UserAuth; message: string }> {
+      return request('/api/auth/register', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+    },
     async getMe(): Promise<{ success: boolean; user: UserAuth | null }> {
       return request('/api/auth/me', { method: 'GET' });
     },
     async logout(): Promise<{ success: boolean; message: string }> {
       return request('/api/auth/logout', { method: 'POST' });
+    },
+    async forgotPassword(email: string): Promise<{ success: boolean; message: string }> {
+      return request('/api/auth/forgot-password', {
+        method: 'POST',
+        body: JSON.stringify({ email }),
+      });
+    },
+    async resetPassword(token: string, password: string): Promise<{ success: boolean; message: string }> {
+      return request('/api/auth/reset-password', {
+        method: 'POST',
+        body: JSON.stringify({ token, password }),
+      });
     },
   },
 

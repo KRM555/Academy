@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Language } from '../data/translations';
 import { X, MessageCircle, ShieldCheck, Sparkles, Send, Laptop } from 'lucide-react';
 import { getWhatsAppUrl } from '../config/siteConfig';
+import { api } from '../services/api';
 
 interface EnrollmentModalProps {
   isOpen: boolean;
@@ -43,29 +44,24 @@ export const EnrollmentModal: React.FC<EnrollmentModalProps> = ({
     const fullPhone = `${countryCode} ${phoneNumber.trim()}`;
 
     try {
-      const res = await fetch('/api/leads/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          childName,
-          childAge,
-          parentName,
-          parentPhone: fullPhone,
-          country,
-          selectedProgram: preSelectedProgramTitle || preferredProgram,
-          preferredTime,
-        }),
+      const data = await api.leads.register({
+        childName,
+        childAge,
+        parentName,
+        parentPhone: fullPhone,
+        country,
+        programTitle: preSelectedProgramTitle || preferredProgram,
+        preferredTimezone: preferredTime,
       });
 
-      const data = await res.json();
       if (data.success) {
         setIsSuccess(true);
         setLeadId(data.leadId);
       } else {
         setErrorMessage(data.message || (isAr ? 'حدث خطأ أثناء التسجيل، يرجى التحقق من البيانات.' : 'Error submitting registration, please verify details.'));
       }
-    } catch (err) {
-      setErrorMessage(isAr ? 'تعذر الاتصال بالخادم، يرجى المحاولة عبر الواتساب مباشرة.' : 'Connection error, please reach out via WhatsApp directly.');
+    } catch (err: any) {
+      setErrorMessage(err?.message || (isAr ? 'تعذر الاتصال بالخادم، يرجى المحاولة عبر الواتساب مباشرة.' : 'Connection error, please reach out via WhatsApp directly.'));
     } finally {
       setIsSubmitting(false);
     }

@@ -48,7 +48,7 @@
     {
       "id": "usr-tt",
       "email": "test-teacher@noor-bayan.test",
-      "passwordHash": "$2b$12$1UfHVWbO5XaRSxJUAtb6l.CMZyo06qBCMuB.IM4AtHWQTU4xkKftG",
+      "passwordHash": "$2b$12$bc./I2Ml.NlS5Kt6FHRx7O.MBfuisQbA6TbTX98nmp5D9WbH4qUeq",
       "name": "T",
       "role": "teacher",
       "permissions": [],
@@ -57,7 +57,7 @@
     {
       "id": "usr-test-admin",
       "email": "test-admin@noor-bayan.test",
-      "passwordHash": "$2b$12$qliIzuWZzk.mEfRFr6One.cIYXJMegpkk94jQNv14O2Z7kbfPYcYO",
+      "passwordHash": "$2b$12$vTYtVlcORbjXe4ufJikaI.kZFcpU4iZs5dplTpZwxT.0JvhQ1ot5q",
       "name": "مدير الاختبار",
       "role": "admin",
       "permissions": [
@@ -217,6 +217,90 @@
         "ميزة اختبار 2"
       ],
       "id": "prog-41627215-e67e-4558-afbc-3aa1430645f1"
+    },
+    {
+      "title": "دورة تجريبية للإدارة",
+      "subtitle": "وصف فرعي للمنهج",
+      "ageBracket": "6 - 12 سنة",
+      "minAge": 6,
+      "maxAge": 12,
+      "category": "quran",
+      "deliveryMode": "online",
+      "image": "/images/quran_kids.jpg",
+      "description": "وصف الدورة التجريبية للاختبار المؤتمت لمصفوفة الصلاحيات",
+      "weeklySessions": 3,
+      "sessionDurationMins": 45,
+      "priceSar": 250,
+      "billingUnit": "شهرياً",
+      "installmentsEligible": false,
+      "features": [
+        "ميزة اختبار 1",
+        "ميزة اختبار 2"
+      ],
+      "id": "prog-91b3b9a9-403a-4481-b355-c77610fa9393"
+    },
+    {
+      "title": "دورة تجريبية للإدارة",
+      "subtitle": "وصف فرعي للمنهج",
+      "ageBracket": "6 - 12 سنة",
+      "minAge": 6,
+      "maxAge": 12,
+      "category": "quran",
+      "deliveryMode": "online",
+      "image": "/images/quran_kids.jpg",
+      "description": "وصف الدورة التجريبية للاختبار المؤتمت لمصفوفة الصلاحيات",
+      "weeklySessions": 3,
+      "sessionDurationMins": 45,
+      "priceSar": 250,
+      "billingUnit": "شهرياً",
+      "installmentsEligible": false,
+      "features": [
+        "ميزة اختبار 1",
+        "ميزة اختبار 2"
+      ],
+      "id": "prog-4a71e1d0-2577-4b3b-aa38-aa84c192979c"
+    },
+    {
+      "title": "دورة تجريبية للإدارة",
+      "subtitle": "وصف فرعي للمنهج",
+      "ageBracket": "6 - 12 سنة",
+      "minAge": 6,
+      "maxAge": 12,
+      "category": "quran",
+      "deliveryMode": "online",
+      "image": "/images/quran_kids.jpg",
+      "description": "وصف الدورة التجريبية للاختبار المؤتمت لمصفوفة الصلاحيات",
+      "weeklySessions": 3,
+      "sessionDurationMins": 45,
+      "priceSar": 250,
+      "billingUnit": "شهرياً",
+      "installmentsEligible": false,
+      "features": [
+        "ميزة اختبار 1",
+        "ميزة اختبار 2"
+      ],
+      "id": "prog-ee954b2f-5bb4-4104-9214-20a632a86be8"
+    },
+    {
+      "title": "دورة تجريبية للإدارة",
+      "subtitle": "وصف فرعي للمنهج",
+      "ageBracket": "6 - 12 سنة",
+      "minAge": 6,
+      "maxAge": 12,
+      "category": "quran",
+      "deliveryMode": "online",
+      "image": "/images/quran_kids.jpg",
+      "description": "وصف الدورة التجريبية للاختبار المؤتمت لمصفوفة الصلاحيات",
+      "weeklySessions": 3,
+      "sessionDurationMins": 45,
+      "priceSar": 250,
+      "billingUnit": "شهرياً",
+      "installmentsEligible": false,
+      "features": [
+        "ميزة اختبار 1",
+        "ميزة اختبار 2"
+      ],
+      "id": "prog-1f506f57-31fc-443c-a385-a8ada2748863"
     }
   ],
   "students": [],
@@ -232,11 +316,63 @@
       "payoutStatus": "pending",
       "bankName": "مصرف الراجحي",
       "accountHolderName": "أ. خديجة الأنصاري",
-      "ibanEncrypted": "JaKIjc55F5v71Oy3:un3U3aGbsIPnEvCJUCADyA==:f4JjDPaNpfet28BRsCfegUVkJTtaqlsW",
+      "ibanEncrypted": "Nc092NwHQv2bEO49:ccDChGl7LxOQkpccv+zuog==:HlPFtbBpFexrg6mfYdaUYMqdPiuqZZSp",
       "createdAt": "2026-11-02T12:09:14.617Z"
     }
   ],
   "leads": [
+    {
+      "childName": "عبد الله محمد",
+      "childAge": 7,
+      "parentName": "محمد أحمد",
+      "parentPhone": "+966512345678",
+      "country": "المملكة العربية السعودية",
+      "programTitle": "حلقات تحفيظ القرآن الكريم وتجويده",
+      "preferredTimezone": "مكة المكرمة (GMT+3)",
+      "customNote": "طلب تسجيل تجريبي",
+      "id": "lead-932ebf01-dc29-4072-b533-143c0de3a7f9",
+      "createdAt": "2026-11-02T13:32:47.923Z",
+      "status": "new"
+    },
+    {
+      "childName": "عبد الله محمد",
+      "childAge": 7,
+      "parentName": "محمد أحمد",
+      "parentPhone": "+966512345678",
+      "country": "المملكة العربية السعودية",
+      "programTitle": "حلقات تحفيظ القرآن الكريم وتجويده",
+      "preferredTimezone": "مكة المكرمة (GMT+3)",
+      "customNote": "طلب تسجيل تجريبي",
+      "id": "lead-5ed95576-21dc-4581-8a94-ff504efb83f2",
+      "createdAt": "2026-11-02T13:18:25.300Z",
+      "status": "new"
+    },
+    {
+      "childName": "عبد الله محمد",
+      "childAge": 7,
+      "parentName": "محمد أحمد",
+      "parentPhone": "+966512345678",
+      "country": "المملكة العربية السعودية",
+      "programTitle": "حلقات تحفيظ القرآن الكريم وتجويده",
+      "preferredTimezone": "مكة المكرمة (GMT+3)",
+      "customNote": "طلب تسجيل تجريبي",
+      "id": "lead-4d4028f5-15b6-4d61-bfbf-101b7187a771",
+      "createdAt": "2026-11-02T13:15:19.315Z",
+      "status": "new"
+    },
+    {
+      "childName": "عبد الله محمد",
+      "childAge": 7,
+      "parentName": "محمد أحمد",
+      "parentPhone": "+966512345678",
+      "country": "المملكة العربية السعودية",
+      "programTitle": "حلقات تحفيظ القرآن الكريم وتجويده",
+      "preferredTimezone": "مكة المكرمة (GMT+3)",
+      "customNote": "طلب تسجيل تجريبي",
+      "id": "lead-c91a56de-ddc0-4e04-a32a-20c3b94b2c98",
+      "createdAt": "2026-11-02T12:43:02.136Z",
+      "status": "new"
+    },
     {
       "childName": "عبد الله محمد",
       "childAge": 7,
@@ -330,6 +466,38 @@
     }
   ],
   "inquiries": [
+    {
+      "fullName": "أحمد محمود",
+      "email": "parent@example.com",
+      "subject": "استفسار عن حلقة التأسيس",
+      "message": "نود الاستفسار عن تفاصيل الحلقات المسائية لطفل عمره 6 سنوات.",
+      "id": "inq-68841d3b-c734-4320-a362-ef7efa1562d2",
+      "createdAt": "2026-11-02T13:32:47.930Z"
+    },
+    {
+      "fullName": "أحمد محمود",
+      "email": "parent@example.com",
+      "subject": "استفسار عن حلقة التأسيس",
+      "message": "نود الاستفسار عن تفاصيل الحلقات المسائية لطفل عمره 6 سنوات.",
+      "id": "inq-d25d21c0-33cd-4d72-b619-9e0e8648d12b",
+      "createdAt": "2026-11-02T13:18:25.307Z"
+    },
+    {
+      "fullName": "أحمد محمود",
+      "email": "parent@example.com",
+      "subject": "استفسار عن حلقة التأسيس",
+      "message": "نود الاستفسار عن تفاصيل الحلقات المسائية لطفل عمره 6 سنوات.",
+      "id": "inq-f229a26d-26ae-402f-a793-2dc3c34975af",
+      "createdAt": "2026-11-02T13:15:19.322Z"
+    },
+    {
+      "fullName": "أحمد محمود",
+      "email": "parent@example.com",
+      "subject": "استفسار عن حلقة التأسيس",
+      "message": "نود الاستفسار عن تفاصيل الحلقات المسائية لطفل عمره 6 سنوات.",
+      "id": "inq-74e929ce-c0ac-44f0-8388-1e4a08550b0e",
+      "createdAt": "2026-11-02T12:43:02.144Z"
+    },
     {
       "fullName": "أحمد محمود",
       "email": "parent@example.com",

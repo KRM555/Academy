@@ -1,10 +1,73 @@
 import { z } from 'zod';
 import { CANONICAL_SURAHS } from '../types';
 
-// Auth schemas
+// Strong Password Policy:
+// - At least 8 characters, maximum 128 characters
+// - At least one uppercase letter (A-Z)
+// - At least one lowercase letter (a-z)
+// - At least one digit (0-9)
+// - At least one special symbol (!@#$%^&*...)
+export const strongPasswordSchema = z
+  .string()
+  .min(8, 'كلمة المرور يجب ألا تقل عن 8 أحرف')
+  .max(128, 'كلمة المرور يجب ألا تتجاوز 128 حرفاً')
+  .regex(/[A-Z]/, 'يجب أن تحتوي كلمة المرور على حرف كبير واحد على الأقل (A-Z)')
+  .regex(/[a-z]/, 'يجب أن تحتوي كلمة المرور على حرف صغير واحد على الأقل (a-z)')
+  .regex(/[0-9]/, 'يجب أن تحتوي كلمة المرور على رقم واحد على الأقل (0-9)')
+  .regex(/[^A-Za-z0-9]/, 'يجب أن تحتوي كلمة المرور على رمز خاص واحد على الأقل مثل (!@#$%^&*)');
+
+// Auth login schema (validates email format and password policy requirements)
 export const loginSchema = z.object({
-  email: z.string().trim().email('صيغة البريد الإلكتروني غير صحيحة').max(150),
-  password: z.string().min(1, 'كلمة المرور مطلوبة').max(128),
+  email: z
+    .string()
+    .trim()
+    .min(1, 'البريد الإلكتروني مطلوب')
+    .email('صيغة البريد الإلكتروني غير صحيحة')
+    .max(150, 'البريد الإلكتروني لا يتجاوز 150 حرفاً'),
+  password: z
+    .string()
+    .min(8, 'كلمة المرور يجب ألا تقل عن 8 أحرف')
+    .max(128, 'كلمة المرور يجب ألا تتجاوز 128 حرفاً'),
+});
+
+// Auth registration schema with strong password enforcement & honeypot
+export const registerSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(2, 'الاسم الكامل مطلوب ويجب ألا يقل عن حرفين')
+    .max(100, 'الاسم لا يتجاوز 100 حرف'),
+  email: z
+    .string()
+    .trim()
+    .min(1, 'البريد الإلكتروني مطلوب')
+    .email('صيغة البريد الإلكتروني غير صحيحة')
+    .max(150, 'البريد الإلكتروني لا يتجاوز 150 حرفاً'),
+  password: strongPasswordSchema,
+  role: z.enum(['admin', 'teacher']).default('teacher'),
+  // Honeypot field
+  hp_website: z.string().max(0, 'Spam detected').optional().or(z.literal('')),
+});
+
+// Forgot password schema
+export const forgotPasswordSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .min(1, 'البريد الإلكتروني مطلوب')
+    .email('صيغة البريد الإلكتروني غير صحيحة')
+    .max(150, 'البريد الإلكتروني لا يتجاوز 150 حرفاً'),
+  hp_website: z.string().max(0, 'Spam detected').optional().or(z.literal('')),
+});
+
+// Reset password schema
+export const resetPasswordSchema = z.object({
+  token: z
+    .string()
+    .trim()
+    .min(32, 'رمز إعادة التعيين غير صالح أو قصير جداً')
+    .max(256, 'رمز إعادة التعيين غير صالح'),
+  password: strongPasswordSchema,
 });
 
 // Course schema (Full, symmetric for POST and PUT)

@@ -465,7 +465,28 @@ export const AdminTeacherPortal: React.FC<AdminTeacherPortalProps> = ({
       )}
 
       {loadingData ? (
-        <div className="text-center py-12 text-xs text-slate-500">جاري تحميل البيانات...</div>
+        <div className="space-y-4 py-3 animate-pulse" aria-busy="true" aria-label="جاري تحميل البيانات">
+          <div className="flex items-center justify-between">
+            <div className="h-6 bg-slate-200/70 dark:bg-slate-800 rounded-lg w-44"></div>
+            <div className="h-8 bg-slate-200/50 dark:bg-slate-800/60 rounded-xl w-32"></div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[1, 2, 3, 4, 5, 6].map((idx) => (
+              <div
+                key={idx}
+                className="p-5 rounded-2xl bg-white dark:bg-[#0B1522] border border-slate-200 dark:border-slate-800 space-y-3"
+              >
+                <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-3/4"></div>
+                <div className="h-3 bg-slate-100 dark:bg-slate-800/60 rounded w-1/2"></div>
+                <div className="h-10 bg-slate-100 dark:bg-slate-800/40 rounded-xl"></div>
+                <div className="flex items-center justify-between pt-2">
+                  <div className="h-5 bg-slate-200/70 dark:bg-slate-800 rounded w-20"></div>
+                  <div className="h-7 bg-slate-200/60 dark:bg-slate-800 rounded-lg w-16"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       ) : (
         <>
           {/* TAB 1: COURSES */}

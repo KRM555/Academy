@@ -1,6 +1,20 @@
 import fs from 'fs';
 import path from 'path';
 import pg from 'pg';
+import { initializeApp, getApps, getApp } from 'firebase/app';
+import {
+  getFirestore,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  where,
+  Firestore,
+} from 'firebase/firestore';
 import { ProgramCourse, Student, TeacherPayout, UserAuth, ContactInquiry, RegisteredLead } from '../types';
 import { encryptAtRest, decryptAtRest, maskIban, hashPassword } from './crypto';
 
@@ -59,6 +73,399 @@ export interface IStorage {
 
   createInquiry(inquiry: Omit<ContactInquiry, 'id' | 'createdAt'>): Promise<ContactInquiry>;
   getInquiries(): Promise<ContactInquiry[]>;
+
+  createPasswordResetToken(token: PasswordResetToken): Promise<PasswordResetToken>;
+  findPasswordResetToken(tokenHash: string): Promise<PasswordResetToken | null>;
+  markPasswordResetTokenUsed(id: string): Promise<void>;
+  logSecurityEvent(event: SecurityAuditLog): Promise<void>;
+}
+
+export interface PasswordResetToken {
+  id: string;
+  tokenHash: string;
+  userId: string;
+  email: string;
+  expiresAt: number;
+  used: boolean;
+  usedAt?: number;
+  createdAt: number;
+}
+
+export interface SecurityAuditLog {
+  id: string;
+  action: string;
+  email: string;
+  ip: string;
+  userAgent?: string;
+  details?: Record<string, any>;
+  timestamp: string;
+}
+
+// -------------------------------------------------------------
+// Firebase Firestore Storage Implementation (Cloud Persistent Database)
+// -------------------------------------------------------------
+export class FirestoreStorage implements IStorage {
+  private db: Firestore;
+  private config: any;
+
+  constructor(config: any) {
+    this.config = config;
+    const app = getApps().length === 0 ? initializeApp(config) : getApp();
+    this.db = getFirestore(app, config.firestoreDatabaseId);
+  }
+
+  async init(): Promise<void> {
+    console.log(`[Storage] Initialized Firestore database: ${this.config.firestoreDatabaseId}`);
+    await this.seedInitialStudentsAndPayouts();
+  }
+
+  private async seedInitialStudentsAndPayouts(): Promise<void> {
+    try {
+      const studentsSnap = await getDocs(collection(this.db, 'students'));
+      if (studentsSnap.empty) {
+        const demoStudents: Student[] = [
+          {
+            id: 'std-1',
+            childName: 'عمر أحمد السعيد',
+            age: 8,
+            parentName: 'أحمد السعيد',
+            parentPhone: '+966 50 123 4567',
+            country: 'المملكة العربية السعودية',
+            program: 'حلقات تحفيظ القرآن الكريم وتجويده',
+            level: 'المستوى الثاني (جزء عم)',
+            assignedTeacherEmail: 'teacher@noor-bayan.com',
+            memorizedSurahs: ['النبأ', 'النازعات', 'عبس', 'التكوير'],
+            attendanceRate: 98,
+            teacherNotes: 'طالب متميز وسريع الحفظ، يتقن أحكام النون الساكنة والتنوين.',
+            status: 'active',
+            enrolledAt: '2026-01-15T10:00:00.000Z',
+          },
+          {
+            id: 'std-2',
+            childName: 'سارة خالد المنصور',
+            age: 6,
+            parentName: 'خالد المنصور',
+            parentPhone: '+966 55 987 6543',
+            country: 'الإمارات العربية المتحدة',
+            program: 'منهاج البيان القرآني والتأسيس اللغوي',
+            level: 'المستوى الأول (الحروف الهجائية)',
+            assignedTeacherEmail: 'teacher@noor-bayan.com',
+            memorizedSurahs: ['الفاتحة', 'الإخلاص', 'الفلق', 'الناس'],
+            attendanceRate: 100,
+            teacherNotes: 'استجابة سريعة في نطق مخارج الحروف اللثوية والتهجئة.',
+            status: 'active',
+            enrolledAt: '2026-02-01T14:30:00.000Z',
+          },
+        ];
+        for (const s of demoStudents) {
+          await setDoc(doc(this.db, 'students', s.id), s);
+        }
+      }
+
+      const payoutsSnap = await getDocs(collection(this.db, 'payouts'));
+      if (payoutsSnap.empty) {
+        const demoPayout: TeacherPayoutRecord = {
+          id: 'pay-2026-02',
+          teacherEmail: 'teacher@noor-bayan.com',
+          teacherName: 'أستاذ القرآن واللغة',
+          month: 'فبراير 2026',
+          hoursCompleted: 36,
+          hourlyRateSar: 65,
+          totalEarningsSar: 2340,
+          payoutStatus: 'pending',
+          bankName: 'مصرف الراجحي',
+          accountHolderName: 'أستاذ القرآن واللغة',
+          ibanEncrypted: encryptAtRest('SA0380000000608010167890'),
+          createdAt: new Date().toISOString(),
+        };
+        await setDoc(doc(this.db, 'payouts', demoPayout.id), demoPayout);
+      }
+    } catch (err) {
+      console.warn('[Storage] Firestore initial students/payouts seed check:', err);
+    }
+  }
+
+  async findUserByEmail(email: string): Promise<UserRecord | null> {
+    try {
+      const q = query(collection(this.db, 'users'), where('emailLower', '==', email.trim().toLowerCase()));
+      const snap = await getDocs(q);
+      if (snap.empty) return null;
+      return snap.docs[0].data() as UserRecord;
+    } catch {
+      return null;
+    }
+  }
+
+  async findUserById(id: string): Promise<UserRecord | null> {
+    try {
+      const ref = doc(this.db, 'users', id);
+      const snap = await getDoc(ref);
+      if (!snap.exists()) return null;
+      return snap.data() as UserRecord;
+    } catch {
+      return null;
+    }
+  }
+
+  async createUser(user: Omit<UserRecord, 'createdAt'>): Promise<UserRecord> {
+    const now = new Date().toISOString();
+    const fullUser: UserRecord & { emailLower: string } = {
+      ...user,
+      email: user.email.toLowerCase(),
+      emailLower: user.email.toLowerCase(),
+      createdAt: now,
+    };
+    await setDoc(doc(this.db, 'users', user.id), fullUser);
+    return fullUser;
+  }
+
+  async updateUserPassword(id: string, newPasswordHash: string): Promise<boolean> {
+    try {
+      const ref = doc(this.db, 'users', id);
+      await updateDoc(ref, { passwordHash: newPasswordHash });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async getCourses(): Promise<ProgramCourse[]> {
+    const snap = await getDocs(collection(this.db, 'courses'));
+    return snap.docs.map((d) => d.data() as ProgramCourse);
+  }
+
+  async getCourseById(id: string): Promise<ProgramCourse | null> {
+    const ref = doc(this.db, 'courses', id);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) return null;
+    return snap.data() as ProgramCourse;
+  }
+
+  async createCourse(course: ProgramCourse): Promise<ProgramCourse> {
+    await setDoc(doc(this.db, 'courses', course.id), course);
+    return course;
+  }
+
+  async updateCourse(id: string, updates: Partial<ProgramCourse>): Promise<ProgramCourse | null> {
+    const ref = doc(this.db, 'courses', id);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) return null;
+    await updateDoc(ref, updates);
+    const updated = await getDoc(ref);
+    return updated.data() as ProgramCourse;
+  }
+
+  async deleteCourse(id: string): Promise<boolean> {
+    const ref = doc(this.db, 'courses', id);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) return false;
+    await deleteDoc(ref);
+    return true;
+  }
+
+  async getStudents(filterTeacherEmail?: string): Promise<Student[]> {
+    let snap;
+    if (filterTeacherEmail) {
+      const q = query(collection(this.db, 'students'), where('assignedTeacherEmail', '==', filterTeacherEmail.toLowerCase()));
+      snap = await getDocs(q);
+    } else {
+      snap = await getDocs(collection(this.db, 'students'));
+    }
+    return snap.docs.map((d) => d.data() as Student);
+  }
+
+  async getStudentById(id: string): Promise<Student | null> {
+    const ref = doc(this.db, 'students', id);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) return null;
+    return snap.data() as Student;
+  }
+
+  async updateStudentProgress(
+    id: string,
+    newSurah?: string,
+    teacherNotes?: string
+  ): Promise<Student | null> {
+    const ref = doc(this.db, 'students', id);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) return null;
+    const current = snap.data() as Student;
+    const memorized = [...(current.memorizedSurahs || [])];
+    if (newSurah && !memorized.includes(newSurah)) {
+      memorized.push(newSurah);
+    }
+    const updates: Partial<Student> = {
+      memorizedSurahs: memorized,
+      teacherNotes: teacherNotes !== undefined ? teacherNotes : current.teacherNotes,
+    };
+    await updateDoc(ref, updates);
+    return { ...current, ...updates };
+  }
+
+  async getPayouts(filterTeacherEmail?: string): Promise<TeacherPayout[]> {
+    let snap;
+    if (filterTeacherEmail) {
+      const q = query(collection(this.db, 'payouts'), where('teacherEmail', '==', filterTeacherEmail.toLowerCase()));
+      snap = await getDocs(q);
+    } else {
+      snap = await getDocs(collection(this.db, 'payouts'));
+    }
+    return snap.docs.map((d) => {
+      const p = d.data() as TeacherPayoutRecord;
+      let ibanPlain = '';
+      if (p.ibanEncrypted) {
+        try {
+          ibanPlain = decryptAtRest(p.ibanEncrypted);
+        } catch {
+          ibanPlain = '';
+        }
+      }
+      return {
+        id: p.id,
+        teacherEmail: p.teacherEmail,
+        teacherName: p.teacherName,
+        month: p.month,
+        hoursCompleted: p.hoursCompleted,
+        hourlyRateSar: p.hourlyRateSar,
+        totalEarningsSar: p.totalEarningsSar,
+        payoutStatus: p.payoutStatus,
+        bankName: p.bankName,
+        accountHolderName: p.accountHolderName,
+        ibanMasked: maskIban(ibanPlain),
+      };
+    });
+  }
+
+  async updateTeacherBankDetails(
+    teacherEmail: string,
+    bankName: string,
+    accountHolderName: string,
+    plainIban: string
+  ): Promise<TeacherPayout | null> {
+    const q = query(collection(this.db, 'payouts'), where('teacherEmail', '==', teacherEmail.toLowerCase()));
+    const snap = await getDocs(q);
+    const encrypted = encryptAtRest(plainIban);
+
+    if (snap.empty) {
+      const id = `pay-${Date.now()}`;
+      const user = await this.findUserByEmail(teacherEmail);
+      const teacherName = user?.name || 'أستاذ معتمد';
+      const month = new Date().toISOString().slice(0, 7);
+      const newPayout: TeacherPayoutRecord = {
+        id,
+        teacherEmail: teacherEmail.toLowerCase(),
+        teacherName,
+        month,
+        hoursCompleted: 0,
+        hourlyRateSar: 50,
+        totalEarningsSar: 0,
+        payoutStatus: 'pending',
+        bankName,
+        accountHolderName,
+        ibanEncrypted: encrypted,
+        createdAt: new Date().toISOString(),
+      };
+      await setDoc(doc(this.db, 'payouts', id), newPayout);
+      return {
+        id,
+        teacherEmail: newPayout.teacherEmail,
+        teacherName: newPayout.teacherName,
+        month: newPayout.month,
+        hoursCompleted: 0,
+        hourlyRateSar: 50,
+        totalEarningsSar: 0,
+        payoutStatus: 'pending',
+        bankName,
+        accountHolderName,
+        ibanMasked: maskIban(plainIban),
+      };
+    }
+
+    const targetDoc = snap.docs[0];
+    await updateDoc(targetDoc.ref, {
+      bankName,
+      accountHolderName,
+      ibanEncrypted: encrypted,
+    });
+    const updated = (await getDoc(targetDoc.ref)).data() as TeacherPayoutRecord;
+    return {
+      id: updated.id,
+      teacherEmail: updated.teacherEmail,
+      teacherName: updated.teacherName,
+      month: updated.month,
+      hoursCompleted: updated.hoursCompleted,
+      hourlyRateSar: updated.hourlyRateSar,
+      totalEarningsSar: updated.totalEarningsSar,
+      payoutStatus: updated.payoutStatus,
+      bankName: updated.bankName,
+      accountHolderName: updated.accountHolderName,
+      ibanMasked: maskIban(plainIban),
+    };
+  }
+
+  async createLead(lead: Omit<RegisteredLead, 'id' | 'createdAt' | 'status'>): Promise<RegisteredLead> {
+    const id = `lead-${Date.now()}-${Math.floor(100 + Math.random() * 900)}`;
+    const fullLead: RegisteredLead = {
+      ...lead,
+      id,
+      status: 'new',
+      createdAt: new Date().toISOString(),
+    };
+    await setDoc(doc(this.db, 'leads', id), fullLead);
+    return fullLead;
+  }
+
+  async getLeads(): Promise<RegisteredLead[]> {
+    const snap = await getDocs(collection(this.db, 'leads'));
+    return snap.docs.map((d) => d.data() as RegisteredLead);
+  }
+
+  async createInquiry(inquiry: Omit<ContactInquiry, 'id' | 'createdAt'>): Promise<ContactInquiry> {
+    const id = `inq-${Date.now()}-${Math.floor(100 + Math.random() * 900)}`;
+    const fullInquiry: ContactInquiry = {
+      ...inquiry,
+      id,
+      createdAt: new Date().toISOString(),
+    };
+    await setDoc(doc(this.db, 'inquiries', id), fullInquiry);
+    return fullInquiry;
+  }
+
+  async getInquiries(): Promise<ContactInquiry[]> {
+    const snap = await getDocs(collection(this.db, 'inquiries'));
+    return snap.docs.map((d) => d.data() as ContactInquiry);
+  }
+
+  async createPasswordResetToken(token: PasswordResetToken): Promise<PasswordResetToken> {
+    await setDoc(doc(this.db, 'passwordResetTokens', token.id), token);
+    return token;
+  }
+
+  async findPasswordResetToken(tokenHash: string): Promise<PasswordResetToken | null> {
+    const q = query(
+      collection(this.db, 'passwordResetTokens'),
+      where('tokenHash', '==', tokenHash)
+    );
+    const snap = await getDocs(q);
+    if (snap.empty) return null;
+    return snap.docs[0].data() as PasswordResetToken;
+  }
+
+  async markPasswordResetTokenUsed(id: string): Promise<void> {
+    const ref = doc(this.db, 'passwordResetTokens', id);
+    await updateDoc(ref, {
+      used: true,
+      usedAt: Date.now(),
+    });
+  }
+
+  async logSecurityEvent(event: SecurityAuditLog): Promise<void> {
+    try {
+      await setDoc(doc(this.db, 'auditLogs', event.id), event);
+    } catch (err) {
+      console.error('[Storage SecurityAudit] Error writing log:', err);
+    }
+  }
 }
 
 // -------------------------------------------------------------
@@ -136,6 +543,27 @@ class PostgresStorage implements IStorage {
           id VARCHAR(64) PRIMARY KEY,
           data JSONB NOT NULL,
           created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        );
+
+        CREATE TABLE IF NOT EXISTS password_reset_tokens (
+          id VARCHAR(64) PRIMARY KEY,
+          token_hash VARCHAR(128) UNIQUE NOT NULL,
+          user_id VARCHAR(64) NOT NULL,
+          email VARCHAR(255) NOT NULL,
+          expires_at BIGINT NOT NULL,
+          used BOOLEAN NOT NULL DEFAULT FALSE,
+          used_at BIGINT,
+          created_at BIGINT NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS security_audit_logs (
+          id VARCHAR(64) PRIMARY KEY,
+          action VARCHAR(64) NOT NULL,
+          email VARCHAR(255) NOT NULL,
+          ip VARCHAR(64) NOT NULL,
+          user_agent TEXT,
+          details JSONB,
+          timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW()
         );
       `);
       console.log('[Storage] PostgreSQL schema initialized successfully.');
@@ -413,6 +841,45 @@ class PostgresStorage implements IStorage {
     const res = await this.pool.query('SELECT data FROM inquiries ORDER BY created_at DESC');
     return res.rows.map((r) => r.data as ContactInquiry);
   }
+
+  async createPasswordResetToken(token: PasswordResetToken): Promise<PasswordResetToken> {
+    await this.pool.query(
+      'INSERT INTO password_reset_tokens (id, token_hash, user_id, email, expires_at, used, used_at, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
+      [token.id, token.tokenHash, token.userId, token.email, token.expiresAt, token.used, token.usedAt || null, token.createdAt]
+    );
+    return token;
+  }
+
+  async findPasswordResetToken(tokenHash: string): Promise<PasswordResetToken | null> {
+    const res = await this.pool.query('SELECT * FROM password_reset_tokens WHERE token_hash = $1 LIMIT 1', [tokenHash]);
+    if (res.rows.length === 0) return null;
+    const r = res.rows[0];
+    return {
+      id: r.id,
+      tokenHash: r.token_hash,
+      userId: r.user_id,
+      email: r.email,
+      expiresAt: Number(r.expires_at),
+      used: Boolean(r.used),
+      usedAt: r.used_at ? Number(r.used_at) : undefined,
+      createdAt: Number(r.created_at),
+    };
+  }
+
+  async markPasswordResetTokenUsed(id: string): Promise<void> {
+    await this.pool.query('UPDATE password_reset_tokens SET used = true, used_at = $1 WHERE id = $2', [Date.now(), id]);
+  }
+
+  async logSecurityEvent(event: SecurityAuditLog): Promise<void> {
+    try {
+      await this.pool.query(
+        'INSERT INTO security_audit_logs (id, action, email, ip, user_agent, details, timestamp) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+        [event.id, event.action, event.email, event.ip, event.userAgent || null, JSON.stringify(event.details || {}), event.timestamp]
+      );
+    } catch (err) {
+      console.error('[Postgres SecurityAudit] Error writing log:', err);
+    }
+  }
 }
 
 // -------------------------------------------------------------
@@ -425,6 +892,8 @@ interface LocalDataSchema {
   payouts: TeacherPayoutRecord[];
   leads: RegisteredLead[];
   inquiries: ContactInquiry[];
+  passwordResetTokens?: PasswordResetToken[];
+  auditLogs?: SecurityAuditLog[];
 }
 
 class LocalFileStorage implements IStorage {
@@ -700,6 +1169,39 @@ class LocalFileStorage implements IStorage {
     this.reload();
     return [...this.data.inquiries];
   }
+
+  async createPasswordResetToken(token: PasswordResetToken): Promise<PasswordResetToken> {
+    this.reload();
+    if (!this.data.passwordResetTokens) this.data.passwordResetTokens = [];
+    this.data.passwordResetTokens.push(token);
+    this.save();
+    return token;
+  }
+
+  async findPasswordResetToken(tokenHash: string): Promise<PasswordResetToken | null> {
+    this.reload();
+    if (!this.data.passwordResetTokens) this.data.passwordResetTokens = [];
+    const found = this.data.passwordResetTokens.find((t) => t.tokenHash === tokenHash);
+    return found ? { ...found } : null;
+  }
+
+  async markPasswordResetTokenUsed(id: string): Promise<void> {
+    this.reload();
+    if (!this.data.passwordResetTokens) this.data.passwordResetTokens = [];
+    const t = this.data.passwordResetTokens.find((item) => item.id === id);
+    if (t) {
+      t.used = true;
+      t.usedAt = Date.now();
+      this.save();
+    }
+  }
+
+  async logSecurityEvent(event: SecurityAuditLog): Promise<void> {
+    this.reload();
+    if (!this.data.auditLogs) this.data.auditLogs = [];
+    this.data.auditLogs.unshift(event);
+    this.save();
+  }
 }
 
 // -------------------------------------------------------------
@@ -710,17 +1212,42 @@ let storageInstance: IStorage | null = null;
 export async function getStorage(): Promise<IStorage> {
   if (storageInstance) return storageInstance;
 
+  // 1. Primary: Persistent Cloud Database via Firebase Firestore
+  const configPath = path.join(process.cwd(), 'firebase-applet-config.json');
+  if (fs.existsSync(configPath)) {
+    try {
+      const raw = fs.readFileSync(configPath, 'utf8');
+      const config = JSON.parse(raw);
+      if (config.projectId && config.projectId !== 'remixed-project-id' && config.firestoreDatabaseId) {
+        console.log(`[Storage] Connecting to Persistent Cloud Database (Firestore: ${config.firestoreDatabaseId})...`);
+        const firestoreStorage = new FirestoreStorage(config);
+        await firestoreStorage.init();
+        await seedInitialAdminIfNeeded(firestoreStorage);
+        await seedDefaultCoursesIfNeeded(firestoreStorage);
+        storageInstance = firestoreStorage;
+        return storageInstance;
+      }
+    } catch (err) {
+      console.warn('[Storage] Could not initialize Firestore storage, trying next fallback:', err);
+    }
+  }
+
+  // 2. Secondary: PostgreSQL relational database
   const dbUrl = process.env.DATABASE_URL;
   if (dbUrl && dbUrl.trim() !== '') {
     console.log('[Storage] Connecting to PostgreSQL database...');
     storageInstance = new PostgresStorage(dbUrl);
-  } else {
-    console.warn(
-      '[Storage WARNING] DATABASE_URL is not set. Using local file storage fallback (.data/dev_store.json).'
-    );
-    storageInstance = new LocalFileStorage();
+    await storageInstance.init();
+    await seedInitialAdminIfNeeded(storageInstance);
+    await seedDefaultCoursesIfNeeded(storageInstance);
+    return storageInstance;
   }
 
+  // 3. Fallback: Local file store
+  console.warn(
+    '[Storage WARNING] Using local file storage fallback (.data/dev_store.json).'
+  );
+  storageInstance = new LocalFileStorage();
   await storageInstance.init();
   await seedInitialAdminIfNeeded(storageInstance);
   await seedDefaultCoursesIfNeeded(storageInstance);

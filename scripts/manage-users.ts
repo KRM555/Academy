@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import dotenv from 'dotenv';
 import { getStorage } from '../src/server/storage';
 import { hashPassword } from '../src/server/crypto';
+import { strongPasswordSchema } from '../src/server/schemas';
 
 dotenv.config();
 
@@ -40,8 +41,9 @@ Usage:
       process.exit(1);
     }
 
-    if (password.length < 8) {
-      console.error('Error: Password must be at least 8 characters long.');
+    const passCheck = strongPasswordSchema.safeParse(password);
+    if (!passCheck.success) {
+      console.error(`Error: Password does not meet security requirements: ${passCheck.error.issues[0]?.message}`);
       process.exit(1);
     }
 
@@ -67,6 +69,11 @@ Usage:
     const password = getArg('--password');
     if (!email || !password) {
       console.error('Error: Both --email and --password are required.');
+      process.exit(1);
+    }
+    const passCheck = strongPasswordSchema.safeParse(password);
+    if (!passCheck.success) {
+      console.error(`Error: Password does not meet security requirements: ${passCheck.error.issues[0]?.message}`);
       process.exit(1);
     }
     const user = await storage.findUserByEmail(email);

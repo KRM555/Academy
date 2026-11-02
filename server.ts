@@ -14,11 +14,16 @@ import {
   requireRole,
   loginRateLimiter,
   publicFormRateLimiter,
+  forgotPasswordRateLimiter,
+  resetPasswordRateLimiter,
   signSessionToken,
   AuthenticatedRequest,
 } from './src/server/middleware';
 import {
   loginSchema,
+  registerSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
   courseSchema,
   courseUpdateSchema,
   studentProgressSchema,
@@ -26,8 +31,9 @@ import {
   leadRegisterSchema,
   contactInquirySchema,
 } from './src/server/schemas';
-import { verifyPassword, isValidIBAN } from './src/server/crypto';
+import { verifyPassword, hashPassword, isValidIBAN } from './src/server/crypto';
 import { siteConfig } from './src/config/siteConfig';
+import { sendPasswordResetEmail } from './src/server/email';
 
 dotenv.config();
 
@@ -101,14 +107,15 @@ app.get('/api/courses', async (_req: Request, res: Response) => {
 // Authentication Endpoints (Phase 1.1)
 // -------------------------------------------------------------
 
-// POST /api/auth/login (Rate-limited, constant-time compare, httpOnly signed cookie)
+// POST /api/auth/login (Rate-limited, constant-time compare, httpOnly signed cookie, Zod validated)
 app.post('/api/auth/login', loginRateLimiter, async (req: Request, res: Response) => {
   try {
     const parsed = loginSchema.safeParse(req.body);
     if (!parsed.success) {
+      const firstError = parsed.error.issues[0]?.message || 'بيانات الدخول غير صحيحة.';
       res.status(400).json({
         success: false,
-        message: 'بيانات الدخول غير صحيحة.',
+        message: firstError,
         errors: parsed.error.format(),
       });
       return;
@@ -154,6 +161,247 @@ app.post('/api/auth/login', loginRateLimiter, async (req: Request, res: Response
   } catch (err) {
     console.error('[API /api/auth/login] Error:', err);
     res.status(500).json({ success: false, message: 'حدث خطأ غير متوقع أثناء تسجيل الدخول.' });
+  }
+});
+
+// POST /api/auth/register (Rate-limited, strong password policy enforced via Zod schema)
+app.post('/api/auth/register', loginRateLimiter, async (req: Request, res: Response) => {
+  try {
+    const parsed = registerSchema.safeParse(req.body);
+    if (!parsed.success) {
+      const firstError = parsed.error.issues[0]?.message || 'البيانات المدخلة لا تستوفي شروط التسجيل.';
+      res.status(400).json({
+        success: false,
+        message: firstError,
+        errors: parsed.error.format(),
+      });
+      return;
+    }
+
+    const { name, email, password, role } = parsed.data;
+    const storage = await getStorage();
+    const existing = await storage.findUserByEmail(email);
+
+    if (existing) {
+      res.status(409).json({
+        success: false,
+        message: 'البريد الإلكتروني مسجل مسبقاً، يرجى تسجيل الدخول بدلاً من ذلك.',
+      });
+      return;
+    }
+
+    const passwordHash = await hashPassword(password);
+    const id = `usr-${crypto.randomUUID()}`;
+    const userRole = role === 'admin' ? 'admin' : 'teacher';
+    const permissions = userRole === 'admin' ? ['all'] : ['assigned_students', 'payouts'];
+
+    const user = await storage.createUser({
+      id,
+      email: email.toLowerCase(),
+      passwordHash,
+      name,
+      role: userRole,
+      permissions,
+    });
+
+    const token = signSessionToken(user);
+    res.cookie('nb_session', token, {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: 'lax',
+      maxAge: 12 * 60 * 60 * 1000,
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'تم إنشاء الحساب وتسجيل الدخول بنجاح.',
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        permissions: user.permissions,
+      },
+    });
+  } catch (err) {
+    console.error('[API /api/auth/register] Error:', err);
+    res.status(500).json({ success: false, message: 'حدث خطأ غير متوقع أثناء إنشاء الحساب.' });
+  }
+});
+
+// POST /api/auth/forgot-password (Rate-limited, anti-enumeration, secure token generation & email dispatch, audit logged)
+app.post('/api/auth/forgot-password', forgotPasswordRateLimiter, async (req: Request, res: Response) => {
+  try {
+    const parsed = forgotPasswordSchema.safeParse(req.body);
+    if (!parsed.success) {
+      const firstError = parsed.error.issues[0]?.message || 'البريد الإلكتروني المدخل غير صالح.';
+      res.status(400).json({
+        success: false,
+        message: firstError,
+        errors: parsed.error.format(),
+      });
+      return;
+    }
+
+    const email = parsed.data.email.toLowerCase();
+    const storage = await getStorage();
+    const user = await storage.findUserByEmail(email);
+
+    // Security audit log for the reset request
+    await storage.logSecurityEvent({
+      id: `log-${crypto.randomUUID()}`,
+      action: 'forgot_password_request',
+      email,
+      ip: req.ip || req.socket.remoteAddress || 'unknown',
+      userAgent: req.headers['user-agent'] as string | undefined,
+      details: { userFound: !!user },
+      timestamp: new Date().toISOString(),
+    });
+
+    if (user) {
+      // 1. Generate 32-byte cryptographic random token
+      const rawToken = crypto.randomBytes(32).toString('hex');
+      // 2. Hash token using SHA-256 for secure storage at rest
+      const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
+      // 3. Expiration: 15 minutes
+      const expiresInMinutes = 15;
+      const expiresAt = Date.now() + expiresInMinutes * 60 * 1000;
+
+      await storage.createPasswordResetToken({
+        id: `prt-${crypto.randomUUID()}`,
+        tokenHash,
+        userId: user.id,
+        email: user.email,
+        expiresAt,
+        used: false,
+        createdAt: Date.now(),
+      });
+
+      // Construct reset link
+      const host = req.get('x-forwarded-host') || req.get('host') || 'localhost:3000';
+      const protocol = req.get('x-forwarded-proto') || (req.secure ? 'https' : 'http');
+      const resetLink = `${protocol}://${host}/?resetToken=${rawToken}#reset-password`;
+
+      // Dispatch email
+      await sendPasswordResetEmail({
+        to: user.email,
+        userName: user.name,
+        resetLink,
+        expiresInMinutes,
+      });
+    }
+
+    // Always respond with identical message to avoid account enumeration
+    res.json({
+      success: true,
+      message: 'إذا كان البريد الإلكتروني مسجلاً لدينا، فقد تم إرسال رابط إعادة تعيين كلمة المرور إليه. يرجى مراجعة صندوق الوارد.',
+    });
+  } catch (err) {
+    console.error('[API /api/auth/forgot-password] Error:', err);
+    res.status(500).json({ success: false, message: 'حدث خطأ غير متوقع أثناء معالجة الطلب.' });
+  }
+});
+
+// POST /api/auth/reset-password (Rate-limited, strong password policy enforced, single-use token, audit logged)
+app.post('/api/auth/reset-password', resetPasswordRateLimiter, async (req: Request, res: Response) => {
+  try {
+    const parsed = resetPasswordSchema.safeParse(req.body);
+    if (!parsed.success) {
+      const firstError = parsed.error.issues[0]?.message || 'البيانات المدخلة لا تستوفي شروط كلمة المرور.';
+      res.status(400).json({
+        success: false,
+        message: firstError,
+        errors: parsed.error.format(),
+      });
+      return;
+    }
+
+    const { token, password } = parsed.data;
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+    const storage = await getStorage();
+    const tokenRecord = await storage.findPasswordResetToken(tokenHash);
+
+    const clientIp = req.ip || req.socket.remoteAddress || 'unknown';
+    const userAgent = req.headers['user-agent'] as string | undefined;
+
+    if (!tokenRecord) {
+      await storage.logSecurityEvent({
+        id: `log-${crypto.randomUUID()}`,
+        action: 'password_reset_invalid_token',
+        email: 'unknown',
+        ip: clientIp,
+        userAgent,
+        timestamp: new Date().toISOString(),
+      });
+      res.status(400).json({
+        success: false,
+        message: 'رابط إعادة التعيين غير صالح أو غير موجود. يرجى طلب رابط جديد.',
+      });
+      return;
+    }
+
+    if (tokenRecord.used) {
+      await storage.logSecurityEvent({
+        id: `log-${crypto.randomUUID()}`,
+        action: 'password_reset_token_already_used',
+        email: tokenRecord.email,
+        ip: clientIp,
+        userAgent,
+        details: { tokenId: tokenRecord.id },
+        timestamp: new Date().toISOString(),
+      });
+      res.status(400).json({
+        success: false,
+        message: 'تم استخدام هذا الرابط مسبقاً. يرجى طلب رابط إعادة تعيين جديد.',
+      });
+      return;
+    }
+
+    if (Date.now() > tokenRecord.expiresAt) {
+      await storage.logSecurityEvent({
+        id: `log-${crypto.randomUUID()}`,
+        action: 'password_reset_token_expired',
+        email: tokenRecord.email,
+        ip: clientIp,
+        userAgent,
+        details: { tokenId: tokenRecord.id, expiredAt: tokenRecord.expiresAt },
+        timestamp: new Date().toISOString(),
+      });
+      res.status(400).json({
+        success: false,
+        message: 'انتهت صلاحية رابط إعادة التعيين (15 دقيقة). يرجى طلب رابط جديد.',
+      });
+      return;
+    }
+
+    const newPasswordHash = await hashPassword(password);
+    const updated = await storage.updateUserPassword(tokenRecord.userId, newPasswordHash);
+    if (!updated) {
+      res.status(500).json({ success: false, message: 'تعذر تحديث كلمة المرور في قاعدة البيانات.' });
+      return;
+    }
+
+    // Mark token as used to ensure single-use
+    await storage.markPasswordResetTokenUsed(tokenRecord.id);
+
+    // Audit log successful reset
+    await storage.logSecurityEvent({
+      id: `log-${crypto.randomUUID()}`,
+      action: 'password_reset_success',
+      email: tokenRecord.email,
+      ip: clientIp,
+      userAgent,
+      details: { userId: tokenRecord.userId, tokenId: tokenRecord.id },
+      timestamp: new Date().toISOString(),
+    });
+
+    res.json({
+      success: true,
+      message: 'تم تعيين كلمة المرور الجديدة بنجاح! يمكنك الآن تسجيل الدخول بحسابك.',
+    });
+  } catch (err) {
+    console.error('[API /api/auth/reset-password] Error:', err);
+    res.status(500).json({ success: false, message: 'حدث خطأ غير متوقع أثناء إعادة تعيين كلمة المرور.' });
   }
 });
 

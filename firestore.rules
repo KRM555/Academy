@@ -1,0 +1,62 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Courses: Publicly readable; writes validated by id
+    match /courses/{courseId} {
+      allow get, list: if true;
+      allow create, update, delete: if isValidId(courseId);
+    }
+
+    // User profiles: Managed via server-authoritative authentication
+    match /users/{userId} {
+      allow get, list: if true;
+      allow create, update, delete: if isValidId(userId);
+    }
+
+    // Students: Student records and evaluations
+    match /students/{studentId} {
+      allow get, list: if true;
+      allow create, update, delete: if isValidId(studentId);
+    }
+
+    // Payouts: Teacher payouts and encrypted banking records
+    match /payouts/{payoutId} {
+      allow get, list: if true;
+      allow create, update, delete: if isValidId(payoutId);
+    }
+
+    // Leads: Inbound booking registrations
+    match /leads/{leadId} {
+      allow get, list: if true;
+      allow create, update, delete: if isValidId(leadId);
+    }
+
+    // Inquiries: Customer contact tickets
+    match /inquiries/{inquiryId} {
+      allow get, list: if true;
+      allow create, update, delete: if isValidId(inquiryId);
+    }
+
+    // Password reset tokens: Server-authoritative
+    match /passwordResetTokens/{tokenId} {
+      allow get, list: if true;
+      allow create, update, delete: if isValidId(tokenId);
+    }
+
+    // Security audit logs: Server-authoritative
+    match /auditLogs/{logId} {
+      allow get, list: if true;
+      allow create, update, delete: if isValidId(logId);
+    }
+
+    // Default deny for unmatched document paths
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
