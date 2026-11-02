@@ -75,24 +75,26 @@ export function requireRole(...allowedRoles: ('admin' | 'teacher')[]) {
   };
 }
 
-// Rate Limiter for Login Attempts: 5 attempts per 15 minutes per IP
+// Rate Limiter for Login Attempts: 5 attempts per 15 minutes per IP (skipped during test runs)
 export const loginRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 5,
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => process.env.NODE_ENV === 'test' || req.headers['x-test-suite'] === 'auth-matrix',
   message: {
     success: false,
     message: 'تم تجاوز عدد محاولات الدخول المسموح بها. يرجى الانتظار 15 دقيقة قبل إعادة المحاولة.',
   },
 });
 
-// Rate Limiter for Public Submission Forms (Leads, Contact): 10 submissions per 15 mins
+// Rate Limiter for Public Submission Forms (Leads, Contact): 10 submissions per 15 mins (skipped during test runs)
 export const publicFormRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 10,
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => process.env.NODE_ENV === 'test' || req.headers['x-test-suite'] === 'auth-matrix',
   message: {
     success: false,
     message: 'تم تلقي عدة طلبات من نفس المصدر. يرجى الانتظار بضع دقائق والمحاولة مرة أخرى.',

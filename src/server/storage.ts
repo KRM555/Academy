@@ -333,7 +333,32 @@ class PostgresStorage implements IStorage {
        RETURNING *`,
       [bankName, accountHolderName, encrypted, teacherEmail.toLowerCase()]
     );
-    if (res.rows.length === 0) return null;
+    if (res.rows.length === 0) {
+      const id = `pay-${crypto.randomUUID()}`;
+      const userRes = await this.pool.query('SELECT name FROM users WHERE LOWER(email) = LOWER($1)', [teacherEmail.toLowerCase()]);
+      const teacherName = userRes.rows[0]?.name || 'أستاذ معتمد';
+      const month = new Date().toISOString().slice(0, 7);
+      const insertRes = await this.pool.query(
+        `INSERT INTO teacher_payouts (id, teacher_email, teacher_name, month, hours_completed, hourly_rate_sar, total_earnings_sar, payout_status, bank_name, account_holder_name, iban_encrypted)
+         VALUES ($1, $2, $3, $4, 0, 50, 0, 'pending', $5, $6, $7)
+         RETURNING *`,
+        [id, teacherEmail.toLowerCase(), teacherName, month, bankName, accountHolderName, encrypted]
+      );
+      const r = insertRes.rows[0];
+      return {
+        id: r.id,
+        teacherEmail: r.teacher_email,
+        teacherName: r.teacher_name,
+        month: r.month,
+        hoursCompleted: Number(r.hours_completed),
+        hourlyRateSar: Number(r.hourly_rate_sar),
+        totalEarningsSar: Number(r.total_earnings_sar),
+        payoutStatus: r.payout_status,
+        bankName: r.bank_name,
+        accountHolderName: r.account_holder_name,
+        ibanMasked: maskIban(plainIban),
+      };
+    }
     const r = res.rows[0];
     return {
       id: r.id,
@@ -492,20 +517,24 @@ class LocalFileStorage implements IStorage {
   }
 
   async getCourses(): Promise<ProgramCourse[]> {
+    this.reload();
     return [...this.data.courses];
   }
 
   async getCourseById(id: string): Promise<ProgramCourse | null> {
+    this.reload();
     return this.data.courses.find((c) => c.id === id) || null;
   }
 
   async createCourse(course: ProgramCourse): Promise<ProgramCourse> {
+    this.reload();
     this.data.courses.push(course);
     this.save();
     return course;
   }
 
   async updateCourse(id: string, updates: Partial<ProgramCourse>): Promise<ProgramCourse | null> {
+    this.reload();
     const idx = this.data.courses.findIndex((c) => c.id === id);
     if (idx === -1) return null;
     this.data.courses[idx] = { ...this.data.courses[idx], ...updates };
@@ -514,6 +543,7 @@ class LocalFileStorage implements IStorage {
   }
 
   async deleteCourse(id: string): Promise<boolean> {
+    this.reload();
     const initialLen = this.data.courses.length;
     this.data.courses = this.data.courses.filter((c) => c.id !== id);
     if (this.data.courses.length !== initialLen) {
@@ -524,6 +554,7 @@ class LocalFileStorage implements IStorage {
   }
 
   async getStudents(filterTeacherEmail?: string): Promise<Student[]> {
+    this.reload();
     if (!filterTeacherEmail) return [...this.data.students];
     return this.data.students.filter(
       (s) => s.assignedTeacherEmail && s.assignedTeacherEmail.toLowerCase() === filterTeacherEmail.toLowerCase()
@@ -531,10 +562,12 @@ class LocalFileStorage implements IStorage {
   }
 
   async getStudentById(id: string): Promise<Student | null> {
+    this.reload();
     return this.data.students.find((s) => s.id === id) || null;
   }
 
   async updateStudentProgress(id: string, newSurah?: string, teacherNotes?: string): Promise<Student | null> {
+    this.reload();
     const student = this.data.students.find((s) => s.id === id);
     if (!student) return null;
 
@@ -549,6 +582,7 @@ class LocalFileStorage implements IStorage {
   }
 
   async getPayouts(filterTeacherEmail?: string): Promise<TeacherPayout[]> {
+    this.reload();
     let list = this.data.payouts;
     if (filterTeacherEmail) {
       list = list.filter((p) => p.teacherEmail.toLowerCase() === filterTeacherEmail.toLowerCase());
@@ -577,8 +611,40 @@ class LocalFileStorage implements IStorage {
     accountHolderName: string,
     plainIban: string
   ): Promise<TeacherPayout | null> {
-    const p = this.data.payouts.find((item) => item.teacherEmail.toLowerCase() === teacherEmail.toLowerCase());
-    if (!p) return null;
+    this.reload();
+    let p = this.data.payouts.find((item) => item.teacherEmail.toLowerCase() === teacherEmail.toLowerCase());
+    if (!p) {
+      const teacher = this.data.users.find((u) => u.email.toLowerCase() === teacherEmail.toLowerCase());
+      p = {
+        id: `pay-${crypto.randomUUID()}`,
+        teacherEmail: teacherEmail.toLowerCase(),
+        teacherName: teacher ? teacher.name : 'أستاذ معتمد',
+        month: new Date().toISOString().slice(0, 7),
+        hoursCompleted: 0,
+        hourlyRateSar: 50,
+        totalEarningsSar: 0,
+        payoutStatus: 'pending',
+        bankName,
+        accountHolderName,
+        ibanEncrypted: encryptAtRest(plainIban),
+        createdAt: new Date().toISOString(),
+      };
+      this.data.payouts.push(p);
+      this.save();
+      return {
+        id: p.id,
+        teacherEmail: p.teacherEmail,
+        teacherName: p.teacherName,
+        month: p.month,
+        hoursCompleted: p.hoursCompleted,
+        hourlyRateSar: p.hourlyRateSar,
+        totalEarningsSar: p.totalEarningsSar,
+        payoutStatus: p.payoutStatus,
+        bankName: p.bankName,
+        accountHolderName: p.accountHolderName,
+        ibanMasked: maskIban(plainIban),
+      };
+    }
     p.bankName = bankName;
     p.accountHolderName = accountHolderName;
     p.ibanEncrypted = encryptAtRest(plainIban);
@@ -599,6 +665,7 @@ class LocalFileStorage implements IStorage {
   }
 
   async createLead(leadData: Omit<RegisteredLead, 'id' | 'createdAt' | 'status'>): Promise<RegisteredLead> {
+    this.reload();
     const id = `lead-${crypto.randomUUID()}`;
     const fullLead: RegisteredLead = {
       ...leadData,
@@ -612,10 +679,12 @@ class LocalFileStorage implements IStorage {
   }
 
   async getLeads(): Promise<RegisteredLead[]> {
+    this.reload();
     return [...this.data.leads];
   }
 
   async createInquiry(inquiryData: Omit<ContactInquiry, 'id' | 'createdAt'>): Promise<ContactInquiry> {
+    this.reload();
     const id = `inq-${crypto.randomUUID()}`;
     const fullInquiry: ContactInquiry = {
       ...inquiryData,
@@ -628,6 +697,7 @@ class LocalFileStorage implements IStorage {
   }
 
   async getInquiries(): Promise<ContactInquiry[]> {
+    this.reload();
     return [...this.data.inquiries];
   }
 }

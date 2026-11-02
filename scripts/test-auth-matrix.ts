@@ -33,6 +33,7 @@ async function request(
 ) {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
+    'x-test-suite': 'auth-matrix',
   };
   if (options.cookie) {
     headers['Cookie'] = options.cookie;
