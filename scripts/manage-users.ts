@@ -64,6 +64,7 @@ Usage:
     });
 
     console.log(`[SUCCESS] Created ${role} user: ${user.email} (ID: ${user.id})`);
+    process.exit(0);
   } else if (action === 'reset') {
     const email = getArg('--email');
     const password = getArg('--password');
@@ -84,10 +85,13 @@ Usage:
     const newHash = await hashPassword(password);
     await storage.updateUserPassword(user.id, newHash);
     console.log(`[SUCCESS] Reset password for ${email}.`);
+    process.exit(0);
   } else if (action === 'list') {
     console.log('[Storage] Listing all users is restricted to direct DB inspection for security.');
+    process.exit(0);
   } else {
     console.log(help);
+    process.exit(0);
   }
 }
 

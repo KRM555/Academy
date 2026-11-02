@@ -21,7 +21,11 @@ import {
   Trash2,
   ArrowRight,
   ShieldAlert,
+  BarChart3,
+  TrendingUp,
 } from 'lucide-react';
+import { PortalAnalyticsCharts } from './PortalAnalyticsCharts';
+import { DashboardCharts } from './DashboardCharts';
 
 interface AdminTeacherPortalProps {
   isOpen?: boolean;
@@ -49,7 +53,7 @@ export const AdminTeacherPortal: React.FC<AdminTeacherPortalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Active Tab
-  const [activeTab, setActiveTab] = useState<'courses' | 'students' | 'payouts' | 'leads'>('courses');
+  const [activeTab, setActiveTab] = useState<'analytics' | 'courses' | 'students' | 'payouts' | 'leads'>('analytics');
 
   // Data States
   const [courses, setCourses] = useState<ProgramCourse[]>([]);
@@ -93,6 +97,9 @@ export const AdminTeacherPortal: React.FC<AdminTeacherPortalProps> = ({
   const [ibanInput, setIbanInput] = useState('');
   const [bankUpdateFeedback, setBankUpdateFeedback] = useState<{ text: string; isError: boolean } | null>(null);
 
+  // Leads Chart Toggle
+  const [showLeadsChart, setShowLeadsChart] = useState(true);
+
   // Fetch data on session change or active tab change
   useEffect(() => {
     if (!currentUser) return;
@@ -103,18 +110,39 @@ export const AdminTeacherPortal: React.FC<AdminTeacherPortalProps> = ({
     setLoadingData(true);
     setGeneralError('');
     try {
-      if (activeTab === 'courses') {
+      if (activeTab === 'analytics') {
+        const promises: Promise<any>[] = [api.courses.list(), api.students.list()];
+        if (currentUser?.role === 'admin') {
+          promises.push(api.leads.list());
+        }
+        const results = await Promise.all(promises);
+        setCourses(results[0].courses);
+        setStudents(results[1].students);
+        if (currentUser?.role === 'admin' && results[2]) {
+          setLeads(results[2].leads);
+        }
+      } else if (activeTab === 'courses') {
         const res = await api.courses.list();
         setCourses(res.courses);
       } else if (activeTab === 'students') {
         const res = await api.students.list();
         setStudents(res.students);
+        if (courses.length === 0) {
+          const cRes = await api.courses.list();
+          setCourses(cRes.courses);
+        }
       } else if (activeTab === 'payouts') {
         const res = await api.payouts.list();
         setPayouts(res.payouts);
       } else if (activeTab === 'leads' && currentUser?.role === 'admin') {
-        const res = await api.leads.list();
-        setLeads(res.leads);
+        const [lRes, sRes, cRes] = await Promise.all([
+          api.leads.list(),
+          students.length === 0 ? api.students.list() : Promise.resolve({ students }),
+          courses.length === 0 ? api.courses.list() : Promise.resolve({ courses }),
+        ]);
+        setLeads(lRes.leads);
+        if (students.length === 0 && sRes?.students) setStudents(sRes.students);
+        if (courses.length === 0 && cRes?.courses) setCourses(cRes.courses);
       }
     } catch (err: any) {
       setGeneralError(err.message || 'حدث خطأ أثناء تحميل البيانات');
@@ -408,6 +436,22 @@ export const AdminTeacherPortal: React.FC<AdminTeacherPortalProps> = ({
       {/* Tabs Navigation */}
       <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
         <button
+          onClick={() => setActiveTab('analytics')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            activeTab === 'analytics'
+              ? 'bg-[#0F2942] text-white shadow-xs'
+              : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+          }`}
+        >
+          <BarChart3 className="w-4 h-4 text-emerald-400" />
+          <span>
+            {currentUser.role === 'admin'
+              ? 'لوحة الإدارة والتحليلات (Admin Dashboard)'
+              : 'مؤشرات إنجاز الطلاب'}
+          </span>
+        </button>
+
+        <button
           onClick={() => setActiveTab('courses')}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
             activeTab === 'courses'
@@ -489,6 +533,25 @@ export const AdminTeacherPortal: React.FC<AdminTeacherPortalProps> = ({
         </div>
       ) : (
         <>
+          {/* TAB 0: ANALYTICS & VISUALIZATIONS (RECHARTS) */}
+          {activeTab === 'analytics' && (
+            <div className="space-y-6">
+              {currentUser.role === 'admin' && (
+                <DashboardCharts
+                  students={students}
+                  leads={leads}
+                  courses={courses}
+                />
+              )}
+              <PortalAnalyticsCharts
+                currentUser={currentUser}
+                students={students}
+                leads={leads}
+                courses={courses}
+              />
+            </div>
+          )}
+
           {/* TAB 1: COURSES */}
           {activeTab === 'courses' && (
             <div className="space-y-4">
@@ -553,9 +616,51 @@ export const AdminTeacherPortal: React.FC<AdminTeacherPortalProps> = ({
           {/* TAB 2: STUDENTS */}
           {activeTab === 'students' && (
             <div className="space-y-4">
-              <h3 className="text-sm font-bold text-[#0F2942] dark:text-white">
-                قائمة متابعة الطلاب ({students.length})
-              </h3>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <h3 className="text-sm font-bold text-[#0F2942] dark:text-white">
+                    قائمة متابعة الطلاب ({students.length})
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    متابعة يومية لمستويات الحفظ، الحضور، وتدوين ملاحظات المعلم
+                  </p>
+                </div>
+                <button
+                  onClick={() => setActiveTab('analytics')}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-[#0D9488] bg-teal-50 dark:bg-teal-950/50 hover:bg-teal-100 dark:text-teal-300 rounded-xl transition-colors cursor-pointer self-start sm:self-auto"
+                >
+                  <BarChart3 className="w-3.5 h-3.5" />
+                  <span>عرض الرسوم البيانية للمراحل</span>
+                </button>
+              </div>
+
+              {/* Milestone Quick Tiers Bar */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+                <div className="p-3 bg-white dark:bg-[#111E2E] rounded-xl border border-slate-200 dark:border-slate-800 text-xs">
+                  <span className="text-[10px] text-slate-400 block">المرحلة 1 (1 - 5 سُوَر)</span>
+                  <span className="font-extrabold text-teal-600 dark:text-teal-400 text-sm">
+                    {students.filter((s) => (s.memorizedSurahs?.length || 0) <= 5).length} طلاب
+                  </span>
+                </div>
+                <div className="p-3 bg-white dark:bg-[#111E2E] rounded-xl border border-slate-200 dark:border-slate-800 text-xs">
+                  <span className="text-[10px] text-slate-400 block">المرحلة 2 (6 - 15 سورة)</span>
+                  <span className="font-extrabold text-blue-600 dark:text-blue-400 text-sm">
+                    {students.filter((s) => (s.memorizedSurahs?.length || 0) > 5 && (s.memorizedSurahs?.length || 0) <= 15).length} طلاب
+                  </span>
+                </div>
+                <div className="p-3 bg-white dark:bg-[#111E2E] rounded-xl border border-slate-200 dark:border-slate-800 text-xs">
+                  <span className="text-[10px] text-slate-400 block">المرحلة 3 (إتمام جزء عمّ)</span>
+                  <span className="font-extrabold text-amber-600 dark:text-amber-400 text-sm">
+                    {students.filter((s) => (s.memorizedSurahs?.length || 0) > 15 && (s.memorizedSurahs?.length || 0) <= 30).length} طلاب
+                  </span>
+                </div>
+                <div className="p-3 bg-white dark:bg-[#111E2E] rounded-xl border border-slate-200 dark:border-slate-800 text-xs">
+                  <span className="text-[10px] text-slate-400 block">المرحلة 4 (الحفظ المتقدم +30)</span>
+                  <span className="font-extrabold text-purple-600 dark:text-purple-400 text-sm">
+                    {students.filter((s) => (s.memorizedSurahs?.length || 0) > 30).length} طلاب
+                  </span>
+                </div>
+              </div>
               <div className="bg-white dark:bg-[#111E2E] border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-2xs">
                 <div className="overflow-x-auto">
                   <table className="w-full text-right text-xs">
@@ -740,10 +845,34 @@ export const AdminTeacherPortal: React.FC<AdminTeacherPortalProps> = ({
 
           {/* TAB 4: LEADS (Admin Only) */}
           {activeTab === 'leads' && currentUser.role === 'admin' && (
-            <div className="space-y-4">
-              <h3 className="text-sm font-bold text-[#0F2942] dark:text-white">
-                طلبات التسجيل والحجز الواردة ({leads.length})
-              </h3>
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <h3 className="text-sm font-bold text-[#0F2942] dark:text-white">
+                    طلبات التسجيل والحجز الواردة ({leads.length})
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    متابعة وتأكيد حجوزات الحصص التجريبية والتواصل مع أولياء الأمور
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowLeadsChart(!showLeadsChart)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-[#0D9488] bg-teal-50 dark:bg-teal-950/50 hover:bg-teal-100 dark:text-teal-300 rounded-xl transition-colors cursor-pointer self-start sm:self-auto"
+                >
+                  <BarChart3 className="w-3.5 h-3.5" />
+                  <span>{showLeadsChart ? 'إخفاء المخطط البياني' : 'عرض المخطط البياني للنمو'}</span>
+                </button>
+              </div>
+
+              {/* Monthly Enrollment Trends Visualization */}
+              {showLeadsChart && (
+                <DashboardCharts
+                  students={students}
+                  leads={leads}
+                  courses={courses}
+                />
+              )}
+
               <div className="bg-white dark:bg-[#111E2E] border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-2xs">
                 <div className="overflow-x-auto">
                   <table className="w-full text-right text-xs">

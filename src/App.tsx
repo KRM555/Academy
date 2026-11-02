@@ -438,6 +438,34 @@ export default function App() {
               />
             }
           />
+          {/* Direct /admin route */}
+          <Route
+            path="/admin"
+            element={
+              <AdminTeacherPortal
+                isFullPage={true}
+                onNavigateHome={() => navigateTo('home')}
+                currentUser={currentUser}
+                onLoginSuccess={handleLoginSuccess}
+                onLogout={handleLogout}
+                onCoursesUpdated={() => setCoursesRefreshTrigger((prev) => prev + 1)}
+              />
+            }
+          />
+          {/* Direct /login route */}
+          <Route
+            path="/login"
+            element={
+              <AdminTeacherPortal
+                isFullPage={true}
+                onNavigateHome={() => navigateTo('home')}
+                currentUser={currentUser}
+                onLoginSuccess={handleLoginSuccess}
+                onLogout={handleLogout}
+                onCoursesUpdated={() => setCoursesRefreshTrigger((prev) => prev + 1)}
+              />
+            }
+          />
 
           {/* PRIVACY POLICY */}
           <Route

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Language, translations } from '../data/translations';
 import { BrandLogo } from './BrandLogo';
-import { Globe, Mail } from 'lucide-react';
+import { Globe, Mail, Lock } from 'lucide-react';
 import { siteConfig, getWhatsAppUrl } from '../config/siteConfig';
 
 interface FooterProps {
@@ -110,6 +110,15 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenTrial, current
               <li>
                 <button onClick={() => onNavigate('mothers')} className="hover:text-emerald-400 transition-colors cursor-pointer">
                   {t.navMothers}
+                </button>
+              </li>
+              <li className="pt-1.5 border-t border-slate-800/80">
+                <button
+                  onClick={() => onNavigate('portal')}
+                  className="hover:text-emerald-400 transition-colors cursor-pointer flex items-center gap-1.5 text-slate-400 hover:text-emerald-300 font-semibold"
+                >
+                  <Lock className="w-3 h-3 text-emerald-400 shrink-0" />
+                  <span>{currentLanguage === 'ar' ? 'بوابة الكادر والإدارة' : 'Admin & Staff Portal'}</span>
                 </button>
               </li>
             </ul>

@@ -102,12 +102,12 @@ export const Navbar: React.FC<NavbarProps> = ({
             {isDarkMode ? <Sun className="w-4 h-4 text-amber-300" /> : <Moon className="w-4 h-4 text-slate-600" />}
           </button>
 
-          {/* Staff Portal: ONLY visible if authenticated */}
-          {userRole && (
+          {/* Staff Portal / Admin Login Button */}
+          {userRole ? (
             <button
               onClick={() => onNavigate('dashboard')}
               className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg border transition-all whitespace-nowrap cursor-pointer shrink-0 ${
-                currentPage === 'dashboard'
+                currentPage === 'dashboard' || currentPage === 'portal'
                   ? 'bg-[#0F2942] text-white border-[#0F2942]'
                   : 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-900 dark:text-emerald-200 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 border-emerald-300 dark:border-emerald-700'
               }`}
@@ -115,6 +115,15 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               <Lock className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
               <span>{t.navPortal}</span>
+            </button>
+          ) : (
+            <button
+              onClick={() => onNavigate('portal')}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 hover:text-[#0D9488] dark:hover:text-emerald-400 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-lg transition-colors cursor-pointer shrink-0"
+              title={currentLanguage === 'ar' ? 'تسجيل دخول الإدارة والمعلمين' : 'Admin & Staff Login'}
+            >
+              <Lock className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 shrink-0" />
+              <span>{currentLanguage === 'ar' ? 'دخول الإدارة' : 'Admin Login'}</span>
             </button>
           )}
 
@@ -158,8 +167,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
             ))}
 
-            {/* Portal Link only for authenticated staff */}
-            {userRole && (
+            {/* Portal Link */}
+            {userRole ? (
               <button
                 onClick={() => {
                   onNavigate('dashboard');
@@ -172,6 +181,20 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <span>{t.navPortal}</span>
                 </span>
                 <span className="text-xs text-emerald-400">لوحة التحكم</span>
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  onNavigate('portal');
+                  setMobileMenuOpen(false);
+                }}
+                className="text-right rtl:text-right ltr:text-left px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800/80 text-slate-800 dark:text-slate-200 font-bold flex items-center justify-between cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+              >
+                <span className="flex items-center gap-2">
+                  <Lock className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                  <span>{currentLanguage === 'ar' ? 'تسجيل دخول الإدارة والمعلمين' : 'Admin & Staff Login'}</span>
+                </span>
+                <span className="text-xs text-[#0D9488] dark:text-emerald-400">دخول</span>
               </button>
             )}
           </div>
