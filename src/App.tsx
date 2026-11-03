@@ -23,10 +23,12 @@ import { FloatingTrialButton } from './components/FloatingTrialButton';
 import { Footer } from './components/Footer';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { GlobalLoadingIndicator } from './components/GlobalLoadingIndicator';
+import { CertificateCanvasStudio } from './components/CertificateCanvasStudio';
+import { GamesHub } from './components/games/GamesHub';
 import { PageSeo } from './components/PageSeo';
 import { LoadingProvider } from './context/LoadingContext';
 import { loadingManager } from './services/loadingManager';
-import { ArrowLeft, ArrowRight, BookOpen, Sparkles, Award, Heart, Check } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BookOpen, Sparkles, Award, Heart, Check, Gamepad2 } from 'lucide-react';
 
 export default function App() {
   const navigate = useNavigate();
@@ -48,6 +50,9 @@ export default function App() {
   const [selectedProgramTitleForBooking, setSelectedProgramTitleForBooking] = useState<string | null>(null);
   const [customBookingNote, setCustomBookingNote] = useState('');
   const [coursesRefreshTrigger, setCoursesRefreshTrigger] = useState(0);
+
+  // Active full-viewport game session flag (hides navbar/footer for 100% immersion)
+  const [isGameSessionActive, setIsGameSessionActive] = useState(false);
 
   // Check saved preferences and verify session with server on load
   useEffect(() => {
@@ -231,18 +236,20 @@ export default function App() {
         {/* Global Loading Indicator (fixed top bar + network indicator, zero layout shift) */}
         <GlobalLoadingIndicator currentLanguage={currentLanguage} />
 
-        {/* Streamlined, single-tier ~64px tall Navbar */}
-      <Navbar
-        currentPage={currentNavPage}
-        onNavigate={navigateTo}
-        onOpenTrial={() => openTrialBooking()}
-        userRole={currentUser?.role}
-        onLogout={handleLogout}
-        currentLanguage={currentLanguage}
-        onToggleLanguage={toggleLanguage}
-        isDarkMode={isDarkMode}
-        onToggleTheme={toggleTheme}
-      />
+        {/* Streamlined, single-tier ~64px tall Navbar — hidden during full-viewport game session */}
+      {!isGameSessionActive && (
+        <Navbar
+          currentPage={currentNavPage}
+          onNavigate={navigateTo}
+          onOpenTrial={() => openTrialBooking()}
+          userRole={currentUser?.role}
+          onLogout={handleLogout}
+          currentLanguage={currentLanguage}
+          onToggleLanguage={toggleLanguage}
+          isDarkMode={isDarkMode}
+          onToggleTheme={toggleTheme}
+        />
+      )}
 
       {/* Main Routed Content */}
       <main className="flex-1">
@@ -327,6 +334,47 @@ export default function App() {
                   </div>
                 </section>
 
+                {/* Games Arcade Spotlight Banner */}
+                <section className="py-12 bg-gradient-to-r from-[#071322] via-[#0B1E34] to-[#071322] text-white border-b border-slate-800">
+                  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="bg-[#091829]/90 border border-emerald-500/30 rounded-3xl p-6 sm:p-10 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl">
+                      <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+                      <div className="absolute bottom-0 left-0 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+
+                      <div className="relative z-10 max-w-xl text-center md:text-right">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-bold mb-3 border border-emerald-500/30">
+                          <Gamepad2 className="w-3.5 h-3.5" />
+                          <span>{isAr ? 'جديد وحصري: واحة الألعاب الذكية' : 'New: Smart Game Arcade'}</span>
+                        </div>
+                        <h3 className="text-2xl sm:text-3xl font-extrabold text-white mb-3">
+                          {isAr ? 'ألعاب علمية وقرآنية تجمع بين المتعة والفائدة' : 'Scientific & Quranic Educational Games'}
+                        </h3>
+                        <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mb-4">
+                          {isAr
+                            ? 'أركيد صائد التجويد 60fps، تحدي الإعجاز العلمي وعلماء الحضارة الإسلامية، وسباق ترتيب الآيات الذهبي. العب الآن مجاناً بدون أي إعلانات!'
+                            : 'Fast-paced 60fps Tajweed arcade, Quranic science wonders quiz, and Ayah speed puzzle. 100% ad-free!'}
+                        </p>
+                        <div className="flex flex-wrap gap-2 text-xs text-slate-300 justify-center md:justify-start">
+                          <span className="bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-700">🎮 صائد التجويد 60fps</span>
+                          <span className="bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-700">🔬 تحدي الإعجاز العلمي</span>
+                          <span className="bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-700">📖 سباق ترتيب السور</span>
+                        </div>
+                      </div>
+
+                      <div className="relative z-10 shrink-0">
+                        <button
+                          onClick={() => navigateTo('games')}
+                          className="px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-600 hover:from-emerald-500 hover:to-teal-400 text-white font-extrabold text-base transition-all transform hover:scale-105 shadow-xl shadow-emerald-950/60 flex items-center gap-3 cursor-pointer"
+                        >
+                          <Gamepad2 className="w-5 h-5" />
+                          <span>{isAr ? 'ادخل واحة الألعاب الآن' : 'Launch Game Arcade'}</span>
+                          <ArrowIcon className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
                 {/* How a Trial Class Works (3 Steps) */}
                 <HowItWorks currentLanguage={currentLanguage} onOpenTrial={() => openTrialBooking()} />
 
@@ -386,6 +434,24 @@ export default function App() {
           <Route
             path="/progress"
             element={<StudentProgressDemo currentLanguage={currentLanguage} />}
+          />
+
+          {/* CERTIFICATE & AWARD CANVAS STUDIO */}
+          <Route
+            path="/certificates"
+            element={<CertificateCanvasStudio currentLanguage={currentLanguage} />}
+          />
+
+          {/* EDUCATIONAL & SCIENTIFIC GAMES OASIS */}
+          <Route
+            path="/games"
+            element={
+              <GamesHub
+                currentLanguage={currentLanguage}
+                onNavigateHome={() => navigateTo('home')}
+                onGameActiveChange={setIsGameSessionActive}
+              />
+            }
           />
 
           {/* MOTHERS OASIS */}
@@ -501,19 +567,23 @@ export default function App() {
         currentLanguage={currentLanguage}
       />
 
-      {/* Floating 'Book a Trial' Quick Action Button */}
-      <FloatingTrialButton
-        onOpenTrial={() => openTrialBooking()}
-        currentLanguage={currentLanguage}
-        isHidden={isEnrollmentModalOpen}
-      />
+      {/* Floating 'Book a Trial' Quick Action Button — hidden during active full-viewport game */}
+      {!isGameSessionActive && (
+        <FloatingTrialButton
+          onOpenTrial={() => openTrialBooking()}
+          currentLanguage={currentLanguage}
+          isHidden={isEnrollmentModalOpen}
+        />
+      )}
 
-      {/* Footer */}
-      <Footer
-        onNavigate={navigateTo}
-        onOpenTrial={() => openTrialBooking()}
-        currentLanguage={currentLanguage}
-      />
+      {/* Footer — hidden during active full-viewport game */}
+      {!isGameSessionActive && (
+        <Footer
+          onNavigate={navigateTo}
+          onOpenTrial={() => openTrialBooking()}
+          currentLanguage={currentLanguage}
+        />
+      )}
     </div>
   </LoadingProvider>
   );

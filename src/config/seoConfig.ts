@@ -142,6 +142,23 @@ export const ROUTE_SEO: Record<string, Record<Language, RouteSeoData>> = {
     },
   },
 
+  '/games': {
+    ar: {
+      title: 'واحة الألعاب والمسابقات الذكية | أكاديمية نور وبيان',
+      description: 'ألعاب تفاعلية علمية وقرآنية للأطفال: أركيد صائد التجويد 60fps، وتحدي رواد العلوم والإعجاز في القرآن، وسباق ترتيب الآيات والسور.',
+      ogTitle: 'واحة الألعاب التعليمية والقرآنية | أكاديمية نور وبيان',
+      ogDescription: 'ألعاب أركيد وتحديات علمية ممتعة تجمع بين التسلية المشوقة والفوائد المعرفية في التجويد والعلوم والقرآن.',
+      image: '/images/hero_learning.jpg',
+    },
+    en: {
+      title: 'Smart Educational & Quran Games Arcade | Noor & Bayan Academy',
+      description: 'Interactive educational games: 60fps Tajweed arcade, Quranic science wonders quest, and Ayah arrangement speed puzzle.',
+      ogTitle: 'Educational Games Arcade | Noor & Bayan Academy',
+      ogDescription: 'Real-time games combining arcade entertainment with Quranic and scientific knowledge for children.',
+      image: '/images/hero_learning.jpg',
+    },
+  },
+
   '/portal': {
     ar: {
       title: 'بوابة المعلمين والإدارة | أكاديمية نور وبيان',

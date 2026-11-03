@@ -108,6 +108,16 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenTrial, current
                 </button>
               </li>
               <li>
+                <button onClick={() => onNavigate('certificates')} className="hover:text-emerald-400 transition-colors cursor-pointer">
+                  {currentLanguage === 'ar' ? 'الشهادات واللوحات' : 'Certificates Studio'}
+                </button>
+              </li>
+              <li>
+                <button onClick={() => onNavigate('games')} className="hover:text-emerald-400 transition-colors cursor-pointer text-amber-400 hover:text-amber-300 font-bold">
+                  {currentLanguage === 'ar' ? 'واحة الألعاب الذكية 🎮' : 'Smart Games Arcade 🎮'}
+                </button>
+              </li>
+              <li>
                 <button onClick={() => onNavigate('mothers')} className="hover:text-emerald-400 transition-colors cursor-pointer">
                   {t.navMothers}
                 </button>

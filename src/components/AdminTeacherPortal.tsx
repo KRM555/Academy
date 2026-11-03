@@ -23,9 +23,11 @@ import {
   ShieldAlert,
   BarChart3,
   TrendingUp,
+  Award,
 } from 'lucide-react';
 import { PortalAnalyticsCharts } from './PortalAnalyticsCharts';
 import { DashboardCharts } from './DashboardCharts';
+import { CertificateCanvasStudio } from './CertificateCanvasStudio';
 
 interface AdminTeacherPortalProps {
   isOpen?: boolean;
@@ -90,6 +92,7 @@ export const AdminTeacherPortal: React.FC<AdminTeacherPortalProps> = ({
   const [newSurahToAdd, setNewSurahToAdd] = useState('');
   const [studentNoteInput, setStudentNoteInput] = useState('');
   const [progressFeedback, setProgressFeedback] = useState('');
+  const [studentForCertificate, setStudentForCertificate] = useState<Student | null>(null);
 
   // Teacher Bank Account (IBAN) Update State
   const [bankNameInput, setBankNameInput] = useState('');
@@ -689,17 +692,27 @@ export const AdminTeacherPortal: React.FC<AdminTeacherPortalProps> = ({
                             {st.teacherNotes || '—'}
                           </td>
                           <td className="py-3 px-4 text-center">
-                            <button
-                              onClick={() => {
-                                setSelectedStudentForNotes(st);
-                                setStudentNoteInput(st.teacherNotes || '');
-                                setNewSurahToAdd('');
-                                setProgressFeedback('');
-                              }}
-                              className="px-2.5 py-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 dark:bg-emerald-950/60 dark:text-emerald-300 rounded-lg hover:bg-emerald-100 transition-colors"
-                            >
-                              تحديث السجل
-                            </button>
+                            <div className="flex items-center justify-center gap-1.5">
+                              <button
+                                onClick={() => {
+                                  setSelectedStudentForNotes(st);
+                                  setStudentNoteInput(st.teacherNotes || '');
+                                  setNewSurahToAdd('');
+                                  setProgressFeedback('');
+                                }}
+                                className="px-2.5 py-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 dark:bg-emerald-950/60 dark:text-emerald-300 rounded-lg hover:bg-emerald-100 transition-colors cursor-pointer"
+                              >
+                                تحديث السجل
+                              </button>
+                              <button
+                                onClick={() => setStudentForCertificate(st)}
+                                className="px-2 py-1 text-[11px] font-bold text-amber-700 bg-amber-50 dark:bg-amber-950/60 dark:text-amber-300 rounded-lg hover:bg-amber-100 transition-colors flex items-center gap-1 cursor-pointer"
+                                title="إصدار شهادة تقدير للطالب"
+                              >
+                                <Award className="w-3.5 h-3.5 text-amber-500" />
+                                <span>إصدار شهادة</span>
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -1105,6 +1118,22 @@ export const AdminTeacherPortal: React.FC<AdminTeacherPortalProps> = ({
                 {isDeleting ? 'جاري الحذف...' : 'نعم، احذف'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Issue Certificate Studio */}
+      {studentForCertificate && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+          <div className="bg-white dark:bg-[#0B1522] rounded-3xl max-w-6xl w-full p-4 sm:p-6 border border-amber-400/40 shadow-2xl relative max-h-[92vh] overflow-y-auto">
+            <CertificateCanvasStudio
+              initialStudentName={studentForCertificate.childName}
+              initialProgram={studentForCertificate.program}
+              initialAchievement={`حفظ وإتقان ${studentForCertificate.memorizedSurahs?.length || 20} سورة مباركة`}
+              currentLanguage="ar"
+              isModal={true}
+              onClose={() => setStudentForCertificate(null)}
+            />
           </div>
         </div>
       )}

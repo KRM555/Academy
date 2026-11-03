@@ -40,11 +40,14 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const t = translations[currentLanguage];
 
-  // 5 clear, high-intent links
+  // Clear, high-intent links including Certificate Canvas Studio
+  const isAr = currentLanguage === 'ar';
   const navLinks = [
     { id: 'home', label: t.navHome },
     { id: 'programs', label: t.navPrograms },
     { id: 'advisor', label: t.navAdvisor },
+    { id: 'certificates', label: isAr ? 'الشهادات واللوحات' : 'Certificates' },
+    { id: 'games', label: isAr ? 'واحة الألعاب' : 'Games Arcade' },
     { id: 'mothers', label: t.navMothers },
     { id: 'contact', label: t.navContact },
   ];

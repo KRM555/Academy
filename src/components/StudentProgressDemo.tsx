@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Language, translations } from '../data/translations';
 import { Award, Star, Volume2, Download, Sparkles } from 'lucide-react';
+import { CertificateCanvasStudio } from './CertificateCanvasStudio';
 
 interface StudentProgressDemoProps {
   currentLanguage?: Language;
@@ -167,54 +168,18 @@ export const StudentProgressDemo: React.FC<StudentProgressDemoProps> = ({ curren
           </div>
         </div>
 
-        {/* Certificate Modal */}
+        {/* Certificate Canvas Studio Modal */}
         {showCertModal && (
-          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-[#111E2E] rounded-2xl max-w-xl w-full p-8 border-2 border-amber-400/40 shadow-2xl relative text-center">
-              <div className="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-950 flex items-center justify-center text-amber-600 mx-auto mb-2">
-                <Award className="w-7 h-7" />
-              </div>
-              <div className="text-xs font-bold text-[#0D9488] dark:text-emerald-400 font-display">
-                {isAr ? 'أكاديمية نور وبيان' : 'Noor & Bayan Academy'}
-              </div>
-              <h3 className="text-xl sm:text-2xl font-extrabold text-[#0F2942] dark:text-white mt-1 font-display">
-                {isAr ? 'شهادة إتمام وحفظ' : 'Certificate of Track Completion'}
-              </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                {isAr ? 'نموذج توضيحي تجريبي لشهادات إتمام المسارات' : 'Sample illustrative template for track completion'}
-              </p>
-
-              <div className="my-6 p-6 bg-amber-50/50 dark:bg-amber-950/20 rounded-xl border border-amber-200/80 dark:border-amber-900/50 space-y-3">
-                <p className="text-sm text-slate-700 dark:text-slate-300">
-                  {isAr ? 'تشهد إدارة الأكاديمية بأن الطالب:' : 'The Academy administration certifies that student:'}
-                </p>
-                <div className="text-xl font-extrabold text-[#0D9488] dark:text-emerald-400 font-display">{selectedStudent.name}</div>
-                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                  {isAr
-                    ? 'قد أتم بنجاح حفظ وتجويد قصار السور من جزء عم وإتقان التأسيس اللغوي السليم بتقدير ممتاز عبر فصول الأكاديمية الأونلاين.'
-                    : 'Has successfully completed the recitation of Juz Amma and Arabic reading foundations with excellence in live virtual classrooms.'}
-                </p>
-              </div>
-
-              <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-400 px-4 pt-2 border-t border-slate-100 dark:border-slate-800">
-                <div>
-                  <div className="font-bold text-slate-800 dark:text-slate-200">{isAr ? 'المشرف التعليمي:' : 'Academic Supervisor:'}</div>
-                  <div className="text-xs text-slate-500 dark:text-slate-400">{isAr ? 'إدارة الشؤون الأكاديمية' : 'Academic Affairs Office'}</div>
-                </div>
-                <div>
-                  <div className="font-bold text-slate-800 dark:text-slate-200">{isAr ? 'الاعتماد:' : 'Validation:'}</div>
-                  <div className="text-xs text-emerald-700 dark:text-emerald-400 font-bold">{isAr ? 'نموذج إتمام تجريبي' : 'Sample Verified Demo'}</div>
-                </div>
-              </div>
-
-              <div className="mt-6 flex justify-center gap-3">
-                <button
-                  onClick={() => setShowCertModal(false)}
-                  className="px-5 py-2 text-xs font-bold text-white bg-[#0F2942] dark:bg-slate-700 rounded-xl hover:bg-slate-800 dark:hover:bg-slate-600 transition-colors cursor-pointer"
-                >
-                  {isAr ? 'إغلاق الشهادة' : 'Close Certificate'}
-                </button>
-              </div>
+          <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+            <div className="bg-white dark:bg-[#0B1522] rounded-3xl max-w-6xl w-full p-4 sm:p-6 border border-amber-400/40 shadow-2xl relative max-h-[92vh] overflow-y-auto">
+              <CertificateCanvasStudio
+                initialStudentName={selectedStudent.name}
+                initialProgram={selectedStudent.program}
+                initialAchievement={isAr ? 'حفظ وإتقان قصار السور من جزء عمّ وتجويدها' : 'Memorization & Tajweed of short Surahs from Juz Amma'}
+                currentLanguage={currentLanguage}
+                isModal={true}
+                onClose={() => setShowCertModal(false)}
+              />
             </div>
           </div>
         )}
