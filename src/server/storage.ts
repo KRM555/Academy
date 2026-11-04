@@ -1460,88 +1460,236 @@ async function seedInitialAdminIfNeeded(storage: IStorage): Promise<void> {
   }
 }
 
-// Seed baseline courses if course catalog is empty
+// Seed baseline courses if course catalog is empty or contains old dummy/test courses
 async function seedDefaultCoursesIfNeeded(storage: IStorage): Promise<void> {
   const existing = await storage.getCourses();
-  if (existing.length === 0) {
-    const defaultCourses: ProgramCourse[] = [
+  const hasDummyCourses = existing.some(
+    (c) =>
+      c.title.includes('تجريبية للإدارة') ||
+      (c.id.startsWith('prog-') &&
+        !c.id.includes('arabic-foundation') &&
+        !c.id.includes('languages') &&
+        !c.id.includes('international') &&
+        !c.id.includes('all-subjects') &&
+        !c.id.includes('quran-islamic') &&
+        !c.id.includes('mental-math') &&
+        !c.id.includes('speech-development') &&
+        !c.id.includes('educational-support'))
+  );
+
+  if (existing.length === 0 || hasDummyCourses) {
+    // Clean out old dummy or obsolete courses
+    for (const c of existing) {
+      if (
+        c.title.includes('تجريبية للإدارة') ||
+        c.id === 'prog-quran-hifz' ||
+        c.id === 'prog-arabic-foundations' ||
+        c.id === 'prog-islamic-values' ||
+        c.id === 'prog-stem-coding' ||
+        c.id === 'prog-noor-yutla' ||
+        c.id === 'prog-nooraniyah' ||
+        c.id === 'prog-values-character' ||
+        c.id === 'prog-young-coders' ||
+        c.id.match(/^prog-[0-9a-f]{8}-/)
+      ) {
+        try {
+          await storage.deleteCourse(c.id);
+        } catch {
+          // ignore
+        }
+      }
+    }
+
+    const officialCourses: ProgramCourse[] = [
       {
-        id: 'prog-quran-hifz',
-        title: 'حلقات تحفيظ القرآن الكريم وتجويده',
-        subtitle: 'حفظ وتثبيت القرآن الكريم بأحكام التلاوة الصحيحة ومخارج الحروف',
-        ageBracket: '5 - 15 سنة',
-        minAge: 5,
-        maxAge: 15,
-        category: 'quran',
-        deliveryMode: 'online',
-        image: '/images/hero_learning.webp',
-        description: 'حلقات مصغرة مباشرة عبر غرف زوم التفاعلية، تركز على الحفظ المتقن والتجويد العملي.',
-        weeklySessions: 3,
-        sessionDurationMins: 45,
-        priceSar: 280,
-        billingUnit: 'شهرياً (حسب خطة الحصص)',
-        installmentsEligible: true,
-        features: ['حلقات مصغرة مباشرة', 'متابعة فردية لمخارج الحروف', 'تقارير أسبوعية لولي الأمر'],
-      },
-      {
-        id: 'prog-arabic-foundations',
-        title: 'برنامج التأسيس اللغوي والقراءة السليمة',
-        subtitle: 'بناء الطلاقة اللغوية ومخارج الحروف والنطق الفصيح',
-        ageBracket: '4 - 9 سنوات',
+        id: 'prog-arabic-foundation',
+        title: 'التأسيس واللغة العربية',
+        subtitle: 'نور البيان، القراءة، الكتابة، النحو والإملاء',
+        ageBracket: '4 - 12 سنة',
         minAge: 4,
-        maxAge: 9,
+        maxAge: 12,
         category: 'arabic',
         deliveryMode: 'online',
-        image: '/images/quran_kids.webp',
-        description: 'منهج تأسيسي متدرج للأطفال لبناء المهارات القرائية السليمة وتعزيز الفصاحة.',
+        image: '/assets/programs/arabic_foundation.jpg',
+        description: 'منهج تأسيسي متكامل في نور البيان، القراءة السليمة، الكتابة والإملاء، والنحو المبسط لبناء فصاحة اللسان وتأسيس متميز للطفل.',
         weeklySessions: 3,
         sessionDurationMins: 45,
         priceSar: 260,
-        billingUnit: 'شهرياً (حسب خطة الحصص)',
+        billingUnit: 'شهرياً',
         installmentsEligible: true,
-        features: ['تعليم الحروف بحركاتها ومخارجها', 'قراءة الكلمات والجمل الفصيحة', 'قصص تفاعلية مصورة'],
+        features: [
+          'تأسيس نور البيان والقراءة السليمة',
+          'قواعد الإملاء والنطق ومخارج الحروف',
+          'تدرج تعليمي مرن يناسب كل طفل',
+          'متابعة مستمرة وتقييم دوري',
+        ],
       },
       {
-        id: 'prog-islamic-values',
-        title: 'مسار غرس القيم وبناء الشخصية المسلمة',
-        subtitle: 'الآداب النبوية، السيرة العطرة، وتعديل السلوك الإيجابي',
-        ageBracket: '6 - 13 سنة',
-        minAge: 6,
-        maxAge: 13,
-        category: 'values',
+        id: 'prog-languages',
+        title: 'تعليم اللغات',
+        subtitle: 'الإنجليزية والعربية والفرنسية والألمانية وغيرها',
+        ageBracket: '5 - 18 سنة',
+        minAge: 5,
+        maxAge: 18,
+        category: 'languages',
         deliveryMode: 'online',
-        image: '/images/mothers_session.webp',
-        description: 'جلسات تربوية حوارية تغرس القيم والأخلاق الحميدة والأذكار اليومية بأسلوب تفاعلي.',
+        image: '/assets/programs/languages.jpg',
+        description: 'دورات لغات تفاعلية تركز على المحادثة، الاستماع، القواعد، والنطق السليم عبر معلمين ومعلمات معتمدين ومتخصصين.',
         weeklySessions: 2,
         sessionDurationMins: 50,
-        priceSar: 230,
-        billingUnit: 'شهرياً (حسب خطة الحصص)',
-        installmentsEligible: false,
-        features: ['سيرة النبي ﷺ وقصص الصحابة', 'الآداب والأذكار اليومية', 'تطبيقات عملية في الحياة اليومية'],
+        priceSar: 290,
+        billingUnit: 'شهرياً',
+        installmentsEligible: true,
+        features: [
+          'تطوير مهارات المحادثة والاستماع',
+          'مناهج معتمدة تناسب جميع المراحل',
+          'فصول حوارية تفاعلية حية',
+          'تدريب مستمر على النطق السليم',
+        ],
       },
       {
-        id: 'prog-stem-coding',
-        title: 'نادي البرمجة والتفكير المنطقي للصغار',
-        subtitle: 'مبادئ التفكير البرمجي وبناء الألعاب التفاعلية باللغة العربية',
-        ageBracket: '7 - 14 سنة',
-        minAge: 7,
-        maxAge: 14,
-        category: 'tech',
+        id: 'prog-international-curricula',
+        title: 'المناهج الدولية',
+        subtitle: 'المناهج البريطانية والأمريكية والدولية',
+        ageBracket: '6 - 18 سنة',
+        minAge: 6,
+        maxAge: 18,
+        category: 'international',
         deliveryMode: 'online',
-        image: '/images/stem_robotics.webp',
-        description: 'مدخل ممتع ومحمي لعلوم الحاسوب وبناء القصص والألعاب الرقمية.',
-        weeklySessions: 2,
-        sessionDurationMins: 60,
-        priceSar: 340,
-        billingUnit: 'شهرياً (حسب خطة الحصص)',
+        image: '/assets/programs/international_curricula.jpg',
+        description: 'تدريس وشرح مكثف للمناهج الدولية (IGCSE, American, IB) بأسلوب تفاعلي حديث مع حل نماذج الامتحانات والتقييم الدوري.',
+        weeklySessions: 3,
+        sessionDurationMins: 50,
+        priceSar: 350,
+        billingUnit: 'شهرياً',
         installmentsEligible: true,
-        features: ['البرمجة المرئية التفاعلية', 'حل المشكلات والتفكير الإبداعي', 'مشاريع عملية أسبوعية'],
+        features: [
+          'مناهج بريطانية وأمريكية معتمدة',
+          'شرح تفاعلي وحل تدريبات الامتحانات',
+          'متابعة دورية مستمرة مع الأسرة',
+          'خطط تعليمية تناسب مستوى كل طالب',
+        ],
+      },
+      {
+        id: 'prog-all-subjects',
+        title: 'جميع المواد الدراسية',
+        subtitle: 'رياضيات وعلوم وعربي وإنجليزي وجميع المواد',
+        ageBracket: '6 - 18 سنة',
+        minAge: 6,
+        maxAge: 18,
+        category: 'academic',
+        deliveryMode: 'online',
+        image: '/assets/programs/all_subjects.jpg',
+        description: 'تغطية شاملة لكافة المناهج والمواد الدراسية (الرياضيات، العلوم، الأحياء، الكيمياء، الفيزياء، واللغات) بمتابعة مستمرة وتقييم دوري.',
+        weeklySessions: 3,
+        sessionDurationMins: 45,
+        priceSar: 280,
+        billingUnit: 'شهرياً',
+        installmentsEligible: true,
+        features: [
+          'تغطية شاملة لجميع المقررات المدرسية',
+          'تبسيط المفاهيم العلمية المعقدة',
+          'مراجعات دورية واستعداد للاختبارات',
+          'معلمون ومعلمات متخصصون في مختلف المجالات',
+        ],
+      },
+      {
+        id: 'prog-quran-islamic',
+        title: 'القرآن والعلوم الإسلامية',
+        subtitle: 'تحفيظ وتجويد وقيم إسلامية وسيرة نبوية',
+        ageBracket: '5 - 16 سنة',
+        minAge: 5,
+        maxAge: 16,
+        category: 'quran',
+        deliveryMode: 'online',
+        image: '/assets/programs/quran_islamic.jpg',
+        description: 'حلقات تحفيظ وتجويد بروايات متصلة، مع مدارسة القيم الإسلامية، الآداب، والسيرة النبوية العطرة بأسلوب تربوي ميسر.',
+        weeklySessions: 3,
+        sessionDurationMins: 45,
+        priceSar: 270,
+        billingUnit: 'شهرياً',
+        installmentsEligible: true,
+        features: [
+          'حفظ وتثبيت القرآن بأحكام التجويد',
+          'مدارسة السيرة النبوية والآداب والأذكار',
+          'مخارج الحروف وضبط اللسان',
+          'شهادات إتمام وسجل إنجاز السور',
+        ],
+      },
+      {
+        id: 'prog-mental-math',
+        title: 'الحساب الذهني وتنمية المهارات',
+        subtitle: 'تنمية التركيز والذكاء والقدرات العقلية',
+        ageBracket: '5 - 14 سنة',
+        minAge: 5,
+        maxAge: 14,
+        category: 'skills',
+        deliveryMode: 'online',
+        image: '/assets/programs/mental_math.jpg',
+        description: 'برنامج عبقري لتطوير سرعة الحساب الذهني، وتنمية التركيز، والذاكرة البصرية والقدرات العقلية لدى الأطفال باستخدام السوروبان والتقنيات الحديثة.',
+        weeklySessions: 2,
+        sessionDurationMins: 50,
+        priceSar: 290,
+        billingUnit: 'شهرياً',
+        installmentsEligible: true,
+        features: [
+          'تقنيات السوروبان والحساب فائق السرعة',
+          'تنشيط نصفي الدماغ وزيادة التركيز',
+          'مسابقات وتمارين ذكاء دورية',
+          'رفع مستوى الثقة والتفوق الدراسي',
+        ],
+      },
+      {
+        id: 'prog-speech-development',
+        title: 'تنمية النطق والمهارات',
+        subtitle: 'برامج متخصصة لتنمية التواصل والمهارات',
+        ageBracket: '3 - 12 سنة',
+        minAge: 3,
+        maxAge: 12,
+        category: 'speech',
+        deliveryMode: 'online',
+        image: '/assets/programs/speech_development.jpg',
+        description: 'جلسات تخصصية فردية لعلاج وتطوير مهارات النطق، مخارج الحروف، التلعثم، وبناء مهارات التواصل الاجتماعي واللغوي لدى الطفل.',
+        weeklySessions: 2,
+        sessionDurationMins: 45,
+        priceSar: 310,
+        billingUnit: 'شهرياً',
+        installmentsEligible: true,
+        features: [
+          'أخصائيون وأخصائيات تخاطب ونطق معتمدون',
+          'خطة علاجية وتأهيلية فردية لكل طفل',
+          'تمارين تفاعلية مرحة ومحفزة',
+          'إرشادات عملية مستمرة لولي الأمر',
+        ],
+      },
+      {
+        id: 'prog-educational-support',
+        title: 'الدعم والمتابعة التعليمية',
+        subtitle: 'متابعة مستوى الطالب وتطوير أدائه باستمرار',
+        ageBracket: '5 - 18 سنة',
+        minAge: 5,
+        maxAge: 18,
+        category: 'support',
+        deliveryMode: 'online',
+        image: '/assets/programs/educational_support.jpg',
+        description: 'خدمة دعم أكاديمي وتأسيسي شاملة تشمل الإشراف على الواجبات، سد الفجوات التعليمية، والتقييم المستمر لضمان أعلى مراتب التفوق.',
+        weeklySessions: 3,
+        sessionDurationMins: 45,
+        priceSar: 250,
+        billingUnit: 'شهرياً',
+        installmentsEligible: true,
+        features: [
+          'متابعة شخصية مستمرة وتطوير الأداء',
+          'معالجة نقاط الضعف الدراسية فوراً',
+          'تقييمات دورية واختبارات قياس مستوى',
+          'تنسيق مباشر مع أولياء الأمور',
+        ],
       },
     ];
 
-    for (const c of defaultCourses) {
+    for (const c of officialCourses) {
       await storage.createCourse(c);
     }
-    console.log('[Storage] Seeded baseline verified courses.');
+    console.log('[Storage] Seeded official 8 educational programs without dummy entries.');
   }
 }

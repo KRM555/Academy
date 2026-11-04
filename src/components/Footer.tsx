@@ -83,6 +83,11 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenTrial, current
                 </button>
               </li>
               <li>
+                <button onClick={() => onNavigate('about')} className="hover:text-emerald-400 transition-colors cursor-pointer text-emerald-400/90 font-semibold">
+                  {currentLanguage === 'ar' ? 'من نحن؟ (هوية الأكاديمية)' : 'About Us'}
+                </button>
+              </li>
+              <li>
                 <button onClick={() => onNavigate('programs')} className="hover:text-emerald-400 transition-colors cursor-pointer">
                   {t.navPrograms}
                 </button>

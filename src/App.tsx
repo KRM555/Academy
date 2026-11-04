@@ -6,6 +6,7 @@ import { Language, translations } from './data/translations';
 import { api } from './services/api';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
+import { FutureVisionSection } from './components/FutureVisionSection';
 import { PathAdvisor } from './components/PathAdvisor';
 import { ProgramsCatalog } from './components/ProgramsCatalog';
 import { StudentProgressDemo } from './components/StudentProgressDemo';
@@ -21,6 +22,7 @@ import { FaqSection } from './components/FaqSection';
 import { NotFoundPage } from './components/NotFoundPage';
 import { FloatingTrialButton } from './components/FloatingTrialButton';
 import { Footer } from './components/Footer';
+import { ClosingCalloutBanner } from './components/ClosingCalloutBanner';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { GlobalLoadingIndicator } from './components/GlobalLoadingIndicator';
 import { CertificateCanvasStudio } from './components/CertificateCanvasStudio';
@@ -132,6 +134,15 @@ export default function App() {
   const navigateTo = (target: string) => {
     if (target === 'home' || target === '/') {
       navigate('/');
+    } else if (target === 'about' || target === 'about-us') {
+      if (location.pathname !== '/') {
+        navigate('/');
+        setTimeout(() => {
+          document.getElementById('about-us')?.scrollIntoView({ behavior: 'smooth' });
+        }, 120);
+      } else {
+        document.getElementById('about-us')?.scrollIntoView({ behavior: 'smooth' });
+      }
     } else if (target === 'testimonials') {
       if (location.pathname !== '/') {
         navigate('/');
@@ -268,63 +279,63 @@ export default function App() {
                 />
 
                 {/* Gateway Cards Strip */}
-                <section className="py-16 bg-white dark:bg-[#0B1522] border-y border-slate-200 dark:border-slate-800 transition-colors duration-200">
-                  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center max-w-2xl mx-auto mb-10">
-                      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 text-xs font-bold mb-2 border border-emerald-100 dark:border-emerald-900/60">
-                        <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                <section className="py-8 sm:py-12 lg:py-16 bg-white dark:bg-[#0B1522] border-y border-slate-200 dark:border-slate-800 transition-colors duration-200 overflow-hidden">
+                  <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+                    <div className="text-center max-w-2xl mx-auto mb-6 sm:mb-10">
+                      <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 text-[11px] sm:text-xs font-bold mb-1.5 sm:mb-2 border border-emerald-100 dark:border-emerald-900/60">
+                        <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-500 shrink-0" />
                         <span>{isAr ? 'بوابات التعلم المتكاملة' : 'Integrated Learning Gateways'}</span>
                       </div>
-                      <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0F2942] dark:text-white font-display">
+                      <h2 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-[#0F2942] dark:text-white font-display">
                         {t.teaserTitle}
                       </h2>
-                      <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-2">
+                      <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-1.5 sm:mt-2">
                         {t.teaserDesc}
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-5">
                       {teaserCards.map((card) => {
                         const Icon = card.icon;
                         return (
                           <div
                             key={card.id}
                             onClick={() => navigateTo(card.id)}
-                            className="p-5 bg-[#FAF9F6] dark:bg-[#111E2E] rounded-xl border border-slate-200 dark:border-slate-800 hover:border-emerald-500/50 dark:hover:border-emerald-400/50 shadow-2xs hover:shadow-md transition-all duration-200 cursor-pointer flex flex-col justify-between group"
+                            className="p-3.5 sm:p-5 bg-[#FAF9F6] dark:bg-[#111E2E] rounded-xl border border-slate-200 dark:border-slate-800 hover:border-emerald-500/50 dark:hover:border-emerald-400/50 shadow-2xs hover:shadow-md transition-all duration-200 cursor-pointer flex flex-col justify-between group"
                           >
                             <div>
-                              <div className="flex items-center justify-between mb-4">
-                                <div className="w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-950/70 text-[#0D9488] dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/40 flex items-center justify-center">
-                                  <Icon className="w-5 h-5" />
+                              <div className="flex items-center justify-between mb-2.5 sm:mb-4">
+                                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-emerald-50 dark:bg-emerald-950/70 text-[#0D9488] dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/40 flex items-center justify-center shrink-0">
+                                  <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
                                 </div>
-                                <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/80 px-2 py-0.5 rounded-md border border-emerald-200/70 dark:border-emerald-800">
+                                <span className="text-[11px] sm:text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/80 px-2 py-0.5 rounded-md border border-emerald-200/70 dark:border-emerald-800">
                                   {card.badge}
                                 </span>
                               </div>
 
-                              <h3 className="text-base font-bold text-[#0F2942] dark:text-white font-display group-hover:text-[#0D9488] dark:group-hover:text-emerald-400 transition-colors">
+                              <h3 className="text-sm sm:text-base font-bold text-[#0F2942] dark:text-white font-display group-hover:text-[#0D9488] dark:group-hover:text-emerald-400 transition-colors">
                                 {card.title}
                               </h3>
-                              <p className="text-xs text-slate-600 dark:text-slate-300 mt-2 leading-relaxed line-clamp-2">
+                              <p className="text-xs text-slate-600 dark:text-slate-300 mt-1.5 sm:mt-2 leading-relaxed line-clamp-2">
                                 {card.desc}
                               </p>
 
-                              <div className="mt-4 pt-3 border-t border-slate-200/60 dark:border-slate-800/60 space-y-1.5">
+                              <div className="mt-3 sm:mt-4 pt-2.5 sm:pt-3 border-t border-slate-200/60 dark:border-slate-800/60 space-y-1 sm:space-y-1.5">
                                 {card.highlights.map((item, i) => (
-                                  <div key={i} className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300">
-                                    <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                                    <span>{item}</span>
+                                  <div key={i} className="flex items-center gap-1.5 text-[11px] sm:text-xs text-slate-600 dark:text-slate-300">
+                                    <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                                    <span className="truncate">{item}</span>
                                   </div>
                                 ))}
                               </div>
                             </div>
 
-                            <div className="pt-3 flex items-center justify-between mt-4 border-t border-slate-100 dark:border-slate-800">
-                              <span className="text-xs font-bold text-[#0D9488] dark:text-emerald-400">
+                            <div className="pt-2.5 sm:pt-3 flex items-center justify-between mt-3 sm:mt-4 border-t border-slate-100 dark:border-slate-800">
+                              <span className="text-[11px] sm:text-xs font-bold text-[#0D9488] dark:text-emerald-400">
                                 {card.btn}
                               </span>
-                              <div className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 text-[#0D9488] dark:text-emerald-400 group-hover:bg-[#0D9488] group-hover:text-white flex items-center justify-center transition-colors">
-                                <ArrowIcon className="w-3.5 h-3.5" />
+                              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-slate-100 dark:bg-slate-800 text-[#0D9488] dark:text-emerald-400 group-hover:bg-[#0D9488] group-hover:text-white flex items-center justify-center transition-colors shrink-0">
+                                <ArrowIcon className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                               </div>
                             </div>
                           </div>
@@ -334,42 +345,52 @@ export default function App() {
                   </div>
                 </section>
 
-                {/* Games Arcade Spotlight Banner */}
-                <section className="py-12 bg-gradient-to-r from-[#071322] via-[#0B1E34] to-[#071322] text-white border-b border-slate-800">
-                  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="bg-[#091829]/90 border border-emerald-500/30 rounded-3xl p-6 sm:p-10 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl">
-                      <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-                      <div className="absolute bottom-0 left-0 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+                {/* Future Vision & Launch Banner featuring user's official poster */}
+                <FutureVisionSection
+                  onOpenTrial={() => openTrialBooking()}
+                  onExplorePrograms={() => navigateTo('programs')}
+                  currentLanguage={currentLanguage}
+                />
 
-                      <div className="relative z-10 max-w-xl text-center md:text-right">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-bold mb-3 border border-emerald-500/30">
-                          <Gamepad2 className="w-3.5 h-3.5" />
-                          <span>{isAr ? 'جديد وحصري: واحة الألعاب الذكية' : 'New: Smart Game Arcade'}</span>
-                        </div>
-                        <h3 className="text-2xl sm:text-3xl font-extrabold text-white mb-3">
-                          {isAr ? 'ألعاب علمية وقرآنية تجمع بين المتعة والفائدة' : 'Scientific & Quranic Educational Games'}
-                        </h3>
-                        <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mb-4">
-                          {isAr
-                            ? 'أركيد صائد التجويد 60fps، تحدي الإعجاز العلمي وعلماء الحضارة الإسلامية، وسباق ترتيب الآيات الذهبي. العب الآن مجاناً بدون أي إعلانات!'
-                            : 'Fast-paced 60fps Tajweed arcade, Quranic science wonders quiz, and Ayah speed puzzle. 100% ad-free!'}
-                        </p>
-                        <div className="flex flex-wrap gap-2 text-xs text-slate-300 justify-center md:justify-start">
-                          <span className="bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-700">🎮 صائد التجويد 60fps</span>
-                          <span className="bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-700">🔬 تحدي الإعجاز العلمي</span>
-                          <span className="bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-700">📖 سباق ترتيب السور</span>
-                        </div>
-                      </div>
+                {/* Games Arcade Spotlight Banner with Sleek Frame */}
+                <section className="py-8 sm:py-12 bg-gradient-to-r from-[#071322] via-[#0B1E34] to-[#071322] text-white border-b border-slate-800">
+                  <div className="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8">
+                    {/* Sleek Outer Frame */}
+                    <div className="p-1 sm:p-1.5 rounded-[26px] sm:rounded-3xl bg-gradient-to-r from-emerald-500/50 via-teal-400/30 to-purple-500/50 shadow-2xl shadow-emerald-950/50">
+                      <div className="bg-[#091829]/95 border border-emerald-500/40 rounded-[22px] sm:rounded-[20px] p-5 sm:p-8 lg:p-10 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6">
+                        <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+                        <div className="absolute bottom-0 left-0 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
 
-                      <div className="relative z-10 shrink-0">
-                        <button
-                          onClick={() => navigateTo('games')}
-                          className="px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-600 hover:from-emerald-500 hover:to-teal-400 text-white font-extrabold text-base transition-all transform hover:scale-105 shadow-xl shadow-emerald-950/60 flex items-center gap-3 cursor-pointer"
-                        >
-                          <Gamepad2 className="w-5 h-5" />
-                          <span>{isAr ? 'ادخل واحة الألعاب الآن' : 'Launch Game Arcade'}</span>
-                          <ArrowIcon className="w-5 h-5" />
-                        </button>
+                        <div className="relative z-10 max-w-xl text-center md:text-right">
+                          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-bold mb-3 border border-emerald-500/30">
+                            <Gamepad2 className="w-3.5 h-3.5" />
+                            <span>{isAr ? 'جديد وحصري: واحة الألعاب الذكية' : 'New: Smart Game Arcade'}</span>
+                          </div>
+                          <h3 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white mb-2.5">
+                            {isAr ? 'ألعاب علمية وقرآنية تجمع بين المتعة والفائدة' : 'Scientific & Quranic Educational Games'}
+                          </h3>
+                          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mb-4">
+                            {isAr
+                              ? 'أركيد صائد التجويد 60fps، تحدي الإعجاز العلمي وعلماء الحضارة الإسلامية، وسباق ترتيب الآيات الذهبي. العب الآن مجاناً بدون أي إعلانات!'
+                              : 'Fast-paced 60fps Tajweed arcade, Quranic science wonders quiz, and Ayah speed puzzle. 100% ad-free!'}
+                          </p>
+                          <div className="flex flex-wrap gap-2 text-xs text-slate-300 justify-center md:justify-start">
+                            <span className="bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-700">🎮 صائد التجويد 60fps</span>
+                            <span className="bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-700">🔬 تحدي الإعجاز العلمي</span>
+                            <span className="bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-700">📖 سباق ترتيب السور</span>
+                          </div>
+                        </div>
+
+                        <div className="relative z-10 shrink-0 w-full md:w-auto flex justify-center">
+                          <button
+                            onClick={() => navigateTo('games')}
+                            className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-600 hover:from-emerald-500 hover:to-teal-400 text-white font-extrabold text-sm sm:text-base transition-all transform hover:scale-105 shadow-xl shadow-emerald-950/60 flex items-center justify-center gap-3 cursor-pointer"
+                          >
+                            <Gamepad2 className="w-5 h-5" />
+                            <span>{isAr ? 'ادخل واحة الألعاب الآن' : 'Launch Game Arcade'}</span>
+                            <ArrowIcon className="w-5 h-5" />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -378,25 +399,11 @@ export default function App() {
                 {/* How a Trial Class Works (3 Steps) */}
                 <HowItWorks currentLanguage={currentLanguage} onOpenTrial={() => openTrialBooking()} />
 
-                {/* Featured Educational Services & Courses */}
-                <HomeFeaturedServices
-                  currentCurrency={currentCurrency}
-                  currentLanguage={currentLanguage}
-                  onOpenTrial={(programTitle, note) => openTrialBooking(programTitle, note)}
-                  onNavigateToPrograms={() => navigateTo('programs')}
-                />
-
-                {/* FAQ Section */}
-                <FaqSection currentLanguage={currentLanguage} />
-
-                {/* Testimonials Section (renders null if empty) */}
+                {/* Testimonials Section (renders authentic verified parent reviews) */}
                 <TestimonialsSection
                   currentLanguage={currentLanguage}
                   onOpenTrial={() => openTrialBooking()}
                 />
-
-                {/* Contact Section */}
-                <ContactForm currentLanguage={currentLanguage} />
               </div>
             }
           />
@@ -573,6 +580,15 @@ export default function App() {
           onOpenTrial={() => openTrialBooking()}
           currentLanguage={currentLanguage}
           isHidden={isEnrollmentModalOpen}
+        />
+      )}
+
+      {/* Universal Closing Banner across all pages — as requested */}
+      {!isGameSessionActive && (
+        <ClosingCalloutBanner
+          currentLanguage={currentLanguage}
+          onOpenTrial={() => openTrialBooking()}
+          onContact={() => navigateTo('contact')}
         />
       )}
 

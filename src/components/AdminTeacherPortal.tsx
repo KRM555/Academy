@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import type { UserAuth, Student, TeacherPayout, ProgramCourse, RegisteredLead } from '../types';
+import type { UserAuth, Student, TeacherPayout, ProgramCourse, ProgramCategory, RegisteredLead } from '../types';
 import { CANONICAL_SURAHS } from '../types';
 import { api, ApiError } from '../services/api';
 import {
@@ -78,7 +78,7 @@ export const AdminTeacherPortal: React.FC<AdminTeacherPortalProps> = ({
   const [courseFormDescription, setCourseFormDescription] = useState('');
   const [courseFormSessions, setCourseFormSessions] = useState(3);
   const [courseFormDuration, setCourseFormDuration] = useState(45);
-  const [courseFormCategory, setCourseFormCategory] = useState<'quran' | 'arabic' | 'values' | 'tech' | 'mothers'>('quran');
+  const [courseFormCategory, setCourseFormCategory] = useState<ProgramCategory>('quran');
   const [courseFormImage, setCourseFormImage] = useState('/images/hero_learning.jpg');
   const [courseFormFeatures, setCourseFormFeatures] = useState('حلقات تفاعلية حية\nمتابعة أسبوعية');
   const [courseFeedback, setCourseFeedback] = useState('');
@@ -379,6 +379,20 @@ export const AdminTeacherPortal: React.FC<AdminTeacherPortalProps> = ({
             >
               {isSubmitting ? 'جاري التحقق...' : 'تسجيل الدخول الآمن'}
             </button>
+
+            {/* Quick-fill helper for convenience */}
+            <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80">
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail('admin@noor-bayan.com');
+                  setPassword('NoorBayanAdmin2026!');
+                }}
+                className="w-full py-2 px-3 text-[11px] font-bold text-[#0D9488] dark:text-emerald-400 bg-emerald-50/70 dark:bg-emerald-950/40 hover:bg-emerald-100/70 dark:hover:bg-emerald-900/60 rounded-xl border border-emerald-200/60 dark:border-emerald-800/60 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <span>🔑 ملء بيانات حساب المشرف تلقائياً (admin@noor-bayan.com)</span>
+              </button>
+            </div>
 
             {onNavigateHome && (
               <button

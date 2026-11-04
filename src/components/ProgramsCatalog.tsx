@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Currency, TimezoneInfo } from '../types';
 import { Language, translations } from '../data/translations';
-import { ACADEMY_PROGRAMS } from '../data/academyData';
-import { CURRENCIES, TIMEZONES } from '../data/academyData';
+import { ACADEMY_PROGRAMS, ACADEMY_CORE_PILLARS, CURRENCIES, TIMEZONES } from '../data/academyData';
 import { api } from '../services/api';
-import { Clock, Calendar, Check, X, Laptop, Globe } from 'lucide-react';
+import { Clock, Calendar, Check, X, Laptop, Globe, Sparkles, CheckCircle2 } from 'lucide-react';
 
 interface ProgramsCatalogProps {
   currentCurrency: Currency;
@@ -30,6 +29,7 @@ export const ProgramsCatalog: React.FC<ProgramsCatalogProps> = ({
   const [activeModalProgram, setActiveModalProgram] = useState<any | null>(null);
 
   const t = translations[currentLanguage];
+  const isAr = currentLanguage === 'ar';
 
   useEffect(() => {
     api.courses
@@ -48,24 +48,33 @@ export const ProgramsCatalog: React.FC<ProgramsCatalogProps> = ({
   });
 
   const categories = [
-    { id: 'all', label: t.catAll },
-    { id: 'quran', label: t.catQuran },
-    { id: 'arabic', label: t.catArabic },
-    { id: 'values', label: t.catValues },
-    { id: 'tech', label: t.catTech },
-    { id: 'mothers', label: t.catMothers },
+    { id: 'all', label: isAr ? 'جميع الخدمات والبرامج (8)' : 'All Programs (8)' },
+    { id: 'arabic', label: isAr ? 'التأسيس واللغة العربية' : 'Arabic & Foundation' },
+    { id: 'quran', label: isAr ? 'القرآن والعلوم الإسلامية' : 'Quran & Islamic Studies' },
+    { id: 'languages', label: isAr ? 'تعليم اللغات' : 'Languages' },
+    { id: 'international', label: isAr ? 'المناهج الدولية' : 'International Curricula' },
+    { id: 'academic', label: isAr ? 'جميع المواد الدراسية' : 'All School Subjects' },
+    { id: 'skills', label: isAr ? 'الحساب الذهني والمهارات' : 'Mental Math & Skills' },
+    { id: 'speech', label: isAr ? 'تنمية النطق والتخاطب' : 'Speech & Communication' },
+    { id: 'support', label: isAr ? 'الدعم والمتابعة' : 'Academic Support' },
   ];
 
   return (
     <section className="py-12 bg-[#FAF9F6] dark:bg-[#070E18] transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 gap-4">
           <div>
-            <div className="text-xs font-bold text-[#0D9488] dark:text-emerald-400 mb-1">{t.catalogBadge}</div>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 text-xs font-bold mb-2 border border-emerald-100 dark:border-emerald-900/60">
+              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              <span>{isAr ? 'قسم خدماتنا التعليمية المعتمدة' : 'Official Educational Services'}</span>
+            </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0F2942] dark:text-white font-display">
-              {t.catalogTitle}
+              {isAr ? 'دليل البرامج والمناهج الدراسية' : t.catalogTitle}
             </h2>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-1">
+              {isAr ? 'برامج متكاملة تهدف لتقديم تعليم متميز يجمع بين الأصالة والحداثة' : t.catalogDesc}
+            </p>
           </div>
           
           {/* Currency & Timezone Selectors */}
@@ -73,7 +82,7 @@ export const ProgramsCatalog: React.FC<ProgramsCatalogProps> = ({
             {onCurrencyChange && (
               <div className="flex items-center gap-1.5 bg-white dark:bg-[#111E2E] border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-1.5 shadow-2xs">
                 <Globe className="w-3.5 h-3.5 text-[#0D9488] dark:text-emerald-400 shrink-0" />
-                <span className="text-xs text-slate-500 dark:text-slate-400 font-semibold">{currentLanguage === 'ar' ? 'العملة:' : 'Currency:'}</span>
+                <span className="text-xs text-slate-500 dark:text-slate-400 font-semibold">{isAr ? 'العملة:' : 'Currency:'}</span>
                 <select
                   value={currentCurrency.code}
                   onChange={(e) => {
@@ -94,7 +103,7 @@ export const ProgramsCatalog: React.FC<ProgramsCatalogProps> = ({
             {onTimezoneChange && (
               <div className="flex items-center gap-1.5 bg-white dark:bg-[#111E2E] border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-1.5 shadow-2xs">
                 <Clock className="w-3.5 h-3.5 text-[#0D9488] dark:text-emerald-400 shrink-0" />
-                <span className="text-xs text-slate-500 dark:text-slate-400 font-semibold">{currentLanguage === 'ar' ? 'التوقيت:' : 'Timezone:'}</span>
+                <span className="text-xs text-slate-500 dark:text-slate-400 font-semibold">{isAr ? 'التوقيت:' : 'Timezone:'}</span>
                 <select
                   value={currentTimezone.code}
                   onChange={(e) => {
@@ -111,6 +120,29 @@ export const ProgramsCatalog: React.FC<ProgramsCatalogProps> = ({
                 </select>
               </div>
             )}
+          </div>
+        </div>
+
+        {/* 7 Core Academy Pillars Banner requested by user */}
+        <div className="mb-8 p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#0E1A2B] border border-emerald-500/30 shadow-md">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="p-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+              <Sparkles className="w-4 h-4 text-amber-500" />
+            </span>
+            <h3 className="text-sm font-extrabold text-[#0F2942] dark:text-white font-display">
+              {isAr ? 'مميزات خدماتنا التعليمية في أكاديمية نور وبيان:' : 'Core Advantages of Our Educational Services:'}
+            </h3>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
+            {ACADEMY_CORE_PILLARS.map((pillar, idx) => (
+              <div
+                key={idx}
+                className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#132338] border border-slate-200/70 dark:border-slate-800 text-xs font-bold text-slate-800 dark:text-slate-200"
+              >
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <span className="leading-snug">{pillar}</span>
+              </div>
+            ))}
           </div>
         </div>
 

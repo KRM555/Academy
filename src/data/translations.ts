@@ -160,9 +160,9 @@ export const translations = {
     notFoundBtn: 'العودة إلى الصفحة الرئيسية',
 
     // Mothers Club
-    mothersBadge: 'مساحة خاصة للأم الواعية والمربية',
-    mothersTitle: 'واحة الأمهات: يدكِ بيدكِ نحو تربية هادئة ومطمئنة',
-    mothersDesc: 'ندرك في الأكاديمية أن نجاح الطفل يبدأ من راحة الأم ودعمها. لذلك خصصنا برامج تدريبية وجلسات استشارية فردية وجماعية مع نخبة من الاستشاريين التربويين لمساعدتك في مواجهة تحديات العصر.',
+    mothersBadge: 'قسم خاص بالأمهات · أنتِ شريكة في رحلة نجاح طفلك ❤️',
+    mothersTitle: 'أنتِ شريكة في رحلة نجاح طفلك ❤️',
+    mothersDesc: 'مجتمع يجمع الأمهات لتبادل الخبرات، والاستفادة من النصائح التربوية والتعليمية، ومناقشة كل ما يساعد في تربية أطفالنا وتنمية مهاراتهم.',
     mothersPoint1: 'علاج العناد ونوبات الغضب عند الأطفال',
     mothersPoint2: 'استراتيجيات تقليص وقت الشاشات والأجهزة',
     mothersPoint3: 'غرس الحياء وعفة اللسان وبناء الحماية الذاتية',
@@ -373,9 +373,9 @@ export const translations = {
     notFoundBtn: 'Back to Home',
 
     // Mothers Club
-    mothersBadge: 'Dedicated Space for Mindful Mothers',
-    mothersTitle: "Mothers' Oasis: Together towards serene, confident parenting",
-    mothersDesc: 'We believe a child success starts with a supported mother. Benefit from tailored group workshops and one-on-one sessions with licensed child psychologists.',
+    mothersBadge: 'Special Mothers Community · Partner in Success ❤️',
+    mothersTitle: 'You are a Partner in Your Child’s Journey of Success ❤️',
+    mothersDesc: 'A community uniting mothers to share experiences, benefit from educational and parenting advice, and discuss everything that helps nurture our children and develop their skills.',
     mothersPoint1: 'Handling stubbornness and toddler/child tantrums calmly',
     mothersPoint2: 'Practical strategies to curb screen and smartphone addiction',
     mothersPoint3: 'Instilling modesty, respect, and self-protection',

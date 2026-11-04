@@ -25,6 +25,21 @@ export interface SyllabusWeek {
   details: string;
 }
 
+export type ProgramCategory =
+  | 'all'
+  | 'arabic'
+  | 'languages'
+  | 'international'
+  | 'academic'
+  | 'quran'
+  | 'skills'
+  | 'speech'
+  | 'support'
+  | 'values'
+  | 'tech'
+  | 'mothers'
+  | string;
+
 export type Program = ProgramCourse & {
   syllabusWeeks?: SyllabusWeek[];
 };
@@ -36,7 +51,7 @@ export interface ProgramCourse {
   ageBracket: string;
   minAge: number;
   maxAge: number;
-  category: 'quran' | 'arabic' | 'values' | 'tech' | 'mothers';
+  category: ProgramCategory;
   deliveryMode: 'online';
   image: string;
   description: string;
