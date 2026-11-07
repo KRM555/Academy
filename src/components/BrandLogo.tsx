@@ -31,7 +31,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
           <span className={`font-extrabold tracking-tight font-display leading-tight whitespace-nowrap ${titleSize} ${lightText ? 'text-white' : 'text-[#0F2942] dark:text-white'}`}>
             أكاديمية نور وبيان
           </span>
-          <span className={`font-bold tracking-normal leading-tight whitespace-nowrap ${subSize} ${lightText ? 'text-emerald-300' : 'text-[#0D9488] dark:text-emerald-400'}`}>
+          <span className={`hidden sm:inline-block font-bold tracking-normal leading-tight whitespace-nowrap ${subSize} ${lightText ? 'text-emerald-300' : 'text-[#0D9488] dark:text-emerald-400'}`}>
             فصول تفاعلية حية أونلاين 100%
           </span>
         </div>

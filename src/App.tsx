@@ -28,6 +28,7 @@ import { GlobalLoadingIndicator } from './components/GlobalLoadingIndicator';
 import { CertificateCanvasStudio } from './components/CertificateCanvasStudio';
 import { GamesHub } from './components/games/GamesHub';
 import { PageSeo } from './components/PageSeo';
+import { SupabaseAdminDashboard } from './components/SupabaseAdminDashboard';
 import { LoadingProvider } from './context/LoadingContext';
 import { loadingManager } from './services/loadingManager';
 import { ArrowLeft, ArrowRight, BookOpen, Sparkles, Award, Heart, Check, Gamepad2 } from 'lucide-react';
@@ -243,7 +244,7 @@ export default function App() {
       {/* Dynamic SEO Meta Tags via React Helmet Async (unique og:title, og:description, canonical) */}
       <PageSeo currentLanguage={currentLanguage} />
 
-      <div className="min-h-screen bg-[#FAF9F6] dark:bg-[#070E18] text-[#0F2942] dark:text-slate-100 flex flex-col font-['Tajawal',sans-serif] transition-colors duration-200">
+      <div className="min-h-screen bg-[#FAF9F6] dark:bg-[#070E18] text-[#0F2942] dark:text-slate-100 flex flex-col font-['Tajawal',sans-serif] transition-colors duration-200" dir={isAr ? 'rtl' : 'ltr'}>
         {/* Global Loading Indicator (fixed top bar + network indicator, zero layout shift) */}
         <GlobalLoadingIndicator currentLanguage={currentLanguage} />
 
@@ -536,6 +537,16 @@ export default function App() {
                 onLoginSuccess={handleLoginSuccess}
                 onLogout={handleLogout}
                 onCoursesUpdated={() => setCoursesRefreshTrigger((prev) => prev + 1)}
+              />
+            }
+          />
+
+          {/* SUPABASE ADMIN DASHBOARD */}
+          <Route
+            path="/supabase-admin"
+            element={
+              <SupabaseAdminDashboard
+                onBackToMain={() => navigateTo('home')}
               />
             }
           />

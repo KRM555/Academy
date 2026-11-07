@@ -24,6 +24,7 @@ import {
   BarChart3,
   TrendingUp,
   Award,
+  Database,
 } from 'lucide-react';
 import { PortalAnalyticsCharts } from './PortalAnalyticsCharts';
 import { DashboardCharts } from './DashboardCharts';
@@ -381,7 +382,7 @@ export const AdminTeacherPortal: React.FC<AdminTeacherPortalProps> = ({
             </button>
 
             {/* Quick-fill helper for convenience */}
-            <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80">
+            <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 space-y-2">
               <button
                 type="button"
                 onClick={() => {
@@ -392,6 +393,14 @@ export const AdminTeacherPortal: React.FC<AdminTeacherPortalProps> = ({
               >
                 <span>🔑 ملء بيانات حساب المشرف تلقائياً (admin@noor-bayan.com)</span>
               </button>
+
+              <a
+                href="/supabase-admin"
+                className="w-full py-2 px-3 text-[11px] font-bold text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl border border-slate-200 dark:border-slate-700 transition-colors flex items-center justify-center gap-1.5 cursor-pointer text-center"
+              >
+                <Database className="w-3.5 h-3.5 text-emerald-600" />
+                <span>فتح لوحة تحكم Supabase السحابية (مباشر)</span>
+              </a>
             </div>
 
             {onNavigateHome && (
@@ -432,6 +441,13 @@ export const AdminTeacherPortal: React.FC<AdminTeacherPortalProps> = ({
         </div>
 
         <div className="flex items-center gap-2">
+          <a
+            href="/supabase-admin"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-300 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900 rounded-xl transition-colors cursor-pointer"
+          >
+            <Database className="w-3.5 h-3.5 text-emerald-600" />
+            <span>لوحة Supabase</span>
+          </a>
           {onNavigateHome && (
             <button
               onClick={onNavigateHome}

@@ -13,6 +13,7 @@ import {
   Award,
   PhoneCall,
   Activity,
+  Database,
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -71,6 +72,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const secondaryLinks = [
     { id: 'certificates', label: isAr ? 'الشهادات واللوحات' : 'Certificates Studio', icon: Award },
     { id: 'progress', label: isAr ? 'لوحة إنجاز الطفل' : 'Student Progress', icon: Activity },
+    { id: 'supabase-admin', label: isAr ? 'لوحة تحكم Supabase' : 'Supabase Dashboard', icon: Database },
     { id: 'contact', label: t.navContact, icon: PhoneCall },
   ];
 
@@ -152,26 +154,54 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
         </nav>
 
-        {/* Right side controls (Language, Theme, Staff Portal, CTA) */}
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-          {/* Language Switcher */}
+        {/* Right side controls (Language, Theme, Staff Portal, CTA, Mobile Menu) */}
+        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+          {/* Animated Fluid Language Switcher */}
           <button
             onClick={onToggleLanguage}
-            className="flex items-center gap-1 px-2 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-200 hover:text-[#0D9488] dark:hover:text-emerald-400 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-lg transition-colors cursor-pointer"
+            className="relative flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-200 hover:text-[#0D9488] dark:hover:text-emerald-400 bg-slate-100/90 dark:bg-slate-800/90 hover:bg-slate-200 dark:hover:bg-slate-700/80 border border-slate-200/90 dark:border-slate-700/80 rounded-xl transition-all duration-300 active:scale-95 cursor-pointer shadow-2xs group overflow-hidden select-none"
             title={currentLanguage === 'ar' ? 'Switch to English' : 'التحويل إلى العربية'}
+            aria-label="Toggle language"
           >
-            <Languages className="w-3.5 h-3.5 text-[#0D9488] dark:text-emerald-400 shrink-0" />
-            <span className="hidden sm:inline">{currentLanguage === 'ar' ? 'EN' : 'عربي'}</span>
+            <Languages
+              className={`w-3.5 h-3.5 text-[#0D9488] dark:text-emerald-400 shrink-0 transition-transform duration-500 ease-out group-hover:rotate-12 ${
+                currentLanguage === 'en' ? 'rotate-180' : 'rotate-0'
+              }`}
+            />
+            <div className="relative h-4 overflow-hidden w-7 sm:w-8 flex items-center justify-center font-bold">
+              <span
+                className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ease-out transform ${
+                  currentLanguage === 'ar'
+                    ? 'translate-y-0 opacity-100 scale-100'
+                    : '-translate-y-full opacity-0 scale-75'
+                }`}
+              >
+                EN
+              </span>
+              <span
+                className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ease-out transform ${
+                  currentLanguage === 'en'
+                    ? 'translate-y-0 opacity-100 scale-100'
+                    : 'translate-y-full opacity-0 scale-75'
+                }`}
+              >
+                عربي
+              </span>
+            </div>
           </button>
 
           {/* Theme Toggle */}
           <button
             onClick={onToggleTheme}
-            className="p-1.5 text-slate-700 dark:text-slate-200 hover:text-amber-500 dark:hover:text-amber-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-lg transition-colors cursor-pointer"
+            className="p-1.5 text-slate-700 dark:text-slate-200 hover:text-amber-500 dark:hover:text-amber-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-lg transition-all duration-200 active:scale-95 cursor-pointer"
             title={isDarkMode ? 'الوضع النهاري (Light Mode)' : 'الوضع الليلي (Dark Mode)'}
             aria-label="Toggle theme"
           >
-            {isDarkMode ? <Sun className="w-4 h-4 text-amber-300" /> : <Moon className="w-4 h-4 text-slate-600" />}
+            {isDarkMode ? (
+              <Sun className="w-4 h-4 text-amber-300 transition-transform duration-300 rotate-0 hover:rotate-45" />
+            ) : (
+              <Moon className="w-4 h-4 text-slate-600 transition-transform duration-300 rotate-0 hover:-rotate-12" />
+            )}
           </button>
 
           {/* Staff Portal / Admin Login Button */}
@@ -186,12 +216,12 @@ export const Navbar: React.FC<NavbarProps> = ({
               title={t.navPortal}
             >
               <Lock className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-              <span>{t.navPortal}</span>
+              <span className="hidden sm:inline">{t.navPortal}</span>
             </button>
           ) : (
             <button
               onClick={() => onNavigate('portal')}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 hover:text-[#0D9488] dark:hover:text-emerald-400 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-lg transition-colors cursor-pointer shrink-0"
+              className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 hover:text-[#0D9488] dark:hover:text-emerald-400 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-lg transition-colors cursor-pointer shrink-0"
               title={currentLanguage === 'ar' ? 'تسجيل دخول الإدارة والمعلمين' : 'Admin & Staff Login'}
             >
               <Lock className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 shrink-0" />
@@ -199,10 +229,10 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           )}
 
-          {/* Primary CTA: Never clipped, always prominent */}
+          {/* Primary CTA: Never clipped, hidden on small mobile where floating button is active */}
           <button
             onClick={onOpenTrial}
-            className="inline-flex px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-extrabold text-white bg-[#0D9488] hover:bg-[#0f766e] rounded-lg shadow-sm hover:shadow transition-all whitespace-nowrap cursor-pointer shrink-0"
+            className="hidden md:inline-flex px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-extrabold text-white bg-[#0D9488] hover:bg-[#0f766e] rounded-lg shadow-sm hover:shadow transition-all whitespace-nowrap cursor-pointer shrink-0"
           >
             {t.btnTrial}
           </button>
