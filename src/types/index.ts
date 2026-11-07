@@ -125,7 +125,7 @@ export interface RegisteredLead {
   preferredTimezone: string;
   customNote?: string;
   createdAt: string;
-  status: 'new' | 'contacted' | 'scheduled' | 'enrolled';
+  status: 'new' | 'contacted' | 'scheduled' | 'enrolled' | 'trial';
 }
 
 // Canonical list of Surahs in the Holy Quran for strict server validation (Phase 3.10)

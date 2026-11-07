@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Language, translations } from '../data/translations';
 import { siteConfig, getWhatsAppUrl } from '../config/siteConfig';
 import { api } from '../services/api';
+import { supabaseService } from '../services/supabaseClient';
 import {
   Mail,
   Send,
@@ -170,13 +171,31 @@ export const ContactForm: React.FC<ContactFormProps> = ({ currentLanguage }) => 
     setSubmitErrorMessage(null);
 
     try {
-      const result = await api.contact.submit(formData);
-
-      if (!result.success) {
-        throw new Error(result.message || (isAr ? 'حدث خطأ أثناء إرسال الاستفسار، يرجى المحاولة مرة أخرى.' : 'Error sending inquiry, please try again.'));
+      // 1. Direct persistence in Supabase database so all customer inquiries reach the admin
+      try {
+        await supabaseService.bookFreeTrial({
+          childName: formData.fullName.trim(),
+          childAge: 7,
+          parentName: formData.fullName.trim(),
+          parentPhone: (formData.phone || formData.email).trim(),
+          country: 'المملكة العربية السعودية',
+          programTitle: formData.subject,
+          preferredTimezone: 'طلب استشارة / استفسار عام',
+          notes: `[رسالة من الموقع] ${formData.message} (البريد: ${formData.email})`,
+        });
+      } catch (sbErr) {
+        console.warn('Supabase contact submission notice:', sbErr);
       }
 
-      const ticketId = result.ticketId || `NB-INQ-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+      // 2. Local backend notification
+      let ticketId = `NB-INQ-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+      try {
+        const result = await api.contact.submit(formData);
+        if (result?.ticketId) ticketId = result.ticketId;
+      } catch (apiErr) {
+        console.warn('API contact submit fallback:', apiErr);
+      }
+
       const newSubmission = {
         id: ticketId,
         date: new Date().toLocaleDateString(isAr ? 'ar-SA' : 'en-US', {

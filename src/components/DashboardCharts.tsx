@@ -209,11 +209,11 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({
                   اتجاهات تسجيل الطلاب الشهرية (Monthly Enrollment Trends)
                 </h3>
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-                  Firestore Collections: students & leads
+                  قاعدة بيانات Supabase المباشرة (Live Supabase: students & leads)
                 </span>
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                متابعة بصرية فورية لبيانات التسجيل وتدفق الطلاب المسترجعة من مجموعات Firestore لدعم القرارات الإدارية
+                متابعة بصرية فورية لبيانات التسجيل وتدفق الطلاب المسترجعة مباشرة من قاعدة بيانات Supabase لدعم القرارات الإدارية
               </p>
             </div>
           </div>

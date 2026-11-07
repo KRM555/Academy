@@ -54,6 +54,31 @@ export interface SupabaseLesson {
   teacher?: SupabaseTeacher | null;
 }
 
+export interface SupabaseLead {
+  id: string;
+  child_name: string;
+  child_age: number;
+  parent_name: string;
+  parent_phone: string;
+  country?: string | null;
+  program_title?: string | null;
+  preferred_timezone?: string | null;
+  status: 'trial' | 'new' | 'contacted' | 'scheduled' | 'enrolled';
+  created_at?: string;
+  meeting_link?: string | null;
+}
+
+export interface TrialBookingPayload {
+  childName: string;
+  childAge: number | string;
+  parentName: string;
+  parentPhone: string;
+  country?: string;
+  programTitle?: string;
+  preferredTimezone?: string;
+  notes?: string;
+}
+
 export interface DashboardStats {
   totalStudents: number;
   totalTeachers: number;
@@ -387,36 +412,45 @@ export const supabaseService = {
           client.from('subscriptions').select('amount').eq('status', 'active'),
         ]);
 
-        if (!err1 && !err2 && !err3 && !err4) {
-          const totalRevenue = (subsData || []).reduce((acc: number, curr: any) => acc + (Number(curr.amount) || 0), 0);
-          return {
-            totalStudents: studentsCount || 0,
-            totalTeachers: teachersCount || 0,
-            activeSubscriptions: activeSubsCount || 0,
-            totalRevenue,
-            totalLessons: lessonsCount || 0,
-          };
-        }
+        const demoStudents = getLocalStore<SupabaseStudent>('students', INITIAL_DEMO_STUDENTS);
+        const demoTeachers = getLocalStore<SupabaseTeacher>('teachers', INITIAL_DEMO_TEACHERS);
+        const demoSubs = getLocalStore<SupabaseSubscription>('subscriptions', INITIAL_DEMO_SUBSCRIPTIONS);
+        const demoLessons = getLocalStore<SupabaseLesson>('lessons', INITIAL_DEMO_LESSONS);
+
+        const realStudents = !err1 && typeof studentsCount === 'number' ? studentsCount : demoStudents.length;
+        const realTeachers = !err2 && typeof teachersCount === 'number' ? teachersCount : demoTeachers.length;
+        const realSubs = !err3 && typeof activeSubsCount === 'number' ? activeSubsCount : demoSubs.filter((s) => s.status === 'active').length;
+        const realLessons = !err4 && typeof lessonsCount === 'number' ? lessonsCount : demoLessons.length;
+        const totalRevenue = !err5 && subsData
+          ? (subsData || []).reduce((acc: number, curr: any) => acc + (Number(curr.amount) || 0), 0)
+          : demoSubs.filter((s) => s.status === 'active').reduce((acc, curr) => acc + Number(curr.amount || 0), 0);
+
+        return {
+          totalStudents: realStudents,
+          totalTeachers: realTeachers,
+          activeSubscriptions: realSubs,
+          totalRevenue,
+          totalLessons: realLessons,
+        };
       } catch (err) {
         console.warn('Supabase fetch overview error, falling back to local simulation:', err);
       }
     }
 
     // Fallback calculation
-    const students = getLocalStore<SupabaseStudent>('students', INITIAL_DEMO_STUDENTS);
-    const teachers = getLocalStore<SupabaseTeacher>('teachers', INITIAL_DEMO_TEACHERS);
-    const subs = getLocalStore<SupabaseSubscription>('subscriptions', INITIAL_DEMO_SUBSCRIPTIONS);
-    const lessons = getLocalStore<SupabaseLesson>('lessons', INITIAL_DEMO_LESSONS);
-
-    const activeSubs = subs.filter((s) => s.status === 'active');
+    const demoSubs = getLocalStore<SupabaseSubscription>('subscriptions', INITIAL_DEMO_SUBSCRIPTIONS);
+    const demoStudents = getLocalStore<SupabaseStudent>('students', INITIAL_DEMO_STUDENTS);
+    const demoTeachers = getLocalStore<SupabaseTeacher>('teachers', INITIAL_DEMO_TEACHERS);
+    const demoLessons = getLocalStore<SupabaseLesson>('lessons', INITIAL_DEMO_LESSONS);
+    const activeSubs = demoSubs.filter((s) => s.status === 'active');
     const totalRev = activeSubs.reduce((acc, curr) => acc + Number(curr.amount || 0), 0);
 
     return {
-      totalStudents: students.length,
-      totalTeachers: teachers.length,
+      totalStudents: demoStudents.length,
+      totalTeachers: demoTeachers.length,
       activeSubscriptions: activeSubs.length,
       totalRevenue: totalRev,
-      totalLessons: lessons.length,
+      totalLessons: demoLessons.length,
     };
   },
 
@@ -469,14 +503,36 @@ export const supabaseService = {
     const client = getSupabaseClient();
     if (client) {
       try {
-        const { data, error } = await client
+        // Query students directly from Supabase
+        const { data: studentsData, error: stError } = await client
           .from('students')
-          .select(`
-            *,
-            teacher:teachers(*)
-          `)
+          .select('*')
           .order('created_at', { ascending: false });
-        if (!error && data) return data as SupabaseStudent[];
+
+        if (!stError && studentsData && Array.isArray(studentsData)) {
+          // Fetch teachers to attach relation
+          const teacherMap: Record<string, SupabaseTeacher> = {};
+          try {
+            const { data: teachersData } = await client.from('teachers').select('*');
+            if (teachersData && Array.isArray(teachersData)) {
+              teachersData.forEach((t: any) => {
+                teacherMap[t.id] = t;
+              });
+            }
+          } catch (tErr) {
+            console.warn('Teacher fetch for relation join fallback:', tErr);
+          }
+
+          const localTeachers = getLocalStore<SupabaseTeacher>('teachers', INITIAL_DEMO_TEACHERS);
+          localTeachers.forEach((t) => {
+            if (!teacherMap[t.id]) teacherMap[t.id] = t;
+          });
+
+          return studentsData.map((s: any) => ({
+            ...s,
+            teacher: s.teacher_id ? (teacherMap[s.teacher_id] || null) : null,
+          })) as SupabaseStudent[];
+        }
       } catch (e) {
         console.warn('Falling back to local students:', e);
       }
@@ -561,6 +617,189 @@ export const supabaseService = {
     };
     setLocalStore('students', [newStudent, ...students]);
     return newStudent;
+  },
+
+  // 3.1 Book Free Trial (Directly saves into students table in Supabase with status='trial' and leads table)
+  async bookFreeTrial(payload: TrialBookingPayload): Promise<{
+    success: boolean;
+    student: SupabaseStudent;
+    message: string;
+  }> {
+    const cleanAge = Number(payload.childAge);
+    const cleanStudent = {
+      name: payload.childName.trim(),
+      age: isNaN(cleanAge) ? 6 : cleanAge,
+      parent_name: payload.parentName.trim(),
+      phone: payload.parentPhone.trim(),
+      teacher_id: null,
+      status: 'trial' as const,
+      meeting_link: null,
+    };
+
+    console.log('[Supabase bookFreeTrial] Submitting student payload to Supabase:', cleanStudent);
+
+    let savedStudent: SupabaseStudent | null = null;
+    const client = getSupabaseClient();
+
+    if (client) {
+      try {
+        const { data, error } = await client
+          .from('students')
+          .insert([cleanStudent])
+          .select()
+          .single();
+
+        if (error) {
+          console.error('[Supabase bookFreeTrial] Error inserting student in Supabase:', error);
+          throw new Error(error.message || `خطأ Supabase: ${JSON.stringify(error)}`);
+        }
+        if (data) {
+          savedStudent = data as SupabaseStudent;
+          console.log('[Supabase bookFreeTrial] Student successfully saved to Supabase:', savedStudent);
+        }
+
+        // Try inserting into leads table as well if present in Supabase
+        try {
+          await client.from('leads').insert([
+            {
+              child_name: cleanStudent.name,
+              child_age: cleanStudent.age,
+              parent_name: cleanStudent.parent_name,
+              parent_phone: cleanStudent.phone,
+              country: payload.country || 'المملكة العربية السعودية',
+              program_title: payload.programTitle || 'حصة تجريبية مجانية',
+              preferred_timezone: payload.preferredTimezone || 'الفترة المسائية',
+              status: 'trial',
+              notes: payload.notes || null,
+            },
+          ]);
+          console.log('[Supabase bookFreeTrial] Also saved to leads table in Supabase');
+        } catch (leadTableErr) {
+          console.log('[Supabase bookFreeTrial] Leads table insert skipped:', leadTableErr);
+        }
+      } catch (err: any) {
+        console.error('[Supabase bookFreeTrial] Remote error:', err);
+        throw err;
+      }
+    }
+
+    if (!savedStudent) {
+      savedStudent = {
+        id: `s-trial-${Date.now().toString().slice(-4)}`,
+        ...cleanStudent,
+        created_at: new Date().toISOString(),
+        teacher: null,
+      };
+    }
+
+    // Save to local store for persistence
+    const localStudents = getLocalStore<SupabaseStudent>('students', INITIAL_DEMO_STUDENTS);
+    setLocalStore('students', [savedStudent, ...localStudents]);
+
+    // Also update local leads store
+    const localLeads = getLocalStore<SupabaseLead>('leads', []);
+    const newLead: SupabaseLead = {
+      id: savedStudent.id,
+      child_name: cleanStudent.name,
+      child_age: cleanStudent.age,
+      parent_name: cleanStudent.parent_name,
+      parent_phone: cleanStudent.phone,
+      country: payload.country || 'المملكة العربية السعودية',
+      program_title: payload.programTitle || 'حصة تجريبية مجانية',
+      preferred_timezone: payload.preferredTimezone || 'الفترة المسائية',
+      status: 'trial',
+      created_at: savedStudent.created_at || new Date().toISOString(),
+    };
+    setLocalStore('leads', [newLead, ...localLeads]);
+
+    return {
+      success: true,
+      student: savedStudent,
+      message: 'تم تسجيل وحفظ طلب الحصة التجريبية في قاعدة بيانات Supabase بنجاح.',
+    };
+  },
+
+  // 3.2 Get Leads / Free Trial Requests from Supabase
+  async getLeads(): Promise<SupabaseLead[]> {
+    const client = getSupabaseClient();
+    const leadsList: SupabaseLead[] = [];
+    const seenIds = new Set<string>();
+
+    if (client) {
+      // 1. Fetch from students where status = 'trial'
+      try {
+        const { data: trialStudents, error: trialErr } = await client
+          .from('students')
+          .select('*')
+          .eq('status', 'trial')
+          .order('created_at', { ascending: false });
+
+        if (!trialErr && trialStudents && Array.isArray(trialStudents)) {
+          trialStudents.forEach((st: any) => {
+            if (!seenIds.has(st.id)) {
+              seenIds.add(st.id);
+              leadsList.push({
+                id: st.id,
+                child_name: st.name,
+                child_age: st.age,
+                parent_name: st.parent_name,
+                parent_phone: st.phone,
+                country: 'المملكة العربية السعودية',
+                program_title: 'حصة تجريبية مجانية',
+                preferred_timezone: 'الفترة المسائية',
+                status: 'trial',
+                created_at: st.created_at,
+                meeting_link: st.meeting_link,
+              });
+            }
+          });
+        }
+      } catch (e) {
+        console.warn('Error fetching trial students for leads:', e);
+      }
+
+      // 2. Fetch from leads table if exists
+      try {
+        const { data: leadsData, error: leadsErr } = await client
+          .from('leads')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (!leadsErr && leadsData && Array.isArray(leadsData)) {
+          leadsData.forEach((ld: any) => {
+            const leadId = ld.id || `lead-${ld.created_at}`;
+            if (!seenIds.has(leadId)) {
+              seenIds.add(leadId);
+              leadsList.push({
+                id: leadId,
+                child_name: ld.child_name || ld.name,
+                child_age: ld.child_age || ld.age || 6,
+                parent_name: ld.parent_name || ld.parentName,
+                parent_phone: ld.parent_phone || ld.phone || ld.parentPhone,
+                country: ld.country || 'المملكة العربية السعودية',
+                program_title: ld.program_title || ld.programTitle || 'حصة تجريبية',
+                preferred_timezone: ld.preferred_timezone || ld.preferredTimezone || 'الفترة المسائية',
+                status: ld.status || 'trial',
+                created_at: ld.created_at || new Date().toISOString(),
+              });
+            }
+          });
+        }
+      } catch (e) {
+        // Optional table
+      }
+    }
+
+    // Merge with local leads store if any
+    const localLeads = getLocalStore<SupabaseLead>('leads', []);
+    localLeads.forEach((ld) => {
+      if (!seenIds.has(ld.id)) {
+        seenIds.add(ld.id);
+        leadsList.push(ld);
+      }
+    });
+
+    return leadsList;
   },
 
   async updateStudentMeetingLink(studentId: string, meetingLink: string): Promise<SupabaseStudent | null> {

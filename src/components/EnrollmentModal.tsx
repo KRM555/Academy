@@ -3,6 +3,7 @@ import { Language } from '../data/translations';
 import { X, MessageCircle, ShieldCheck, Sparkles, Send, Laptop } from 'lucide-react';
 import { getWhatsAppUrl } from '../config/siteConfig';
 import { api } from '../services/api';
+import { supabaseService } from '../services/supabaseClient';
 
 interface EnrollmentModalProps {
   isOpen: boolean;
@@ -42,26 +43,48 @@ export const EnrollmentModal: React.FC<EnrollmentModalProps> = ({
     setIsSubmitting(true);
 
     const fullPhone = `${countryCode} ${phoneNumber.trim()}`;
+    const selectedProg = preSelectedProgramTitle || preferredProgram;
 
     try {
-      const data = await api.leads.register({
+      // 1. Direct persistence in Supabase database (saved to students table with status='trial' and leads table)
+      const res = await supabaseService.bookFreeTrial({
         childName,
         childAge,
         parentName,
         parentPhone: fullPhone,
         country,
-        programTitle: preSelectedProgramTitle || preferredProgram,
+        programTitle: selectedProg,
         preferredTimezone: preferredTime,
+        notes: customNote || undefined,
       });
 
-      if (data.success) {
-        setIsSuccess(true);
-        setLeadId(data.leadId);
-      } else {
-        setErrorMessage(data.message || (isAr ? 'حدث خطأ أثناء التسجيل، يرجى التحقق من البيانات.' : 'Error submitting registration, please verify details.'));
+      console.log('[EnrollmentModal] Free trial successfully booked in Supabase:', res);
+
+      // 2. Also forward to local backend if available
+      try {
+        await api.leads.register({
+          childName,
+          childAge,
+          parentName,
+          parentPhone: fullPhone,
+          country,
+          programTitle: selectedProg,
+          preferredTimezone: preferredTime,
+        });
+      } catch (backendErr) {
+        console.warn('[EnrollmentModal] Local backend sync notice:', backendErr);
       }
+
+      setIsSuccess(true);
+      setLeadId(res.student?.id || `trial-${Date.now().toString().slice(-4)}`);
     } catch (err: any) {
-      setErrorMessage(err?.message || (isAr ? 'تعذر الاتصال بالخادم، يرجى المحاولة عبر الواتساب مباشرة.' : 'Connection error, please reach out via WhatsApp directly.'));
+      console.error('[EnrollmentModal] Submission error:', err);
+      setErrorMessage(
+        err?.message ||
+          (isAr
+            ? 'حدث خطأ أثناء حفظ طلب الحجز في قاعدة البيانات، يرجى المحاولة أو التواصل مباشرة عبر الواتساب.'
+            : 'Error saving booking to database, please try again or reach out via WhatsApp.')
+      );
     } finally {
       setIsSubmitting(false);
     }
