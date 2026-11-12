@@ -12,22 +12,19 @@ service cloud.firestore {
       allow create, update, delete: if isValidId(courseId);
     }
 
-    // User profiles: Managed via server-authoritative authentication
+    // User profiles: Deny-all immediate stopgap
     match /users/{userId} {
-      allow get, list: if true;
-      allow create, update, delete: if isValidId(userId);
+      allow read, write: if false;
     }
 
-    // Students: Student records and evaluations
+    // Students: Deny-all immediate stopgap
     match /students/{studentId} {
-      allow get, list: if true;
-      allow create, update, delete: if isValidId(studentId);
+      allow read, write: if false;
     }
 
-    // Payouts: Teacher payouts and encrypted banking records
+    // Payouts: Deny-all immediate stopgap
     match /payouts/{payoutId} {
-      allow get, list: if true;
-      allow create, update, delete: if isValidId(payoutId);
+      allow read, write: if false;
     }
 
     // Leads: Inbound booking registrations
@@ -42,16 +39,14 @@ service cloud.firestore {
       allow create, update, delete: if isValidId(inquiryId);
     }
 
-    // Password reset tokens: Server-authoritative
+    // Password reset tokens: Deny-all immediate stopgap
     match /passwordResetTokens/{tokenId} {
-      allow get, list: if true;
-      allow create, update, delete: if isValidId(tokenId);
+      allow read, write: if false;
     }
 
-    // Security audit logs: Server-authoritative
+    // Security audit logs: Deny-all immediate stopgap
     match /auditLogs/{logId} {
-      allow get, list: if true;
-      allow create, update, delete: if isValidId(logId);
+      allow read, write: if false;
     }
 
     // Default deny for unmatched document paths

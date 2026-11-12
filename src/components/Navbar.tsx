@@ -72,7 +72,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const secondaryLinks = [
     { id: 'certificates', label: isAr ? 'الشهادات واللوحات' : 'Certificates Studio', icon: Award },
     { id: 'progress', label: isAr ? 'لوحة إنجاز الطفل' : 'Student Progress', icon: Activity },
-    { id: 'supabase-admin', label: isAr ? 'لوحة تحكم Supabase' : 'Supabase Dashboard', icon: Database },
+    { id: 'dashboard', label: isAr ? 'لوحة التحكم الموحدة' : 'Unified Dashboard', icon: Database },
     { id: 'contact', label: t.navContact, icon: PhoneCall },
   ];
 

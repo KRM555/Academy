@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { Currency, TimezoneInfo, UserAuth } from './types';
 import { CURRENCIES, TIMEZONES } from './data/academyData';
 import { Language, translations } from './data/translations';
-import { api } from './services/api';
+import { useAuth } from './context/AuthContext';
+import { LoginPage } from './components/auth/LoginPage';
+import { AppLayout } from './components/app/AppLayout';
+import { ProtectedRoute } from './components/app/ProtectedRoute';
+import { AppPageShell } from './components/app/AppPageShell';
+import { UnauthorizedPage } from './components/app/UnauthorizedPage';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { FutureVisionSection } from './components/FutureVisionSection';
@@ -28,7 +33,8 @@ import { GlobalLoadingIndicator } from './components/GlobalLoadingIndicator';
 import { CertificateCanvasStudio } from './components/CertificateCanvasStudio';
 import { GamesHub } from './components/games/GamesHub';
 import { PageSeo } from './components/PageSeo';
-import { SupabaseAdminDashboard } from './components/SupabaseAdminDashboard';
+import { UnifiedAcademyDashboard } from './components/UnifiedAcademyDashboard';
+import { MosslineAcademyExperience } from './components/MosslineAcademyExperience';
 import { LoadingProvider } from './context/LoadingContext';
 import { loadingManager } from './services/loadingManager';
 import { ArrowLeft, ArrowRight, BookOpen, Sparkles, Award, Heart, Check, Gamepad2 } from 'lucide-react';
@@ -45,8 +51,9 @@ export default function App() {
   const [currentCurrency, setCurrentCurrency] = useState<Currency>(CURRENCIES[0]);
   const [currentTimezone, setCurrentTimezone] = useState<TimezoneInfo>(TIMEZONES[0]);
 
-  // Auth & Admin/Teacher Session state
-  const [currentUser, setCurrentUser] = useState<UserAuth | null>(null);
+  // Supabase Auth context
+  const { user, profile, role, signOut } = useAuth();
+  const isAppRoute = location.pathname.startsWith('/app') || location.pathname === '/login';
 
   // Enrollment / Trial Class Modal state
   const [isEnrollmentModalOpen, setIsEnrollmentModalOpen] = useState(false);
@@ -57,14 +64,8 @@ export default function App() {
   // Active full-viewport game session flag (hides navbar/footer for 100% immersion)
   const [isGameSessionActive, setIsGameSessionActive] = useState(false);
 
-  // Check saved preferences and verify session with server on load
+  // Check saved preferences on load
   useEffect(() => {
-    // Verify session via httpOnly cookie on boot
-    api.auth.getMe().then((res) => {
-      if (res.user) {
-        setCurrentUser(res.user);
-      }
-    }).catch(() => {});
 
     try {
       const savedLang = localStorage.getItem('academy_lang') as Language;
@@ -153,8 +154,8 @@ export default function App() {
       } else {
         document.getElementById('testimonials')?.scrollIntoView({ behavior: 'smooth' });
       }
-    } else if (target === 'dashboard' || target === 'portal') {
-      navigate('/portal');
+    } else if (target === 'dashboard' || target === 'portal' || target === 'admin') {
+      navigate('/app/overview');
     } else if (target.startsWith('/')) {
       navigate(target);
     } else {
@@ -162,17 +163,13 @@ export default function App() {
     }
   };
 
-  const handleLoginSuccess = (user: UserAuth) => {
-    setCurrentUser(user);
-  };
-
   const handleLogout = async () => {
     try {
-      await api.auth.logout();
-    } catch {
-      // Continue client cleanup
+      await signOut();
+    } catch (e) {
+      console.error(e);
     }
-    setCurrentUser(null);
+    navigate('/login');
   };
 
   const openTrialBooking = (programTitle?: string, note?: string) => {
@@ -272,6 +269,14 @@ export default function App() {
             path="/"
             element={
               <div>
+                {/* MotionSites Mossline 5-Beat Floating Island Experience */}
+                <MosslineAcademyExperience
+                  currentLanguage={currentLanguage}
+                  onOpenTrial={() => openTrialBooking()}
+                  onNavigateToDashboard={() => navigateTo('dashboard')}
+                  onNavigateToPrograms={() => navigateTo('programs')}
+                />
+
                 <Hero
                   onOpenTrial={() => openTrialBooking()}
                   onExplorePrograms={() => navigateTo('programs')}
@@ -484,69 +489,59 @@ export default function App() {
             element={<ContactForm currentLanguage={currentLanguage} />}
           />
 
-          {/* ADMIN & TEACHER PORTAL */}
+          {/* UNIFIED ACADEMY DASHBOARD (Single Portal with RBAC & Supabase) */}
           <Route
             path="/portal"
             element={
-              <AdminTeacherPortal
-                isFullPage={true}
-                onNavigateHome={() => navigateTo('home')}
+              <UnifiedAcademyDashboard
+                onBackToMain={() => navigateTo('home')}
                 currentUser={currentUser}
                 onLoginSuccess={handleLoginSuccess}
                 onLogout={handleLogout}
-                onCoursesUpdated={() => setCoursesRefreshTrigger((prev) => prev + 1)}
               />
             }
           />
-          {/* Legacy alias for /portal */}
           <Route
             path="/dashboard"
             element={
-              <AdminTeacherPortal
-                isFullPage={true}
-                onNavigateHome={() => navigateTo('home')}
+              <UnifiedAcademyDashboard
+                onBackToMain={() => navigateTo('home')}
                 currentUser={currentUser}
                 onLoginSuccess={handleLoginSuccess}
                 onLogout={handleLogout}
-                onCoursesUpdated={() => setCoursesRefreshTrigger((prev) => prev + 1)}
               />
             }
           />
-          {/* Direct /admin route */}
           <Route
             path="/admin"
             element={
-              <AdminTeacherPortal
-                isFullPage={true}
-                onNavigateHome={() => navigateTo('home')}
+              <UnifiedAcademyDashboard
+                onBackToMain={() => navigateTo('home')}
                 currentUser={currentUser}
                 onLoginSuccess={handleLoginSuccess}
                 onLogout={handleLogout}
-                onCoursesUpdated={() => setCoursesRefreshTrigger((prev) => prev + 1)}
               />
             }
           />
-          {/* Direct /login route */}
           <Route
             path="/login"
             element={
-              <AdminTeacherPortal
-                isFullPage={true}
-                onNavigateHome={() => navigateTo('home')}
+              <UnifiedAcademyDashboard
+                onBackToMain={() => navigateTo('home')}
                 currentUser={currentUser}
                 onLoginSuccess={handleLoginSuccess}
                 onLogout={handleLogout}
-                onCoursesUpdated={() => setCoursesRefreshTrigger((prev) => prev + 1)}
               />
             }
           />
-
-          {/* SUPABASE ADMIN DASHBOARD */}
           <Route
             path="/supabase-admin"
             element={
-              <SupabaseAdminDashboard
+              <UnifiedAcademyDashboard
                 onBackToMain={() => navigateTo('home')}
+                currentUser={currentUser}
+                onLoginSuccess={handleLoginSuccess}
+                onLogout={handleLogout}
               />
             }
           />

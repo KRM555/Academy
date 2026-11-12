@@ -96,12 +96,38 @@ export interface TeacherPayout {
   ibanMasked: string; // Only masked IBAN returned to client (e.g. SA***4589)
 }
 
+export type UserRole = 'admin' | 'teacher' | 'student' | 'parent';
+
+export interface UserProfile {
+  id: string;
+  email: string;
+  full_name: string;
+  role: UserRole;
+  phone?: string | null;
+  avatar_url?: string | null;
+  is_active: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface UserAuth {
   id: string;
   email: string;
   name: string;
-  role: 'admin' | 'teacher';
-  permissions: string[];
+  role: UserRole;
+  permissions?: string[];
+}
+
+export interface TeacherPermissionConfig {
+  teacherId: string;
+  teacherEmail: string;
+  teacherName: string;
+  canViewAllStudents: boolean;
+  canEditStudentProgress: boolean;
+  canManageMeetingLinks: boolean;
+  canAddLessons: boolean;
+  canViewFinancials: boolean;
+  notes?: string;
 }
 
 export interface ContactInquiry {

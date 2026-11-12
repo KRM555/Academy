@@ -164,8 +164,8 @@ app.post('/api/auth/login', loginRateLimiter, async (req: Request, res: Response
   }
 });
 
-// POST /api/auth/register (Rate-limited, strong password policy enforced via Zod schema)
-app.post('/api/auth/register', loginRateLimiter, async (req: Request, res: Response) => {
+// POST /api/auth/register (Admin-only: only existing authenticated admins can provision staff accounts)
+app.post('/api/auth/register', requireAuth, requireRole('admin'), async (req: AuthenticatedRequest, res: Response) => {
   try {
     const parsed = registerSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -185,7 +185,7 @@ app.post('/api/auth/register', loginRateLimiter, async (req: Request, res: Respo
     if (existing) {
       res.status(409).json({
         success: false,
-        message: 'البريد الإلكتروني مسجل مسبقاً، يرجى تسجيل الدخول بدلاً من ذلك.',
+        message: 'البريد الإلكتروني مسجل مسبقاً.',
       });
       return;
     }
@@ -204,17 +204,10 @@ app.post('/api/auth/register', loginRateLimiter, async (req: Request, res: Respo
       permissions,
     });
 
-    const token = signSessionToken(user);
-    res.cookie('nb_session', token, {
-      httpOnly: true,
-      secure: isProd,
-      sameSite: 'lax',
-      maxAge: 12 * 60 * 60 * 1000,
-    });
-
+    // Do NOT overwrite current admin session cookie with the new user's token!
     res.status(201).json({
       success: true,
-      message: 'تم إنشاء الحساب وتسجيل الدخول بنجاح.',
+      message: 'تم إنشاء الحساب بنجاح بواسطة المدير.',
       user: {
         id: user.id,
         email: user.email,

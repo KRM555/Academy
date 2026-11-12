@@ -1,4 +1,5 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import type { TeacherPermissionConfig } from '../types';
 
 // Default Supabase Credentials requested by the user
 export const DEFAULT_SUPABASE_URL = 'https://xxtgdvboqjeezemwoimr.supabase.co';
@@ -984,6 +985,107 @@ export const supabaseService = {
     );
     setLocalStore('lessons', updated);
     return updated.find((l) => l.id === lessonId) || null;
+  },
+
+  // 6. Delete Operations (Admin Only)
+  async deleteStudent(studentId: string): Promise<boolean> {
+    const client = getSupabaseClient();
+    if (client) {
+      try {
+        await client.from('students').delete().eq('id', studentId);
+      } catch (e) {
+        console.warn('Supabase deleteStudent error:', e);
+      }
+    }
+    const students = getLocalStore<SupabaseStudent>('students', INITIAL_DEMO_STUDENTS);
+    setLocalStore('students', students.filter((s) => s.id !== studentId));
+    return true;
+  },
+
+  async deleteTeacher(teacherId: string): Promise<boolean> {
+    const client = getSupabaseClient();
+    if (client) {
+      try {
+        await client.from('teachers').delete().eq('id', teacherId);
+      } catch (e) {
+        console.warn('Supabase deleteTeacher error:', e);
+      }
+    }
+    const teachers = getLocalStore<SupabaseTeacher>('teachers', INITIAL_DEMO_TEACHERS);
+    setLocalStore('teachers', teachers.filter((t) => t.id !== teacherId));
+    return true;
+  },
+
+  async deleteLesson(lessonId: string): Promise<boolean> {
+    const client = getSupabaseClient();
+    if (client) {
+      try {
+        await client.from('lessons').delete().eq('id', lessonId);
+      } catch (e) {
+        console.warn('Supabase deleteLesson error:', e);
+      }
+    }
+    const lessons = getLocalStore<SupabaseLesson>('lessons', INITIAL_DEMO_LESSONS);
+    setLocalStore('lessons', lessons.filter((l) => l.id !== lessonId));
+    return true;
+  },
+
+  async deleteSubscription(subId: string): Promise<boolean> {
+    const client = getSupabaseClient();
+    if (client) {
+      try {
+        await client.from('subscriptions').delete().eq('id', subId);
+      } catch (e) {
+        console.warn('Supabase deleteSubscription error:', e);
+      }
+    }
+    const subs = getLocalStore<SupabaseSubscription>('subscriptions', INITIAL_DEMO_SUBSCRIPTIONS);
+    setLocalStore('subscriptions', subs.filter((s) => s.id !== subId));
+    return true;
+  },
+
+  // 7. Teacher RBAC Permissions Management (Controlled by Admin)
+  getTeacherPermissions(): TeacherPermissionConfig[] {
+    const defaultPerms: TeacherPermissionConfig[] = [
+      {
+        teacherId: 't-101',
+        teacherEmail: 'abdullah.q@noor-bayan.com',
+        teacherName: 'الشيخ عبد الله القرني',
+        canViewAllStudents: false,
+        canEditStudentProgress: true,
+        canManageMeetingLinks: true,
+        canAddLessons: true,
+        canViewFinancials: true,
+        notes: 'صلاحيات قياسية للمعلم المعتمد لتحفيظ القرآن',
+      },
+      {
+        teacherId: 't-102',
+        teacherEmail: 'fatimah.z@noor-bayan.com',
+        teacherName: 'الأستاذة فاطمة الزهراني',
+        canViewAllStudents: false,
+        canEditStudentProgress: true,
+        canManageMeetingLinks: true,
+        canAddLessons: false,
+        canViewFinancials: true,
+        notes: 'صلاحيات تأسيس اللغة والقراءة - تحديث الحفظ والمحاضرات',
+      },
+    ];
+    return getLocalStore<TeacherPermissionConfig>('teacher_permissions', defaultPerms);
+  },
+
+  saveTeacherPermission(config: TeacherPermissionConfig): void {
+    const current = this.getTeacherPermissions();
+    const existingIdx = current.findIndex(
+      (p) => p.teacherId === config.teacherId || p.teacherEmail.toLowerCase() === config.teacherEmail.toLowerCase()
+    );
+    let updated: TeacherPermissionConfig[];
+    if (existingIdx >= 0) {
+      updated = [...current];
+      updated[existingIdx] = { ...updated[existingIdx], ...config };
+    } else {
+      updated = [config, ...current];
+    }
+    setLocalStore('teacher_permissions', updated);
   },
 
   // SQL Schema Script for easy 1-click copy into Supabase SQL Editor
