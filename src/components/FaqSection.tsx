@@ -4,11 +4,13 @@ import { ChevronDown, HelpCircle } from 'lucide-react';
 
 interface FaqSectionProps {
   currentLanguage: Language;
+  onNavigateToFaq?: () => void;
 }
 
-export const FaqSection: React.FC<FaqSectionProps> = ({ currentLanguage }) => {
+export const FaqSection: React.FC<FaqSectionProps> = ({ currentLanguage, onNavigateToFaq }) => {
   const t = translations[currentLanguage];
   const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const isAr = currentLanguage === 'ar';
 
   const faqs = [
     { q: t.faqQ1, a: t.faqA1 },
@@ -70,6 +72,18 @@ export const FaqSection: React.FC<FaqSectionProps> = ({ currentLanguage }) => {
             );
           })}
         </div>
+
+        {onNavigateToFaq && (
+          <div className="mt-8 text-center">
+            <button
+              onClick={onNavigateToFaq}
+              className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl border border-emerald-500/40 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-xs font-bold transition-all cursor-pointer"
+            >
+              <span>{isAr ? 'عرض كافة الأسئلة الشائعة وتصنيفاتها' : 'View All FAQs & Categories'}</span>
+              <ChevronDown className="w-3.5 h-3.5 -rotate-90 rtl:rotate-90" />
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );

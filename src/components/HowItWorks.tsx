@@ -1,6 +1,7 @@
 import React from 'react';
 import { Language, translations } from '../data/translations';
 import { CalendarCheck, Video, FileCheck, ArrowLeft, ArrowRight } from 'lucide-react';
+import { motion, useReducedMotion } from 'motion/react';
 
 interface HowItWorksProps {
   currentLanguage: Language;
@@ -9,6 +10,7 @@ interface HowItWorksProps {
 
 export const HowItWorks: React.FC<HowItWorksProps> = ({ currentLanguage, onOpenTrial }) => {
   const t = translations[currentLanguage];
+  const shouldReduceMotion = useReducedMotion();
   const isAr = currentLanguage === 'ar';
   const ArrowIcon = isAr ? ArrowLeft : ArrowRight;
 
@@ -58,8 +60,13 @@ export const HowItWorks: React.FC<HowItWorksProps> = ({ currentLanguage, onOpenT
           {steps.map((step, idx) => {
             const Icon = step.icon;
             return (
-              <div
+              <motion.div
                 key={idx}
+                initial={shouldReduceMotion ? false : { opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-20px' }}
+                transition={{ duration: 0.35, delay: idx * 0.1 }}
+                whileHover={shouldReduceMotion ? {} : { y: -6 }}
                 className="relative bg-[#FAF9F6] dark:bg-[#111E2E] p-6 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col justify-between shadow-2xs hover:shadow-md transition-shadow"
               >
                 <div>
@@ -83,7 +90,7 @@ export const HowItWorks: React.FC<HowItWorksProps> = ({ currentLanguage, onOpenT
                 <div className="mt-5 pt-3 border-t border-slate-200/60 dark:border-slate-800/60 text-xs font-bold text-[#0D9488] dark:text-emerald-400 flex items-center gap-1">
                   <span>{isAr ? 'بدون أي التزام مالي' : 'Zero obligation'}</span>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
         </div>

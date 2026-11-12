@@ -1,6 +1,8 @@
 import React from 'react';
 import { Language, translations } from '../data/translations';
 import { Heart, Sparkles, CheckCircle2, MessageCircle, ArrowLeft, ArrowRight } from 'lucide-react';
+import { motion, useReducedMotion } from 'motion/react';
+import { FloatingIllustrations } from './public/FloatingIllustrations';
 import { getWhatsAppUrl } from '../config/siteConfig';
 
 interface MothersClubProps {
@@ -10,11 +12,13 @@ interface MothersClubProps {
 
 export const MothersClub: React.FC<MothersClubProps> = ({ onOpenConsultation, currentLanguage = 'ar' }) => {
   const t = translations[currentLanguage];
+  const shouldReduceMotion = useReducedMotion();
   const ArrowIcon = currentLanguage === 'ar' ? ArrowLeft : ArrowRight;
 
   return (
-    <section id="mothers-club" className="py-16 bg-[#FAF9F6] dark:bg-[#070E18] border-b border-slate-200 dark:border-slate-800 transition-colors duration-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="mothers-club" className="relative py-16 bg-[#FAF9F6] dark:bg-[#070E18] border-b border-slate-200 dark:border-slate-800 transition-colors duration-200 overflow-hidden">
+      <FloatingIllustrations />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           {/* Visual Column */}
           <div className="lg:col-span-5 relative order-2 lg:order-1">

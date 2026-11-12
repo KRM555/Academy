@@ -93,13 +93,23 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenTrial, current
                 </button>
               </li>
               <li>
+                <button onClick={() => onNavigate('teachers')} className="hover:text-emerald-400 transition-colors cursor-pointer">
+                  {currentLanguage === 'ar' ? 'الكادر التعليمي والمعلمون' : 'Faculty & Teachers'}
+                </button>
+              </li>
+              <li>
+                <button onClick={() => onNavigate('how-it-works')} className="hover:text-emerald-400 transition-colors cursor-pointer">
+                  {currentLanguage === 'ar' ? 'كيف تبدأ الحصص (آلية العمل)' : 'How It Works'}
+                </button>
+              </li>
+              <li>
                 <button onClick={() => onNavigate('advisor')} className="hover:text-emerald-400 transition-colors cursor-pointer">
                   {t.navAdvisor}
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate('testimonials')} className="hover:text-emerald-400 transition-colors cursor-pointer">
-                  {t.navTestimonials}
+                <button onClick={() => onNavigate('faq')} className="hover:text-emerald-400 transition-colors cursor-pointer">
+                  {currentLanguage === 'ar' ? 'الأسئلة الشائعة والأجوبة' : 'Frequently Asked Questions'}
                 </button>
               </li>
               <li>

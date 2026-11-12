@@ -760,6 +760,11 @@ const INITIAL_AUDIT_LOGS: AdminAuditLog[] = [
 // -------------------------------------------------------------
 
 const inMemoryStore: Record<string, unknown> = {};
+let _idCounter = 0;
+function generateId(prefix: string): string {
+  _idCounter += 1;
+  return `${prefix}-${Date.now()}-${_idCounter}-${Math.random().toString(36).substring(2, 7)}`;
+}
 
 function getStore<T>(key: string, fallback: T): T {
   if (typeof window === 'undefined') {
@@ -837,7 +842,7 @@ export const adminService = {
     const list = getStore<AdminStudent[]>('students', INITIAL_STUDENTS);
     const newStudent: AdminStudent = {
       ...data,
-      id: `std-${Date.now()}`,
+      id: generateId('std'),
       enrolledAt: new Date().toISOString(),
       isDeleted: false,
     };
@@ -915,7 +920,7 @@ export const adminService = {
     const list = getStore<AdminTeacher[]>('teachers', INITIAL_TEACHERS);
     const newTeacher: AdminTeacher = {
       ...data,
-      id: `t-${Date.now()}`,
+      id: generateId('t'),
       isDeleted: false,
     };
     setStore('teachers', [newTeacher, ...list]);
@@ -997,7 +1002,7 @@ export const adminService = {
     const list = getStore<AdminCourse[]>('courses', INITIAL_COURSES);
     const newCourse: AdminCourse = {
       ...data,
-      id: `c-${Date.now()}`,
+      id: generateId('c'),
       enrolledStudentsCount: 0,
       isDeleted: false,
     };
@@ -1078,7 +1083,7 @@ export const adminService = {
     const list = getStore<AdminLesson[]>('lessons', INITIAL_LESSONS);
     const newLesson: AdminLesson = {
       ...data,
-      id: `les-${Date.now()}`,
+      id: generateId('les'),
       isDeleted: false,
     };
     setStore('lessons', [newLesson, ...list]);
@@ -1165,7 +1170,7 @@ export const adminService = {
   }): AdminEnrollment {
     const list = getStore<AdminEnrollment[]>('enrollments', INITIAL_ENROLLMENTS);
     const newEnr: AdminEnrollment = {
-      id: `enr-${Date.now()}`,
+      id: generateId('enr'),
       studentId: data.studentId,
       studentName: data.studentName,
       courseId: data.courseId,
@@ -1345,7 +1350,7 @@ export const adminService = {
   }): AdminAnnouncement {
     const list = getStore<AdminAnnouncement[]>('announcements', INITIAL_ANNOUNCEMENTS);
     const newAnc: AdminAnnouncement = {
-      id: `anc-${Date.now()}`,
+      id: generateId('anc'),
       title: data.title.trim(),
       content: data.content.trim(),
       targetAudience: data.targetAudience,
@@ -1416,7 +1421,7 @@ export const adminService = {
     const verificationCode = generateVerificationCode(data.studentName, data.courseTitle);
 
     const newCert: AdminCertificateRecord = {
-      id: `cert-${Date.now()}`,
+      id: generateId('cert'),
       studentId: data.studentId,
       studentName: data.studentName,
       courseId: data.courseId,
@@ -1513,7 +1518,7 @@ export const adminService = {
     const netAmount = Math.max(0, baseAmount + bonus - deductions);
 
     const newPayroll: AdminPayroll = {
-      id: `pay-${Date.now()}`,
+      id: generateId('pay'),
       teacherEmail: data.teacherEmail,
       teacherName: data.teacherName,
       month: normalizedMonth,
