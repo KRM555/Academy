@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Currency, TimezoneInfo } from '../types';
+import { Currency, TimezoneInfo, UserRole } from '../types';
 import { Language, translations } from '../data/translations';
 import { BrandLogo } from './BrandLogo';
 import {
@@ -20,7 +20,7 @@ interface NavbarProps {
   currentPage: string;
   onNavigate: (page: string) => void;
   onOpenTrial: () => void;
-  userRole?: 'admin' | 'teacher' | null;
+  userRole?: UserRole | null;
   onLogout?: () => void;
   currentLanguage: Language;
   onToggleLanguage: () => void;

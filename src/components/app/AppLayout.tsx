@@ -21,6 +21,8 @@ import {
   Shield,
   Home,
   Sparkles,
+  Bell,
+  FileSpreadsheet,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { BrandLogo } from '../BrandLogo';
@@ -86,7 +88,7 @@ export const AppLayout: React.FC = () => {
       to: '/app/courses',
       label: 'المناهج والمسارات',
       icon: BookOpen,
-      allowedRoles: ['admin'],
+      allowedRoles: ['admin', 'student'],
     },
     {
       to: '/app/admissions',
@@ -107,7 +109,7 @@ export const AppLayout: React.FC = () => {
       allowedRoles: ['admin'],
     },
 
-    // Teacher Only
+    // Teacher & Student Shared Academic Records
     {
       to: '/app/my-students',
       label: 'طلابي وحلقاتي',
@@ -118,13 +120,19 @@ export const AppLayout: React.FC = () => {
       to: '/app/evaluations',
       label: 'سجل التسميع والتقييمات',
       icon: FileText,
-      allowedRoles: ['teacher'],
+      allowedRoles: ['teacher', 'student'],
+    },
+    {
+      to: '/app/exams',
+      label: 'الاختبارات والنتائج',
+      icon: FileSpreadsheet,
+      allowedRoles: ['admin', 'teacher', 'student'],
     },
     {
       to: '/app/attendance',
       label: 'الحضور والغياب',
       icon: CheckCircle2,
-      allowedRoles: ['teacher'],
+      allowedRoles: ['teacher', 'student'],
     },
     {
       to: '/app/payouts',
@@ -133,13 +141,7 @@ export const AppLayout: React.FC = () => {
       allowedRoles: ['teacher'],
     },
 
-    // Student Only
-    {
-      to: '/app/my-progress',
-      label: 'إنجازاتي وسجل الحفظ',
-      icon: Award,
-      allowedRoles: ['student'],
-    },
+    // Student Credentials
     {
       to: '/app/certificates',
       label: 'شهاداتي وأوسمتي',
@@ -169,6 +171,14 @@ export const AppLayout: React.FC = () => {
       allowedRoles: ['admin', 'teacher', 'student'],
     },
 
+    // Shared: Announcements
+    {
+      to: '/app/announcements',
+      label: 'التعميمات والتنبيهات',
+      icon: Bell,
+      allowedRoles: ['admin', 'teacher', 'student', 'parent'],
+    },
+
     // Shared: Schedule
     {
       to: '/app/schedule',
@@ -177,10 +187,10 @@ export const AppLayout: React.FC = () => {
       allowedRoles: ['teacher', 'student', 'parent'],
     },
 
-    // Settings
+    // Settings / Profile
     {
       to: '/app/settings',
-      label: 'إعدادات الحساب',
+      label: 'الملف الشخصي والحساب',
       icon: Settings,
       allowedRoles: ['admin', 'teacher', 'student', 'parent'],
     },

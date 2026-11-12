@@ -13,7 +13,8 @@
     "test": "tsx scripts/test-auth-matrix.ts",
     "test:cert": "tsx scripts/test-certificate-engine.ts",
     "test:games": "tsx scripts/test-games-suite.ts",
-    "test:all": "tsx scripts/test-auth-matrix.ts && tsx scripts/test-certificate-engine.ts && tsx scripts/test-games-suite.ts",
+    "test:routes": "tsx scripts/test-task4-routes.ts",
+    "test:all": "tsx scripts/test-task4-routes.ts && tsx scripts/test-certificate-engine.ts && tsx scripts/test-games-suite.ts",
     "user:manage": "tsx scripts/manage-users.ts"
   },
   "dependencies": {

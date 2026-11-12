@@ -37,7 +37,23 @@ import { UnifiedAcademyDashboard } from './components/UnifiedAcademyDashboard';
 import { MosslineAcademyExperience } from './components/MosslineAcademyExperience';
 import { LoadingProvider } from './context/LoadingContext';
 import { loadingManager } from './services/loadingManager';
+import { StudentOverviewPage } from './components/app/student/StudentOverviewPage';
+import { StudentCoursesLessonsPage } from './components/app/student/StudentCoursesLessonsPage';
+import { StudentExamsResultsPage } from './components/app/student/StudentExamsResultsPage';
+import { StudentRecitationsEvaluationsPage } from './components/app/student/StudentRecitationsEvaluationsPage';
+import { StudentCertificatesPage } from './components/app/student/StudentCertificatesPage';
+import { StudentAnnouncementsPage } from './components/app/student/StudentAnnouncementsPage';
+import { StudentAttendancePage } from './components/app/student/StudentAttendancePage';
+import { StudentProfilePage } from './components/app/student/StudentProfilePage';
 import { ArrowLeft, ArrowRight, BookOpen, Sparkles, Award, Heart, Check, Gamepad2 } from 'lucide-react';
+
+const RoleDispatcher: React.FC<{
+  student: React.ReactElement;
+  fallback: React.ReactElement;
+}> = ({ student, fallback }) => {
+  const { role } = useAuth();
+  return role === 'student' ? student : fallback;
+};
 
 export default function App() {
   const navigate = useNavigate();
@@ -245,13 +261,13 @@ export default function App() {
         {/* Global Loading Indicator (fixed top bar + network indicator, zero layout shift) */}
         <GlobalLoadingIndicator currentLanguage={currentLanguage} />
 
-        {/* Streamlined, single-tier ~64px tall Navbar — hidden during full-viewport game session */}
-      {!isGameSessionActive && (
+        {/* Streamlined, single-tier ~64px tall Navbar — hidden during full-viewport game session or inside /app & /login */}
+      {!isGameSessionActive && !isAppRoute && (
         <Navbar
           currentPage={currentNavPage}
           onNavigate={navigateTo}
           onOpenTrial={() => openTrialBooking()}
-          userRole={currentUser?.role}
+          userRole={role}
           onLogout={handleLogout}
           currentLanguage={currentLanguage}
           onToggleLanguage={toggleLanguage}
@@ -489,62 +505,256 @@ export default function App() {
             element={<ContactForm currentLanguage={currentLanguage} />}
           />
 
-          {/* UNIFIED ACADEMY DASHBOARD (Single Portal with RBAC & Supabase) */}
-          <Route
-            path="/portal"
-            element={
-              <UnifiedAcademyDashboard
-                onBackToMain={() => navigateTo('home')}
-                currentUser={currentUser}
-                onLoginSuccess={handleLoginSuccess}
-                onLogout={handleLogout}
-              />
-            }
-          />
-          <Route
-            path="/dashboard"
-            element={
-              <UnifiedAcademyDashboard
-                onBackToMain={() => navigateTo('home')}
-                currentUser={currentUser}
-                onLoginSuccess={handleLoginSuccess}
-                onLogout={handleLogout}
-              />
-            }
-          />
-          <Route
-            path="/admin"
-            element={
-              <UnifiedAcademyDashboard
-                onBackToMain={() => navigateTo('home')}
-                currentUser={currentUser}
-                onLoginSuccess={handleLoginSuccess}
-                onLogout={handleLogout}
-              />
-            }
-          />
+          {/* LOGIN PAGE (Supabase Auth Only) */}
           <Route
             path="/login"
             element={
-              <UnifiedAcademyDashboard
+              <LoginPage
                 onBackToMain={() => navigateTo('home')}
-                currentUser={currentUser}
-                onLoginSuccess={handleLoginSuccess}
-                onLogout={handleLogout}
+                onOpenAdmission={() => openTrialBooking()}
               />
             }
           />
+
+          {/* Legacy Portal Aliases -> Redirect to /app/overview */}
+          <Route path="/portal" element={<Navigate to="/app/overview" replace />} />
+          <Route path="/dashboard" element={<Navigate to="/app/overview" replace />} />
+          <Route path="/admin" element={<Navigate to="/app/overview" replace />} />
+          <Route path="/supabase-admin" element={<Navigate to="/app/overview" replace />} />
+
+          {/* UNIFIED /app SHELL WITH SIDEBAR (ROLE-BASED & PROTECTED) */}
           <Route
-            path="/supabase-admin"
+            path="/app"
             element={
-              <UnifiedAcademyDashboard
-                onBackToMain={() => navigateTo('home')}
-                currentUser={currentUser}
-                onLoginSuccess={handleLoginSuccess}
-                onLogout={handleLogout}
-              />
+              <ProtectedRoute>
+                <AppLayout />
+              </ProtectedRoute>
             }
-          />
+          >
+            <Route index element={<Navigate to="/app/overview" replace />} />
+            <Route
+              path="overview"
+              element={
+                <RoleDispatcher
+                  student={<StudentOverviewPage />}
+                  fallback={
+                    <AppPageShell
+                      title="نظرة عامة واللوحة الرئيسية"
+                      subtitle="ملخص الحساب والأنشطة الأكاديمية والمهام الحالية"
+                    />
+                  }
+                />
+              }
+            />
+            <Route path="unauthorized" element={<UnauthorizedPage />} />
+
+            {/* Admin Only Routes */}
+            <Route
+              path="students"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <AppPageShell title="إدارة الطلاب" subtitle="سجلات الطلاب وحلقات التحفيظ وبيانات المتابعة" badge="إدارة" />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="teachers"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <AppPageShell title="إدارة المعلمين" subtitle="ملفات الكادر التعليمي وتعيين الحلقات المعتمدة" badge="إدارة" />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="courses"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'student']}>
+                  <RoleDispatcher
+                    student={<StudentCoursesLessonsPage />}
+                    fallback={
+                      <AppPageShell title="المناهج والمسارات التعليمية" subtitle="إدارة الخطط والبرامج الأكاديمية والأسعار" badge="إدارة" />
+                    }
+                  />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="admissions"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <AppPageShell title="طلبات القبول والتسجيل" subtitle="مراجعة طلبات أولياء الأمور واعتمادها وإرسال الدعوات" badge="إدارة" />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="payroll"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <AppPageShell title="الرواتب والمسيرات المالية" subtitle="مسيرات رواتب الكادر التعليمي والتحويلات البنكية" badge="إدارة" />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="audit-logs"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <AppPageShell title="سجل التدقيق والأمان" subtitle="سجل العمليات الإدارية والمالية غير القابل للتعديل" badge="أمان" />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Teacher Only Routes */}
+            <Route
+              path="my-students"
+              element={
+                <ProtectedRoute allowedRoles={['teacher']}>
+                  <AppPageShell title="طلابي وحلقاتي" subtitle="قائمة الطلاب المسجلين في حلقاتي المعتمدة فقط" badge="معلم" />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="evaluations"
+              element={
+                <ProtectedRoute allowedRoles={['teacher', 'student']}>
+                  <RoleDispatcher
+                    student={<StudentRecitationsEvaluationsPage />}
+                    fallback={
+                      <AppPageShell title="سجل التسميع والتقييمات" subtitle="رصد الدرجات وإتقان التجويد ومقدار الحفظ اليومي" badge="معلم" />
+                    }
+                  />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="attendance"
+              element={
+                <ProtectedRoute allowedRoles={['teacher', 'student']}>
+                  <RoleDispatcher
+                    student={<StudentAttendancePage />}
+                    fallback={
+                      <AppPageShell title="الحضور والغياب" subtitle="تسجيل حضور وغياب جلسات الحفظ المباشرة" badge="معلم" />
+                    }
+                  />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="payouts"
+              element={
+                <ProtectedRoute allowedRoles={['teacher']}>
+                  <AppPageShell title="مستحقاتي وبيانات البنك" subtitle="سجل المستحقات والتحويلات ورقم الآيبان المعتمد" badge="معلم" />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Student Only Routes */}
+            <Route
+              path="my-progress"
+              element={
+                <ProtectedRoute allowedRoles={['student']}>
+                  <StudentRecitationsEvaluationsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="certificates"
+              element={
+                <ProtectedRoute allowedRoles={['student', 'admin']}>
+                  <RoleDispatcher
+                    student={<StudentCertificatesPage />}
+                    fallback={
+                      <AppPageShell title="شهاداتي وأوسمتي" subtitle="شهادات الإجازة والإتمام المعتمدة الصادرة" badge="شهادات" />
+                    }
+                  />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Exams & Academic Results */}
+            <Route
+              path="exams"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'teacher', 'student']}>
+                  <RoleDispatcher
+                    student={<StudentExamsResultsPage />}
+                    fallback={
+                      <AppPageShell title="الاختبارات والنتائج" subtitle="نتائج الاختبارات التحريرية والشفوية المعتمدة" badge="أكاديمي" />
+                    }
+                  />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Announcements */}
+            <Route
+              path="announcements"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'teacher', 'student', 'parent']}>
+                  <RoleDispatcher
+                    student={<StudentAnnouncementsPage />}
+                    fallback={
+                      <AppPageShell title="التعميمات والتنبيهات" subtitle="الرسائل والتوجيهات الرسمية من إدارة الأكاديمية" />
+                    }
+                  />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Parent Only Routes */}
+            <Route
+              path="children-reports"
+              element={
+                <ProtectedRoute allowedRoles={['parent']}>
+                  <AppPageShell title="تقارير إنجاز الأبناء" subtitle="متابعة مستمرة لمقدار الحفظ والحضور لأبنائي" badge="ولي أمر" />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="subscriptions"
+              element={
+                <ProtectedRoute allowedRoles={['parent', 'admin']}>
+                  <AppPageShell title="الاشتراكات والفواتير" subtitle="إدارة الباقات ودفع الرسوم وسجل العمليات المالية" badge="مالية" />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Shared Routes */}
+            <Route
+              path="lessons"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'teacher', 'student']}>
+                  <RoleDispatcher
+                    student={<StudentCoursesLessonsPage />}
+                    fallback={
+                      <AppPageShell title="الدروس والمحاضرات" subtitle="الفصول الافتراضية والتسجيلات المتاحة" />
+                    }
+                  />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="schedule"
+              element={
+                <ProtectedRoute allowedRoles={['teacher', 'student', 'parent']}>
+                  <AppPageShell title="جدول الحصص المباشرة" subtitle="مواعيد الجلسات الأسبوعية والتنبيهات" />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="settings"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'teacher', 'student', 'parent']}>
+                  <RoleDispatcher
+                    student={<StudentProfilePage />}
+                    fallback={
+                      <AppPageShell title="إعدادات الحساب" subtitle="تعديل البيانات الشخصية وكلمة المرور" />
+                    }
+                  />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="profile" element={<Navigate to="/app/settings" replace />} />
+          </Route>
 
           {/* PRIVACY POLICY */}
           <Route
@@ -580,8 +790,8 @@ export default function App() {
         currentLanguage={currentLanguage}
       />
 
-      {/* Floating 'Book a Trial' Quick Action Button — hidden during active full-viewport game */}
-      {!isGameSessionActive && (
+      {/* Floating 'Book a Trial' Quick Action Button — hidden during active full-viewport game or inside /app & /login */}
+      {!isGameSessionActive && !isAppRoute && (
         <FloatingTrialButton
           onOpenTrial={() => openTrialBooking()}
           currentLanguage={currentLanguage}
@@ -589,8 +799,8 @@ export default function App() {
         />
       )}
 
-      {/* Universal Closing Banner across all pages — as requested */}
-      {!isGameSessionActive && (
+      {/* Universal Closing Banner across all pages — hidden inside /app & /login */}
+      {!isGameSessionActive && !isAppRoute && (
         <ClosingCalloutBanner
           currentLanguage={currentLanguage}
           onOpenTrial={() => openTrialBooking()}
@@ -598,8 +808,8 @@ export default function App() {
         />
       )}
 
-      {/* Footer — hidden during active full-viewport game */}
-      {!isGameSessionActive && (
+      {/* Footer — hidden during active full-viewport game or inside /app & /login */}
+      {!isGameSessionActive && !isAppRoute && (
         <Footer
           onNavigate={navigateTo}
           onOpenTrial={() => openTrialBooking()}
