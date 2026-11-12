@@ -1417,12 +1417,17 @@ export async function getStorage(): Promise<IStorage> {
   // 2. Secondary: PostgreSQL relational database
   const dbUrl = process.env.DATABASE_URL;
   if (dbUrl && dbUrl.trim() !== '') {
-    console.log('[Storage] Connecting to PostgreSQL database...');
-    storageInstance = new PostgresStorage(dbUrl);
-    await storageInstance.init();
-    await seedInitialAdminIfNeeded(storageInstance);
-    await seedDefaultCoursesIfNeeded(storageInstance);
-    return storageInstance;
+    try {
+      console.log('[Storage] Connecting to PostgreSQL database...');
+      const postgresStorage = new PostgresStorage(dbUrl);
+      await postgresStorage.init();
+      await seedInitialAdminIfNeeded(postgresStorage);
+      await seedDefaultCoursesIfNeeded(postgresStorage);
+      storageInstance = postgresStorage;
+      return storageInstance;
+    } catch (err) {
+      console.warn('[Storage] PostgreSQL connection failed, falling back to local store:', err);
+    }
   }
 
   // 3. Fallback: Local file store

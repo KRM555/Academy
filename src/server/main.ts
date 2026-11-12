@@ -701,7 +701,10 @@ async function startServer() {
         return next();
       }
       try {
-        const template = fs.readFileSync(path.resolve(__dirname, 'index.html'), 'utf-8');
+        const indexPath = fs.existsSync(path.resolve(process.cwd(), 'index.html'))
+          ? path.resolve(process.cwd(), 'index.html')
+          : path.resolve(__dirname, '../../index.html');
+        const template = fs.readFileSync(indexPath, 'utf-8');
         const html = await vite.transformIndexHtml(url, template);
         res.status(200).set({ 'Content-Type': 'text/html' }).end(html);
       } catch (e) {

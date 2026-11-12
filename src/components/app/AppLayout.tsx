@@ -109,7 +109,13 @@ export const AppLayout: React.FC = () => {
       allowedRoles: ['admin'],
     },
 
-    // Teacher & Student Shared Academic Records
+    // Teacher Specific & Academic Records
+    {
+      to: '/app/my-courses',
+      label: 'دوراتي وحلقاتي',
+      icon: BookOpen,
+      allowedRoles: ['teacher'],
+    },
     {
       to: '/app/my-students',
       label: 'طلابي وحلقاتي',

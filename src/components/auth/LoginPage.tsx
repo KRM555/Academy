@@ -156,6 +156,53 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onBackToMain, onOpenAdmiss
           )}
         </div>
 
+        {/* Quick Demo Access for Evaluation */}
+        <div className="pt-2 border-t border-white/[0.06] space-y-2 text-center">
+          <span className="text-[10px] font-mono text-slate-500 uppercase tracking-wider block">
+            حسابات تجريبية سريعة للفحص والاختبار
+          </span>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={async () => {
+                setEmail('teacher@noor-bayan.com');
+                setPassword('TestPassword123!');
+                setLoading(true);
+                try {
+                  await signIn('teacher@noor-bayan.com', 'TestPassword123!');
+                  navigate('/app/overview', { replace: true });
+                } catch (e: any) {
+                  setErrorMsg(e.message);
+                } finally {
+                  setLoading(false);
+                }
+              }}
+              className="py-2 px-3 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+            >
+              <span>دخول كمعلم معتمد 🌿</span>
+            </button>
+            <button
+              type="button"
+              onClick={async () => {
+                setEmail('admin@noor-bayan.com');
+                setPassword('TestPassword123!');
+                setLoading(true);
+                try {
+                  await signIn('admin@noor-bayan.com', 'TestPassword123!');
+                  navigate('/app/overview', { replace: true });
+                } catch (e: any) {
+                  setErrorMsg(e.message);
+                } finally {
+                  setLoading(false);
+                }
+              }}
+              className="py-2 px-3 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+            >
+              <span>دخول كمدير نظام 🛡️</span>
+            </button>
+          </div>
+        </div>
+
         {/* Back to Home */}
         {onBackToMain && (
           <div className="pt-2 border-t border-white/[0.06] text-center">

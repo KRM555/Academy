@@ -45,14 +45,35 @@ import { StudentCertificatesPage } from './components/app/student/StudentCertifi
 import { StudentAnnouncementsPage } from './components/app/student/StudentAnnouncementsPage';
 import { StudentAttendancePage } from './components/app/student/StudentAttendancePage';
 import { StudentProfilePage } from './components/app/student/StudentProfilePage';
+import { TeacherOverviewPage } from './components/app/teacher/TeacherOverviewPage';
+import { TeacherCoursesPage } from './components/app/teacher/TeacherCoursesPage';
+import { TeacherStudentsPage } from './components/app/teacher/TeacherStudentsPage';
+import { TeacherEvaluationsPage } from './components/app/teacher/TeacherEvaluationsPage';
+import { TeacherExamsPage } from './components/app/teacher/TeacherExamsPage';
+import { TeacherAttendancePage } from './components/app/teacher/TeacherAttendancePage';
+import { TeacherPayoutsPage } from './components/app/teacher/TeacherPayoutsPage';
+import { AdminStudentsPage } from './components/app/admin/AdminStudentsPage';
+import { AdminTeachersPage } from './components/app/admin/AdminTeachersPage';
+import { AdminCoursesPage } from './components/app/admin/AdminCoursesPage';
+import { AdminLessonsPage } from './components/app/admin/AdminLessonsPage';
+import { AdminAdmissionsPage } from './components/app/admin/AdminAdmissionsPage';
+import { AdminPayrollPage } from './components/app/admin/AdminPayrollPage';
+import { AdminAuditLogPage } from './components/app/admin/AdminAuditLogPage';
+import { AdminAnnouncementsPage } from './components/app/admin/AdminAnnouncementsPage';
+import { AdminCertificatesPage } from './components/app/admin/AdminCertificatesPage';
 import { ArrowLeft, ArrowRight, BookOpen, Sparkles, Award, Heart, Check, Gamepad2 } from 'lucide-react';
 
 const RoleDispatcher: React.FC<{
-  student: React.ReactElement;
+  student?: React.ReactElement;
+  teacher?: React.ReactElement;
+  admin?: React.ReactElement;
   fallback: React.ReactElement;
-}> = ({ student, fallback }) => {
+}> = ({ student, teacher, admin, fallback }) => {
   const { role } = useAuth();
-  return role === 'student' ? student : fallback;
+  if (role === 'student' && student) return student;
+  if (role === 'teacher' && teacher) return teacher;
+  if (role === 'admin' && admin) return admin;
+  return fallback;
 };
 
 export default function App() {
@@ -537,6 +558,7 @@ export default function App() {
               element={
                 <RoleDispatcher
                   student={<StudentOverviewPage />}
+                  teacher={<TeacherOverviewPage />}
                   fallback={
                     <AppPageShell
                       title="نظرة عامة واللوحة الرئيسية"
@@ -553,7 +575,7 @@ export default function App() {
               path="students"
               element={
                 <ProtectedRoute allowedRoles={['admin']}>
-                  <AppPageShell title="إدارة الطلاب" subtitle="سجلات الطلاب وحلقات التحفيظ وبيانات المتابعة" badge="إدارة" />
+                  <AdminStudentsPage />
                 </ProtectedRoute>
               }
             />
@@ -561,7 +583,7 @@ export default function App() {
               path="teachers"
               element={
                 <ProtectedRoute allowedRoles={['admin']}>
-                  <AppPageShell title="إدارة المعلمين" subtitle="ملفات الكادر التعليمي وتعيين الحلقات المعتمدة" badge="إدارة" />
+                  <AdminTeachersPage />
                 </ProtectedRoute>
               }
             />
@@ -571,9 +593,8 @@ export default function App() {
                 <ProtectedRoute allowedRoles={['admin', 'student']}>
                   <RoleDispatcher
                     student={<StudentCoursesLessonsPage />}
-                    fallback={
-                      <AppPageShell title="المناهج والمسارات التعليمية" subtitle="إدارة الخطط والبرامج الأكاديمية والأسعار" badge="إدارة" />
-                    }
+                    admin={<AdminCoursesPage />}
+                    fallback={<AdminCoursesPage />}
                   />
                 </ProtectedRoute>
               }
@@ -582,7 +603,7 @@ export default function App() {
               path="admissions"
               element={
                 <ProtectedRoute allowedRoles={['admin']}>
-                  <AppPageShell title="طلبات القبول والتسجيل" subtitle="مراجعة طلبات أولياء الأمور واعتمادها وإرسال الدعوات" badge="إدارة" />
+                  <AdminAdmissionsPage />
                 </ProtectedRoute>
               }
             />
@@ -590,7 +611,7 @@ export default function App() {
               path="payroll"
               element={
                 <ProtectedRoute allowedRoles={['admin']}>
-                  <AppPageShell title="الرواتب والمسيرات المالية" subtitle="مسيرات رواتب الكادر التعليمي والتحويلات البنكية" badge="إدارة" />
+                  <AdminPayrollPage />
                 </ProtectedRoute>
               }
             />
@@ -598,7 +619,7 @@ export default function App() {
               path="audit-logs"
               element={
                 <ProtectedRoute allowedRoles={['admin']}>
-                  <AppPageShell title="سجل التدقيق والأمان" subtitle="سجل العمليات الإدارية والمالية غير القابل للتعديل" badge="أمان" />
+                  <AdminAuditLogPage />
                 </ProtectedRoute>
               }
             />
@@ -608,7 +629,15 @@ export default function App() {
               path="my-students"
               element={
                 <ProtectedRoute allowedRoles={['teacher']}>
-                  <AppPageShell title="طلابي وحلقاتي" subtitle="قائمة الطلاب المسجلين في حلقاتي المعتمدة فقط" badge="معلم" />
+                  <TeacherStudentsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="my-courses"
+              element={
+                <ProtectedRoute allowedRoles={['teacher']}>
+                  <TeacherCoursesPage />
                 </ProtectedRoute>
               }
             />
@@ -618,6 +647,7 @@ export default function App() {
                 <ProtectedRoute allowedRoles={['teacher', 'student']}>
                   <RoleDispatcher
                     student={<StudentRecitationsEvaluationsPage />}
+                    teacher={<TeacherEvaluationsPage />}
                     fallback={
                       <AppPageShell title="سجل التسميع والتقييمات" subtitle="رصد الدرجات وإتقان التجويد ومقدار الحفظ اليومي" badge="معلم" />
                     }
@@ -631,6 +661,7 @@ export default function App() {
                 <ProtectedRoute allowedRoles={['teacher', 'student']}>
                   <RoleDispatcher
                     student={<StudentAttendancePage />}
+                    teacher={<TeacherAttendancePage />}
                     fallback={
                       <AppPageShell title="الحضور والغياب" subtitle="تسجيل حضور وغياب جلسات الحفظ المباشرة" badge="معلم" />
                     }
@@ -642,7 +673,7 @@ export default function App() {
               path="payouts"
               element={
                 <ProtectedRoute allowedRoles={['teacher']}>
-                  <AppPageShell title="مستحقاتي وبيانات البنك" subtitle="سجل المستحقات والتحويلات ورقم الآيبان المعتمد" badge="معلم" />
+                  <TeacherPayoutsPage />
                 </ProtectedRoute>
               }
             />
@@ -662,9 +693,8 @@ export default function App() {
                 <ProtectedRoute allowedRoles={['student', 'admin']}>
                   <RoleDispatcher
                     student={<StudentCertificatesPage />}
-                    fallback={
-                      <AppPageShell title="شهاداتي وأوسمتي" subtitle="شهادات الإجازة والإتمام المعتمدة الصادرة" badge="شهادات" />
-                    }
+                    admin={<AdminCertificatesPage />}
+                    fallback={<AdminCertificatesPage />}
                   />
                 </ProtectedRoute>
               }
@@ -677,6 +707,7 @@ export default function App() {
                 <ProtectedRoute allowedRoles={['admin', 'teacher', 'student']}>
                   <RoleDispatcher
                     student={<StudentExamsResultsPage />}
+                    teacher={<TeacherExamsPage />}
                     fallback={
                       <AppPageShell title="الاختبارات والنتائج" subtitle="نتائج الاختبارات التحريرية والشفوية المعتمدة" badge="أكاديمي" />
                     }
@@ -692,9 +723,8 @@ export default function App() {
                 <ProtectedRoute allowedRoles={['admin', 'teacher', 'student', 'parent']}>
                   <RoleDispatcher
                     student={<StudentAnnouncementsPage />}
-                    fallback={
-                      <AppPageShell title="التعميمات والتنبيهات" subtitle="الرسائل والتوجيهات الرسمية من إدارة الأكاديمية" />
-                    }
+                    admin={<AdminAnnouncementsPage />}
+                    fallback={<AdminAnnouncementsPage />}
                   />
                 </ProtectedRoute>
               }
@@ -725,9 +755,8 @@ export default function App() {
                 <ProtectedRoute allowedRoles={['admin', 'teacher', 'student']}>
                   <RoleDispatcher
                     student={<StudentCoursesLessonsPage />}
-                    fallback={
-                      <AppPageShell title="الدروس والمحاضرات" subtitle="الفصول الافتراضية والتسجيلات المتاحة" />
-                    }
+                    admin={<AdminLessonsPage />}
+                    fallback={<AdminLessonsPage />}
                   />
                 </ProtectedRoute>
               }
