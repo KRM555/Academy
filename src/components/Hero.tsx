@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Language, translations } from '../data/translations';
 import { Sparkles, ArrowLeft, ArrowRight, ShieldCheck, BookOpen, Maximize2, X, Compass, Heart, Award } from 'lucide-react';
+import { FloatingIllustrations } from './public/FloatingIllustrations';
 
 interface HeroProps {
   onOpenTrial: () => void;
@@ -22,6 +23,7 @@ export const Hero: React.FC<HeroProps> = ({
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-white via-[#FAF9F6] to-[#F3F4F6] dark:from-[#0B1522] dark:via-[#0E1A2B] dark:to-[#070E18] pt-6 sm:pt-10 pb-16 transition-colors duration-200">
+      <FloatingIllustrations />
       {/* Decorative ambient background glows */}
       <div className="absolute top-12 right-1/4 w-96 h-96 bg-teal-500/10 dark:bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-10 left-1/4 w-96 h-96 bg-purple-500/10 dark:bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />

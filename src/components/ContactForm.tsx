@@ -18,6 +18,8 @@ import {
   PhoneCall,
   Sparkles,
 } from 'lucide-react';
+import { motion, useReducedMotion } from 'motion/react';
+import { FloatingIllustrations } from './public/FloatingIllustrations';
 
 interface ContactFormProps {
   currentLanguage: Language;
@@ -42,6 +44,7 @@ interface FormErrors {
 export const ContactForm: React.FC<ContactFormProps> = ({ currentLanguage }) => {
   const isAr = currentLanguage === 'ar';
   const t = translations[currentLanguage];
+  const shouldReduceMotion = useReducedMotion();
 
   const [formData, setFormData] = useState<FormData>({
     fullName: '',
@@ -270,8 +273,8 @@ export const ContactForm: React.FC<ContactFormProps> = ({ currentLanguage }) => 
   );
 
   return (
-    <section id="contact" className="py-20 bg-white dark:bg-[#070E18] border-t border-slate-200 dark:border-slate-800 transition-colors duration-200 relative">
-
+    <section id="contact" className="relative py-20 bg-white dark:bg-[#070E18] border-t border-slate-200 dark:border-slate-800 transition-colors duration-200 overflow-hidden">
+      <FloatingIllustrations />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-14">

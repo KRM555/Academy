@@ -14,6 +14,8 @@ import {
   PhoneCall,
   Activity,
   Database,
+  Sparkles,
+  Gamepad2,
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -59,21 +61,24 @@ export const Navbar: React.FC<NavbarProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Primary links visible on desktop
+  // Primary links visible on desktop (Dedicated Public Pages per section)
   const primaryLinks = [
     { id: 'home', label: t.navHome },
     { id: 'programs', label: t.navPrograms },
-    { id: 'advisor', label: t.navAdvisor },
+    { id: 'teachers', label: isAr ? 'المعلمون' : 'Teachers' },
+    { id: 'how-it-works', label: isAr ? 'كيف نعمل' : 'How It Works' },
     { id: 'mothers', label: t.navMothers },
-    { id: 'games', label: isAr ? 'واحة الألعاب 🎮' : 'Games 🎮' },
+    { id: 'faq', label: isAr ? 'الأسئلة الشائعة' : 'FAQ' },
+    { id: 'contact', label: t.navContact },
   ];
 
-  // Secondary links tucked cleanly under "المزيد" to prevent any viewport clipping
+  // Secondary tools tucked cleanly under "المزيد"
   const secondaryLinks = [
+    { id: 'advisor', label: t.navAdvisor, icon: Sparkles },
+    { id: 'games', label: isAr ? 'واحة الألعاب الذكية 🎮' : 'Smart Games 🎮', icon: Gamepad2 },
     { id: 'certificates', label: isAr ? 'الشهادات واللوحات' : 'Certificates Studio', icon: Award },
     { id: 'progress', label: isAr ? 'لوحة إنجاز الطفل' : 'Student Progress', icon: Activity },
     { id: 'dashboard', label: isAr ? 'لوحة التحكم الموحدة' : 'Unified Dashboard', icon: Database },
-    { id: 'contact', label: t.navContact, icon: PhoneCall },
   ];
 
   const allNavLinks = [

@@ -24,6 +24,9 @@ import { ContactForm } from './components/ContactForm';
 import { HomeFeaturedServices } from './components/HomeFeaturedServices';
 import { HowItWorks } from './components/HowItWorks';
 import { FaqSection } from './components/FaqSection';
+import { PublicTeachersPage } from './components/public/PublicTeachersPage';
+import { PublicHowItWorksPage } from './components/public/PublicHowItWorksPage';
+import { PublicFaqPage } from './components/public/PublicFaqPage';
 import { NotFoundPage } from './components/NotFoundPage';
 import { FloatingTrialButton } from './components/FloatingTrialButton';
 import { Footer } from './components/Footer';
@@ -447,6 +450,12 @@ export default function App() {
                   currentLanguage={currentLanguage}
                   onOpenTrial={() => openTrialBooking()}
                 />
+
+                {/* FAQ Section on Landing */}
+                <FaqSection
+                  currentLanguage={currentLanguage}
+                  onNavigateToFaq={() => navigateTo('faq')}
+                />
               </div>
             }
           />
@@ -463,6 +472,49 @@ export default function App() {
                 onBookProgram={(programTitle) => openTrialBooking(programTitle)}
                 refreshTrigger={coursesRefreshTrigger}
                 currentLanguage={currentLanguage}
+              />
+            }
+          />
+
+          {/* DEDICATED PUBLIC TEACHERS PAGE */}
+          <Route
+            path="/teachers"
+            element={
+              <PublicTeachersPage
+                currentLanguage={currentLanguage}
+                onOpenTrial={(teacherName) =>
+                  openTrialBooking(
+                    undefined,
+                    teacherName
+                      ? isAr
+                        ? `طلب حجز مع المعلم: ${teacherName}`
+                        : `Booking request with: ${teacherName}`
+                      : undefined
+                  )
+                }
+              />
+            }
+          />
+
+          {/* DEDICATED PUBLIC HOW IT WORKS PAGE */}
+          <Route
+            path="/how-it-works"
+            element={
+              <PublicHowItWorksPage
+                currentLanguage={currentLanguage}
+                onOpenTrial={() => openTrialBooking()}
+              />
+            }
+          />
+          <Route path="/howitworks" element={<Navigate to="/how-it-works" replace />} />
+
+          {/* DEDICATED PUBLIC FAQ PAGE */}
+          <Route
+            path="/faq"
+            element={
+              <PublicFaqPage
+                currentLanguage={currentLanguage}
+                onOpenTrial={() => openTrialBooking()}
               />
             }
           />
@@ -519,6 +571,7 @@ export default function App() {
               />
             }
           />
+          <Route path="/mothers-club" element={<Navigate to="/mothers" replace />} />
 
           {/* CONTACT PAGE */}
           <Route
