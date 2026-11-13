@@ -4,8 +4,6 @@ import { Language, translations } from '../data/translations';
 import { ACADEMY_PROGRAMS, ACADEMY_CORE_PILLARS, CURRENCIES, TIMEZONES } from '../data/academyData';
 import { api } from '../services/api';
 import { Clock, Calendar, Check, X, Laptop, Globe, Sparkles, CheckCircle2 } from 'lucide-react';
-import { motion, useReducedMotion } from 'motion/react';
-import { FloatingIllustrations } from './public/FloatingIllustrations';
 
 interface ProgramsCatalogProps {
   currentCurrency: Currency;
@@ -29,7 +27,6 @@ export const ProgramsCatalog: React.FC<ProgramsCatalogProps> = ({
   const [courses, setCourses] = useState<any[]>(ACADEMY_PROGRAMS);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [activeModalProgram, setActiveModalProgram] = useState<any | null>(null);
-  const shouldReduceMotion = useReducedMotion();
 
   const t = translations[currentLanguage];
   const isAr = currentLanguage === 'ar';
@@ -63,9 +60,8 @@ export const ProgramsCatalog: React.FC<ProgramsCatalogProps> = ({
   ];
 
   return (
-    <section className="relative py-12 bg-[#FAF9F6] dark:bg-[#070E18] transition-colors duration-200 overflow-hidden">
-      <FloatingIllustrations />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <section className="py-12 bg-[#FAF9F6] dark:bg-[#070E18] transition-colors duration-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 gap-4">
           <div>
@@ -174,14 +170,9 @@ export const ProgramsCatalog: React.FC<ProgramsCatalogProps> = ({
             const installmentAmount = Math.round(convertedPrice / 4);
 
             return (
-              <motion.div
+              <div
                 key={prog.id}
-                initial={shouldReduceMotion ? false : { opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-20px' }}
-                transition={{ duration: 0.35 }}
-                whileHover={shouldReduceMotion ? {} : { y: -6 }}
-                className="bg-white dark:bg-[#111E2E] rounded-3xl border border-slate-200/90 dark:border-slate-800 overflow-hidden shadow-xs hover:shadow-2xl hover:shadow-emerald-950/10 dark:hover:shadow-emerald-500/10 hover:border-emerald-500/50 dark:hover:border-emerald-400/40 transition-shadow duration-300 flex flex-col justify-between group relative"
+                className="bg-white dark:bg-[#111E2E] rounded-3xl border border-slate-200/90 dark:border-slate-800 overflow-hidden shadow-xs hover:shadow-2xl hover:shadow-emerald-950/10 dark:hover:shadow-emerald-500/10 hover:border-emerald-500/50 dark:hover:border-emerald-400/40 transition-all duration-300 ease-out hover:-translate-y-2 flex flex-col justify-between group relative"
               >
                 {/* Top accent glow line on hover */}
                 <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-emerald-500/0 via-emerald-500 to-emerald-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20" />
@@ -269,7 +260,7 @@ export const ProgramsCatalog: React.FC<ProgramsCatalogProps> = ({
                     </button>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             );
           })}
         </div>

@@ -760,11 +760,6 @@ const INITIAL_AUDIT_LOGS: AdminAuditLog[] = [
 // -------------------------------------------------------------
 
 const inMemoryStore: Record<string, unknown> = {};
-let _idCounter = 0;
-function generateId(prefix: string): string {
-  _idCounter += 1;
-  return `${prefix}-${Date.now()}-${_idCounter}-${Math.random().toString(36).substring(2, 7)}`;
-}
 
 function getStore<T>(key: string, fallback: T): T {
   if (typeof window === 'undefined') {
@@ -789,6 +784,12 @@ function setStore<T>(key: string, value: T): void {
   } catch (e) {
     console.warn(`[AdminService] Error saving store ${key}:`, e);
   }
+}
+
+let idCounter = 0;
+function nextUniqueId(prefix: string): string {
+  idCounter += 1;
+  return `${prefix}-${Date.now()}-${idCounter}-${Math.random().toString(36).substring(2, 6)}`;
 }
 
 // -------------------------------------------------------------
@@ -842,7 +843,7 @@ export const adminService = {
     const list = getStore<AdminStudent[]>('students', INITIAL_STUDENTS);
     const newStudent: AdminStudent = {
       ...data,
-      id: generateId('std'),
+      id: nextUniqueId('std'),
       enrolledAt: new Date().toISOString(),
       isDeleted: false,
     };
@@ -920,7 +921,7 @@ export const adminService = {
     const list = getStore<AdminTeacher[]>('teachers', INITIAL_TEACHERS);
     const newTeacher: AdminTeacher = {
       ...data,
-      id: generateId('t'),
+      id: nextUniqueId('t'),
       isDeleted: false,
     };
     setStore('teachers', [newTeacher, ...list]);
@@ -1002,7 +1003,7 @@ export const adminService = {
     const list = getStore<AdminCourse[]>('courses', INITIAL_COURSES);
     const newCourse: AdminCourse = {
       ...data,
-      id: generateId('c'),
+      id: nextUniqueId('c'),
       enrolledStudentsCount: 0,
       isDeleted: false,
     };
@@ -1083,7 +1084,7 @@ export const adminService = {
     const list = getStore<AdminLesson[]>('lessons', INITIAL_LESSONS);
     const newLesson: AdminLesson = {
       ...data,
-      id: generateId('les'),
+      id: nextUniqueId('les'),
       isDeleted: false,
     };
     setStore('lessons', [newLesson, ...list]);
@@ -1170,7 +1171,7 @@ export const adminService = {
   }): AdminEnrollment {
     const list = getStore<AdminEnrollment[]>('enrollments', INITIAL_ENROLLMENTS);
     const newEnr: AdminEnrollment = {
-      id: generateId('enr'),
+      id: nextUniqueId('enr'),
       studentId: data.studentId,
       studentName: data.studentName,
       courseId: data.courseId,
@@ -1350,7 +1351,7 @@ export const adminService = {
   }): AdminAnnouncement {
     const list = getStore<AdminAnnouncement[]>('announcements', INITIAL_ANNOUNCEMENTS);
     const newAnc: AdminAnnouncement = {
-      id: generateId('anc'),
+      id: nextUniqueId('anc'),
       title: data.title.trim(),
       content: data.content.trim(),
       targetAudience: data.targetAudience,
@@ -1418,10 +1419,15 @@ export const adminService = {
     supervisorName?: string;
   }): AdminCertificateRecord {
     const list = getStore<AdminCertificateRecord[]>('certificates', INITIAL_CERTIFICATES);
-    const verificationCode = generateVerificationCode(data.studentName, data.courseTitle);
+    const issueDate = data.issueDate || new Date().toISOString().split('T')[0];
+    const verificationCode = generateVerificationCode(
+      data.studentName,
+      issueDate,
+      data.achievementTitle || data.courseTitle
+    );
 
     const newCert: AdminCertificateRecord = {
-      id: generateId('cert'),
+      id: nextUniqueId('cert'),
       studentId: data.studentId,
       studentName: data.studentName,
       courseId: data.courseId,
@@ -1430,7 +1436,7 @@ export const adminService = {
       templateType: data.templateType,
       themeId: data.themeId || 'emerald_gold',
       grade: data.grade || 'ممتاز مع مرتبة الشرف',
-      issueDate: data.issueDate || new Date().toISOString().split('T')[0],
+      issueDate,
       verificationCode,
       teacherName: data.teacherName || 'الشيخ عبد الله القرني',
       supervisorName: data.supervisorName || 'د. عبد الرحمن السعدي',
@@ -1518,7 +1524,7 @@ export const adminService = {
     const netAmount = Math.max(0, baseAmount + bonus - deductions);
 
     const newPayroll: AdminPayroll = {
-      id: generateId('pay'),
+      id: nextUniqueId('pay'),
       teacherEmail: data.teacherEmail,
       teacherName: data.teacherName,
       month: normalizedMonth,

@@ -21,7 +21,7 @@ import {
   AdminCourse,
 } from '../../../services/adminService';
 import {
-  renderQuranCertificateToCanvas,
+  renderCertificateToCanvas,
   downloadCanvasAsPng,
   CERTIFICATE_THEMES,
   generateVerificationCode,
@@ -82,9 +82,13 @@ export const AdminCertificatesPage: React.FC = () => {
     if (isModalOpen && modalCanvasRef.current) {
       const selectedStudent = students.find((s) => s.id === formData.studentId) || students[0];
       const selectedCourse = courses.find((c) => c.id === formData.courseId) || courses[0];
-      const code = generateVerificationCode(selectedStudent?.childName || 'طالب', selectedCourse?.title || 'مسار');
+      const code = generateVerificationCode(
+        selectedStudent?.childName || 'طالب',
+        formData.issueDate,
+        formData.achievementTitle || selectedCourse?.title || 'مسار'
+      );
 
-      renderQuranCertificateToCanvas(modalCanvasRef.current, {
+      renderCertificateToCanvas(modalCanvasRef.current, {
         studentName: selectedStudent?.childName || 'عمر أحمد السعيد',
         studentAge: selectedStudent?.age || 8,
         templateType: formData.templateType,
@@ -106,7 +110,7 @@ export const AdminCertificatesPage: React.FC = () => {
   // Update canvas in preview modal
   useEffect(() => {
     if (previewCert && previewCanvasRef.current) {
-      renderQuranCertificateToCanvas(previewCanvasRef.current, {
+      renderCertificateToCanvas(previewCanvasRef.current, {
         studentName: previewCert.studentName,
         templateType: previewCert.templateType,
         trackTitle: previewCert.courseTitle,
@@ -196,21 +200,25 @@ export const AdminCertificatesPage: React.FC = () => {
   const handleDownloadPdf = (cert: AdminCertificateRecord) => {
     // Generate high-resolution canvas and trigger export
     const tempCanvas = document.createElement('canvas');
-    renderQuranCertificateToCanvas(tempCanvas, {
-      studentName: cert.studentName,
-      templateType: cert.templateType,
-      trackTitle: cert.courseTitle,
-      achievementTitle: cert.achievementTitle,
-      congratulationText: 'مبارك إتمامك المبارك، ونسأل الله أن يجعل القرآن ربيع قلبك ونور صدرك.',
-      quranAyah: '﴿ يَرْفَعِ اللَّهُ الَّذِينَ آمَنُوا مِنكُمْ وَالَّذِينَ أُوتُوا الْعِلْمَ دَرَجَاتٍ ﴾',
-      teacherName: cert.teacherName,
-      supervisorName: cert.supervisorName,
-      issueDate: cert.issueDate,
-      grade: cert.grade,
-      verificationCode: cert.verificationCode,
-      showSeal: true,
-      themeId: cert.themeId,
-    });
+    renderCertificateToCanvas(
+      tempCanvas,
+      {
+        studentName: cert.studentName,
+        templateType: cert.templateType,
+        trackTitle: cert.courseTitle,
+        achievementTitle: cert.achievementTitle,
+        congratulationText: 'مبارك إتمامك المبارك، ونسأل الله أن يجعل القرآن ربيع قلبك ونور صدرك.',
+        quranAyah: '﴿ يَرْفَعِ اللَّهُ الَّذِينَ آمَنُوا مِنكُمْ وَالَّذِينَ أُوتُوا الْعِلْمَ دَرَجَاتٍ ﴾',
+        teacherName: cert.teacherName,
+        supervisorName: cert.supervisorName,
+        issueDate: cert.issueDate,
+        grade: cert.grade,
+        verificationCode: cert.verificationCode,
+        showSeal: true,
+        themeId: cert.themeId,
+      },
+      2
+    );
     downloadCanvasAsPng(tempCanvas, `شهادة_${cert.studentName}_${cert.verificationCode}`);
   };
 

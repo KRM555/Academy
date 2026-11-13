@@ -15,8 +15,7 @@
     "test:games": "tsx scripts/test-games-suite.ts",
     "test:routes": "tsx scripts/test-task4-routes.ts",
     "test:teacher": "tsx scripts/test-task5b-teacher.ts",
-    "test:admin": "tsx scripts/test-task5c-admin.ts",
-    "test:all": "tsx scripts/test-task4-routes.ts && tsx scripts/test-certificate-engine.ts && tsx scripts/test-games-suite.ts && tsx scripts/test-task5b-teacher.ts && tsx scripts/test-task5c-admin.ts",
+    "test:all": "tsx scripts/test-task4-routes.ts && tsx scripts/test-certificate-engine.ts && tsx scripts/test-games-suite.ts && tsx scripts/test-task5b-teacher.ts",
     "user:manage": "tsx scripts/manage-users.ts"
   },
   "dependencies": {

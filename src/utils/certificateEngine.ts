@@ -85,11 +85,7 @@ export const CERTIFICATE_THEMES: Record<string, CertificateTheme> = {
 /**
  * Generate a deterministic & verifiable certificate serial code
  */
-export function generateVerificationCode(
-  studentName: string,
-  date: string = new Date().toISOString().split('T')[0],
-  achievement: string = ''
-): string {
+export function generateVerificationCode(studentName: string, date: string, achievement: string): string {
   const cleanName = (studentName || 'Student').trim().replace(/\s+/g, '');
   let hash = 0;
   const seed = `${cleanName}-${date}-${achievement}`;
@@ -468,9 +464,8 @@ export function renderCertificateToCanvas(
 
   ctx.textAlign = 'center';
   ctx.font = `400 ${11 * exportScale}px 'Tajawal', sans-serif`;
+  ctx.fillText('تَصْدُرُ هَذِهِ الشَّهَادَةُ آلِيّاً عَبْرَ بَوَّابَةِ التَّعَلُّمِ الذَّكِيَّةِ لِأَكَادِيمِيَّةِ نُورٍ وَبَيَانٍ', w / 2, footerY);
 }
-
-export const renderQuranCertificateToCanvas = renderCertificateToCanvas;
 
 /**
  * Trigger browser file download of high-resolution Canvas PNG
